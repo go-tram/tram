@@ -121,8 +121,10 @@ jobs:
       - name: Render the manifests
         run: |
           sed -i "s/^    newTag: latest$/    newTag: ${VERSION}/" manifests/tram-manager/kustomization.yaml
+          sed -i "s|--engine-image=${IMAGE}:latest$|--engine-image=${IMAGE}:${VERSION}|" manifests/tram-manager/deployment.yaml
           kubectl kustomize manifests/ > dist/tram.yaml
           grep -q "image: ${IMAGE}:${VERSION}$" dist/tram.yaml
+          grep -q -- "--engine-image=${IMAGE}:${VERSION}$" dist/tram.yaml
 
       - name: Push the chart
         env:

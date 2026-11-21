@@ -127,7 +127,14 @@ tasks:
         --set serviceAccount.create=false --set serviceAccount.name=tram
         --set podLabels.team=observability --set podAnnotations.example=yes
         --set 'tolerations[0].operator=Exists'
+        --set manager.engineImage=registry.example.com/tram:dev
         | kubeconform {{.KUBECONFORM_ARGS}}
+      # Without CRDs and the disruption budget; the PodMonitor needs the
+      # Prometheus operator's schema, which kubeconform lacks.
+      - >-
+        helm template tram charts/tram --namespace tram-system
+        --set crds.install=false --set replicaCount=1 --set engineMetrics.podMonitor.enabled=true
+        | kubeconform {{.KUBECONFORM_ARGS}} -skip PodMonitor
 
   fmt:
     desc: Format the code with the formatters configured for golangci-lint (goimports, golines)

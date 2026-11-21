@@ -40,6 +40,7 @@ spec:
             - manager
             - --log-level={{ .Values.manager.logLevel }}
             - --leader-elect={{ .Values.manager.leaderElect }}
+            - --engine-image={{ default (include "tram.image" .) .Values.manager.engineImage }}
             {{- with .Values.manager.watchNamespaces }}
             - --watch-namespace={{ join "," . }}
             {{- end }}
