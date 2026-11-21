@@ -1243,7 +1243,7 @@
 <ol>
 <li>Install the custom resource definition:</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>internal/adapters/k8scrd/config/crd/bases/io.tram.core_streams.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>manifests/crds/io.tram.core_streams.yaml
 </code></pre></div>
 <ol>
 <li>Start TRAM with the operator enabled:</li>
@@ -1256,7 +1256,7 @@
 </ol>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/k8s/examples/otlp_basic.yaml
 </code></pre></div>
-<p>When TRAM runs in a cluster, its service account needs the permissions in <code>config/rbac/role.yaml</code> (a <code>ClusterRole</code> named <code>manager-role</code>), bound with a <code>ClusterRoleBinding</code>. With <code>--watch-namespace</code>, a <code>RoleBinding</code> to that <code>ClusterRole</code> in each watched namespace is enough. The role includes reading <code>Secret</code> and <code>ConfigMap</code> resources, for <a href="#secrets">references to secrets</a> and <a href="#config-maps">config maps</a>.</p>
+<p>When TRAM runs in a cluster, its service account needs the permissions in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests/tram-manager/rbac/engine/role.yaml"><code>manifests/tram-manager/rbac/engine/role.yaml</code></a> (a <code>ClusterRole</code> named <code>manager-role</code>), bound with a <code>ClusterRoleBinding</code>. With <code>--watch-namespace</code>, a <code>RoleBinding</code> to that <code>ClusterRole</code> in each watched namespace is enough. The role includes reading <code>Secret</code> and <code>ConfigMap</code> resources, for <a href="#secrets">references to secrets</a> and <a href="#config-maps">config maps</a>.</p>
 <h2 id="selecting-streams">Selecting Streams<a class="headerlink" href="#selecting-streams" title="Permanent link">&para;</a></h2>
 <p>By default every TRAM instance with the operator enabled runs every <code>Stream</code> resource in the cluster. Two flags limit an instance to some of them; when both are set, a resource has to match both:</p>
 <table>
@@ -1345,7 +1345,7 @@
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-hub-mapper</span>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
-<p><code>examples/k8s/manager.yaml</code> deploys the manager, and <code>examples/k8s/examples/</code> holds an Engine and Streams that run on it.</p>
+<p>The Helm chart <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram"><code>charts/tram</code></a> or the kustomization in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a> deploys the manager with the CRDs and roles, and <code>examples/k8s/examples/</code> holds an Engine and Streams that run on it.</p>
 <h3 id="the-manager">The Manager<a class="headerlink" href="#the-manager" title="Permanent link">&para;</a></h3>
 <p><code>tram manager</code> runs no streams. It runs one Deployment or StatefulSet per <code>Engine</code>, and it labels every <code>Stream</code> <code>engine.tram.io/&lt;name&gt;</code> (with an empty value) for each engine its <code>spec.engineRefs</code> name; the instances of an engine select the key, e.g. <code>kubectl get streams -l engine.tram.io/engine-1</code>. Run it once per cluster, or as several replicas, of which one at a time works:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./tram<span class="w"> </span>manager<span class="w"> </span>--engine-image<span class="w"> </span>registry.example.com/tram:1.14.0
@@ -1362,12 +1362,12 @@
 <tbody>
 <tr>
 <td><code>tram-manager</code></td>
-<td><code>config/rbac/manager/role.yaml</code></td>
+<td><code>manifests/tram-manager/rbac/manager/role.yaml</code></td>
 <td>The manager's service account, with a <code>ClusterRoleBinding</code> (a <code>RoleBinding</code> per namespace with <code>--watch-namespace</code>). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and <code>bind</code> on <code>manager-role</code></td>
 </tr>
 <tr>
 <td><code>manager-role</code></td>
-<td><code>config/rbac/role.yaml</code></td>
+<td><code>manifests/tram-manager/rbac/engine/role.yaml</code></td>
 <td>Each Engine's service account, by the manager, in the Engine's namespace</td>
 </tr>
 </tbody>
@@ -1540,14 +1540,6 @@
 <td>The controllers of <code>tram manager</code>: <code>engine_controller.go</code> runs Engines, <code>resources.go</code> builds their resources, <code>stream_controller.go</code> derives engine labels and <code>status.engines</code>; with their RBAC markers</td>
 </tr>
 <tr>
-<td><code>config/crd/bases/</code>, <code>config/rbac/</code></td>
-<td>Generated CRD and RBAC manifests</td>
-</tr>
-<tr>
-<td><code>config/rbac/manager/</code></td>
-<td>Generated RBAC of <code>tram manager</code></td>
-</tr>
-<tr>
 <td><code>operator.go</code></td>
 <td>Starts the controller manager inside TRAM</td>
 </tr>
@@ -1557,7 +1549,7 @@
 </tr>
 </tbody>
 </table>
-<p>After changing types or markers, regenerate the deepcopy code and the manifests with <a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> v0.22.0:</p>
+<p>After changing types or markers, regenerate the deepcopy code and the manifests with <a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> v0.22.0. They write the CRDs to <code>manifests/crds/</code> and the roles to <code>manifests/tram-manager/rbac/</code> at the repository root, and the same files to the templates of the Helm chart <code>charts/tram</code> (<code>templates/crds/</code> and <code>templates/tram-manager/rbac/</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>go<span class="w"> </span>generate<span class="w"> </span>./internal/adapters/k8scrd/...
 </code></pre></div>
 
