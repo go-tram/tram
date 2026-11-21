@@ -59,6 +59,11 @@ type StreamReconciler struct {
 	// label is just an index for the API server's filter: a label set by hand
 	// runs nothing.
 	Engine string
+	// HasDataDir tells whether the instance has a data directory for buffers.
+	// Without one, Streams with a buffer sink or source cannot run and are
+	// skipped, e.g. on an Engine without storage, while drain Jobs deliver
+	// its volumes.
+	HasDataDir bool
 	// Drain, for `tram drain`, runs only the Streams that read from a buffer,
 	// so they deliver what the buffer files of a volume hold, and treats all
 	// others as suspended: nothing writes to the volume any more.
@@ -89,7 +94,7 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	desired, err := toDomain(name, stream)
 	if err != nil {
-		return ctrl.Result{}, errors.Join(r.setActive(ctx, &stream, false), reconcile.TerminalError(err))
+		return ctrl.Result{}, errors.Join(r.setMounted(ctx, &stream, false), reconcile.TerminalError(err))
 	}
 
 	resolved, refersToValues, err := resolveRefs(ctx, r.references(), stream.Namespace, *desired)
@@ -97,7 +102,7 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		// A missing secret or config map, or config maps that disagree, are
 		// retried, and creating or changing them reconciles the stream as
 		// well.
-		return ctrl.Result{}, errors.Join(r.setActive(ctx, &stream, false), resolveError(err))
+		return ctrl.Result{}, errors.Join(r.setMounted(ctx, &stream, false), resolveError(err))
 	}
 
 	if r.Drain {
@@ -108,6 +113,12 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		// delivering what the queues hold is the point of the drain.
 		desired.Suspended = false
 		resolved.Suspended = false
+	}
+	if !r.HasDataDir && UsesBuffer(*desired) {
+		// Not an error to retry: the Stream can run only once the instance
+		// has storage, which comes with a new pod.
+		log.Info("Not running Stream with a buffer: the instance has no data directory", "stream", name)
+		return ctrl.Result{}, errors.Join(r.deleteFromCore(ctx, name), r.setMounted(ctx, &stream, false))
 	}
 
 	current, err := r.Core.GetStream(ctx, name)
@@ -125,13 +136,13 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		_, err = r.Core.UpsertStream(ctx, *desired)
 	}
 	if err != nil {
-		return ctrl.Result{}, errors.Join(r.setActive(ctx, &stream, false), fmt.Errorf("upsert into core: %w", err))
+		return ctrl.Result{}, errors.Join(r.setMounted(ctx, &stream, false), fmt.Errorf("upsert into core: %w", err))
 	}
 	if changed {
 		log.Info("Upserted Stream into core", "stream", name, "generation", stream.Generation)
 	}
 
-	return ctrl.Result{}, r.setActive(ctx, &stream, true)
+	return ctrl.Result{}, r.setMounted(ctx, &stream, true)
 }
 
 // BufferType is the type of the buffer source and sink, which keep events in
@@ -141,6 +152,20 @@ const BufferType = "buffer"
 // ReadsBuffer reports whether a stream's source reads from a buffer.
 func ReadsBuffer(spec domain.StreamSpec) bool {
 	return spec.Source.Type == BufferType
+}
+
+// UsesBuffer reports whether a stream reads from or writes to a buffer, so
+// it needs a data directory.
+func UsesBuffer(spec domain.StreamSpec) bool {
+	if ReadsBuffer(spec) {
+		return true
+	}
+	for _, sink := range spec.Sinks {
+		if sink.Type == BufferType {
+			return true
+		}
+	}
+	return false
 }
 
 // deleteFromCore removes a Stream that no longer exists from the core.
@@ -184,17 +209,17 @@ func (r *StreamReconciler) references() client.Reader {
 	return r.Client
 }
 
-func (r *StreamReconciler) setActive(ctx context.Context, stream *tramv1.Stream, active bool) error {
+func (r *StreamReconciler) setMounted(ctx context.Context, stream *tramv1.Stream, mounted bool) error {
 	if r.Drain {
-		// Draining is no instance; status.active belongs to the instances.
+		// Draining is no instance; status.mounted belongs to the instances.
 		return nil
 	}
-	if stream.Status.Active == active {
+	if stream.Status.Mounted == mounted {
 		return nil
 	}
 
 	patch := client.MergeFrom(stream.DeepCopy())
-	stream.Status.Active = active
+	stream.Status.Mounted = mounted
 
 	if err := r.Status().Patch(ctx, stream, patch); err != nil {
 		return fmt.Errorf("patch status: %w", err)

@@ -442,7 +442,7 @@ Or properly configure certificates in your cluster.
 
 ### Authentication Issues
 
-Verify that the secrets a Stream refers to exist; a missing secret or key keeps the stream from starting and sets `status.active` to `false`:
+Verify that the secrets a Stream refers to exist; a missing secret or key keeps the stream from starting and sets `status.mounted` to `false`:
 ```bash
 kubectl get secret otel-secrets -o jsonpath='{.data}'
 kubectl get stream my-stream -o jsonpath='{.status}'

@@ -126,6 +126,7 @@ func runServer(ctx context.Context, logger *slog.Logger, opts serverOptions) (er
 				Kubeconfig: opts.kubeconfig,
 				Namespaces: opts.watchNamespaces,
 				Engine:     opts.engine,
+				HasDataDir: opts.dataDir != "",
 			}, logger)
 			if opErr != nil {
 				return opErr

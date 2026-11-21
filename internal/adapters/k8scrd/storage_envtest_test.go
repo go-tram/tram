@@ -13,6 +13,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	eventsv1 "k8s.io/api/events/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -231,6 +232,101 @@ func TestEngineMigratesBackAndDrainsVolumes(t *testing.T) {
 		assert.Equal(collect, int32(1), e.Status.DrainingVolumes)
 		assert.Equal(collect, metav1.ConditionTrue, condition(e, tramv1alpha1.ConditionDraining).Status)
 	})
+
+	// The finished Job stays for its logs, and the Engine tells what happened.
+	var kept batchv1.Job
+	require.NoError(t, c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: job.Name}, &kept))
+	assert.True(t, kept.DeletionTimestamp.IsZero(), "the drain Job is kept for its logs")
+	require.NotNil(t, kept.Spec.TTLSecondsAfterFinished)
+	assert.Equal(t, int32(3600), *kept.Spec.TTLSecondsAfterFinished, "Kubernetes removes it after an hour")
+	c.requireEvent(t, ns, "VolumeDraining")
+	c.requireEvent(t, ns, "VolumeDrained")
+
+	// A new volume of the same instance gets a Job of its own: the kept Job
+	// belongs to the volume it drained.
+	c.forgetClaim(t, ns, 0)
+	c.createClaim(t, ns, 0)
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var all batchv1.JobList
+		assert.NoError(collect, c.admin.List(t.Context(), &all, client.InNamespace(ns),
+			client.MatchingLabels{"tram.io/drain": storageEngine, "tram.io/ordinal": "0"}))
+		assert.Len(collect, all.Items, 2, "the kept Job and one for the new volume")
+	}, eventuallyTimeout, pollInterval)
+	assert.False(t, c.claimDeleted(t, ns, 0), "the new volume is not mistaken for drained")
+}
+
+// Adding storage back within the time to live of a kept drain Job deletes
+// the Job: its finished pod holds the deleted volume, whose name the new
+// instance needs.
+func TestStorageAddedBackReleasesKeptDrainJob(t *testing.T) {
+	t.Parallel()
+	c, ns := startStorageCluster(t)
+	c.createEngine(t, ns, storageEngine, tramv1alpha1.EngineSpec{Storage: storageSpec()})
+	c.requireOwned(t, ns, storageEngine, &appsv1.StatefulSet{})
+	c.createClaim(t, ns, 0)
+
+	c.updateEngine(t, ns, storageEngine, func(spec *tramv1alpha1.EngineSpec) { spec.Storage = nil })
+	var deployment appsv1.Deployment
+	c.makeReady(t, ns, &deployment)
+	c.requireGone(t, ns, storageEngine, &appsv1.StatefulSet{})
+	var job batchv1.Job
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		jobs := c.drainJobs(t, collect, ns)
+		if assert.Contains(collect, jobs, "0") {
+			job = jobs["0"]
+		}
+	}, eventuallyTimeout, pollInterval)
+	c.completeJob(t, job)
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		assert.True(collect, c.claimDeleted(t, ns, 0), "a drained volume is deleted")
+	}, eventuallyTimeout, pollInterval)
+	key := types.NamespacedName{Namespace: ns, Name: job.Name}
+	require.NoError(t, c.admin.Get(t.Context(), key, &job), "the drain Job is kept while no instance needs the volume")
+
+	c.updateEngine(t, ns, storageEngine, func(spec *tramv1alpha1.EngineSpec) { spec.Storage = storageSpec() })
+	c.requireOwned(t, ns, storageEngine, &appsv1.StatefulSet{})
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var kept batchv1.Job
+		err := c.admin.Get(t.Context(), key, &kept)
+		assert.True(collect, apierrors.IsNotFound(err) || !kept.DeletionTimestamp.IsZero(),
+			"the kept Job goes, so the volume can")
+	}, eventuallyTimeout, pollInterval)
+	c.requireEvent(t, ns, "VolumeReleased")
+}
+
+// requireEvent waits for an event with reason on the Engine.
+func (c *cluster) requireEvent(t *testing.T, ns, reason string) {
+	t.Helper()
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var list eventsv1.EventList
+		if !assert.NoError(collect, c.admin.List(t.Context(), &list, client.InNamespace(ns))) {
+			return
+		}
+		for _, e := range list.Items {
+			if e.Reason == reason && e.Regarding.Kind == "Engine" && e.Regarding.Name == storageEngine {
+				return
+			}
+		}
+		collect.Errorf("no event %s on the Engine", reason)
+	}, eventuallyTimeout, pollInterval)
+}
+
+// forgetClaim removes a deleted claim for good, as the protection controller
+// envtest lacks would once no pod uses it.
+func (c *cluster) forgetClaim(t *testing.T, ns string, ordinal int) {
+	t.Helper()
+	var claim corev1.PersistentVolumeClaim
+	key := types.NamespacedName{
+		Namespace: ns,
+		Name:      "data-tram-engine-" + storageEngine + "-" + string(rune('0'+ordinal)),
+	}
+	require.NoError(t, c.admin.Get(t.Context(), key, &claim))
+	base := claim.DeepCopy()
+	claim.Finalizers = nil
+	require.NoError(t, c.admin.Patch(t.Context(), &claim, client.MergeFrom(base)))
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		assert.True(collect, apierrors.IsNotFound(c.admin.Get(t.Context(), key, &claim)))
+	}, eventuallyTimeout, pollInterval)
 }
 
 // A volume left by scaling down is drained; scaling up again hands it back
@@ -407,17 +503,39 @@ func TestServiceMovesToInstancesWithStorage(t *testing.T) {
 	c.requireGone(t, ns, storageEngine, &appsv1.Deployment{})
 }
 
-// Removing storage waits while Streams with a buffer run on the Engine:
-// they could not run on a Deployment.
-func TestStorageStaysWhileBufferStreamsNeedIt(t *testing.T) {
+// createReaderStream creates a Stream "reader" that delivers the buffer queue
+// "s" to the debug sink.
+func (c *cluster) createReaderStream(t *testing.T, ns string, engines ...string) {
+	t.Helper()
+	stream := &tramv1.Stream{
+		Namespace: ns, Name: "reader",
+		Spec: tramv1.StreamSpec{
+			EngineRefs: engineRefs(engines...),
+			Source: tramv1.Spec{
+				Name: "outbox", Type: "buffer",
+				Spec: &runtime.RawExtension{Raw: []byte(`{"driver":"sqlite","sqlite":{},"queue":"s"}`)},
+			},
+			Sinks: []tramv1.ReceiverSpec{{Name: "out", Type: "debug", From: "outbox"}},
+		},
+	}
+	require.NoError(t, c.admin.Create(t.Context(), stream))
+}
+
+// Removing storage waits while Streams write to buffers: their writes would
+// land on volumes that go away. Once the writers are suspended, the Engine
+// moves to a Deployment while the reading Stream stays, so the drain Jobs
+// deliver the volumes through it.
+func TestRemovingStorageWaitsForActiveBufferWriters(t *testing.T) {
 	t.Parallel()
 	c, ns := startStorageCluster(t)
 	c.createEngine(t, ns, storageEngine, tramv1alpha1.EngineSpec{Storage: storageSpec()})
 	var set appsv1.StatefulSet
 	c.makeReady(t, ns, &set)
+	c.createClaim(t, ns, 0)
 	c.createBufferStream(t, ns, "s", storageEngine)
+	c.createReaderStream(t, ns, storageEngine)
 	c.requireEngine(t, ns, storageEngine, func(collect *assert.CollectT, e *tramv1alpha1.Engine) {
-		assert.Equal(collect, int32(1), e.Status.Streams)
+		assert.Equal(collect, int32(2), e.Status.Streams)
 	})
 
 	c.updateEngine(t, ns, storageEngine, func(spec *tramv1alpha1.EngineSpec) { spec.Storage = nil })
@@ -425,12 +543,24 @@ func TestStorageStaysWhileBufferStreamsNeedIt(t *testing.T) {
 		reconciled := condition(e, tramv1alpha1.ConditionReconciled)
 		assert.Equal(collect, metav1.ConditionFalse, reconciled.Status)
 		assert.Equal(collect, "StorageInUse", reconciled.Reason)
+		assert.Contains(collect, reconciled.Message, "s", "names the writing Stream")
+		assert.NotContains(collect, reconciled.Message, "reader", "the reading Stream may stay")
 	})
 	assert.True(t, apierrors.IsNotFound(c.admin.Get(t.Context(),
 		types.NamespacedName{Namespace: ns, Name: "tram-engine-" + storageEngine}, &appsv1.Deployment{})),
-		"no Deployment is started while the Streams need storage")
+		"no Deployment is started while a Stream writes to a buffer")
 
-	c.setEngineRefs(t, ns, "s")
+	// The author stops writing; the reader stays.
+	var writer tramv1.Stream
+	require.NoError(t, c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: "s"}, &writer))
+	base := writer.DeepCopy()
+	writer.Spec.Suspended = new(true)
+	require.NoError(t, c.admin.Patch(t.Context(), &writer, client.MergeFrom(base)))
+
 	var deployment appsv1.Deployment
-	c.requireOwned(t, ns, storageEngine, &deployment)
+	c.makeReady(t, ns, &deployment)
+	c.requireGone(t, ns, storageEngine, &appsv1.StatefulSet{})
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		assert.Contains(collect, c.drainJobs(t, collect, ns), "0", "the volume is drained through the reader")
+	}, eventuallyTimeout, pollInterval)
 }

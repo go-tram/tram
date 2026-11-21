@@ -1051,7 +1051,7 @@ stream buffer-to-otlp:  Buffer Source (queue: outbox) ──▶ batch ──▶ 
 - **Data directory.** Queues live in `tram server --data-dir`, which has to be on a volume that outlives the process. Without it, streams with a buffer sink or source fail to build. On Kubernetes, an [Engine with storage](internal/adapters/k8scrd/README.md#storage-for-buffers) gives every instance a volume and sets it
 - **One process per queue.** A queue file is locked by the instance that uses it; another process cannot open it
 - **Retention.** The writing sink sets `max_age`, which the queue keeps. Deleting or suspending the reading stream discards nothing: the events wait until a reader comes back or they expire, like messages of a broker without a consumer
-- **Draining a buffer.** [Suspend](#suspended-streams) the writing stream and keep the reading one running until the queue is empty. On Kubernetes, the volumes of instances that go are drained by Jobs, see [Storage for buffers](internal/adapters/k8scrd/README.md#storage-for-buffers)
+- **Draining a buffer.** [Suspend](#suspended-streams) the writing stream and keep the reading one running until the queue is empty. On Kubernetes, the volumes of instances that go are drained by Jobs through the reading streams, also suspended ones; to remove an Engine's storage, suspend the writing streams first, see [Removing storage](internal/adapters/k8scrd/README.md#removing-storage)
 - **Throughput.** Every commit is synced to disk, so the latency of the volume limits the throughput. Size the volume above `max_bytes`, which counts the payloads only, for the write-ahead log and space not yet returned to the file system
 
 ### Suspended Streams
