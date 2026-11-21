@@ -110,20 +110,25 @@ func TestStreamUpdatesDoNotKeepOldData(t *testing.T) {
 	c := core.New(context.Background(), discard(),
 		source.NewFactory(discard()), stage.NewFactory(discard()), sink.NewFactory(discard()))
 	defer func() { require.NoError(t, c.Close()) }()
-	ports := []int{freePort(t), freePort(t)}
+	ports := []int{0, 0}
 
 	cycle := func(i int) {
 		// A new port rebuilds the whole stream, the second update swaps
 		// only its stages and sinks.
-		port := ports[i%2]
-		spec := domain.StreamSpec{
-			Name:   "e2e",
-			Source: domain.SourceSpec{Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)}},
-			Stages: []domain.StageSpec{batchStage(50, "5ms")},
-			Sinks:  []domain.SinkSpec{{Name: "out", Type: "noop", From: "batch"}},
-		}
-		_, upsertErr := c.UpsertStream(context.Background(), spec)
-		require.NoError(t, upsertErr)
+		// The port is free between the cycles that use it, so another test
+		// may take it meanwhile; then the cycle moves to a new one.
+		var spec domain.StreamSpec
+		port := onFreePort(t, ports[i%2], func(port int) error {
+			spec = domain.StreamSpec{
+				Name:   "e2e",
+				Source: domain.SourceSpec{Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)}},
+				Stages: []domain.StageSpec{batchStage(50, "5ms")},
+				Sinks:  []domain.SinkSpec{{Name: "out", Type: "noop", From: "batch"}},
+			}
+			_, upsertErr := c.UpsertStream(context.Background(), spec)
+			return upsertErr
+		})
+		ports[i%2] = port
 		for range requestsPerCycle {
 			resp, postErr := http.Post(fmt.Sprintf("http://127.0.0.1:%d/v1/logs", port),
 				"application/x-protobuf", bytes.NewReader(body))
@@ -133,7 +138,7 @@ func TestStreamUpdatesDoNotKeepOldData(t *testing.T) {
 		}
 		spec.Stages = append(spec.Stages, customerFilter(customerA, "batch", isCustomerA))
 		spec.Sinks = []domain.SinkSpec{{Name: "filtered", Type: "noop", From: customerA}}
-		_, upsertErr = c.UpsertStream(context.Background(), spec)
+		_, upsertErr := c.UpsertStream(context.Background(), spec)
 		require.NoError(t, upsertErr)
 	}
 

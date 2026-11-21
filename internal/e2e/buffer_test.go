@@ -38,13 +38,11 @@ type bufferedPipeline struct {
 func newBufferedPipeline(t *testing.T, readerSink domain.SinkSpec) *bufferedPipeline {
 	t.Helper()
 	dataDir := t.TempDir()
-	port := freePort(t)
 	p := &bufferedPipeline{
 		sinks: &captureFactory{
 			real:  sink.NewFactory(discard(), sink.WithDataDir(dataDir)),
 			sinks: map[string]*captureSink{},
 		},
-		baseURL: fmt.Sprintf("http://127.0.0.1:%d", port),
 	}
 	p.core = core.New(
 		context.Background(),
@@ -55,23 +53,26 @@ func newBufferedPipeline(t *testing.T, readerSink domain.SinkSpec) *bufferedPipe
 	)
 	t.Cleanup(func() { _ = p.core.Close() })
 
-	_, err := p.core.UpsertStream(context.Background(), domain.StreamSpec{
-		Name: "writer",
-		Source: domain.SourceSpec{
-			Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)},
-		},
-		Sinks: []domain.SinkSpec{{
-			Name: "outbox", Type: "buffer", From: "in",
-			Spec: map[string]any{
-				"driver": "sqlite", "sqlite": map[string]any{},
-				"queue": "outbox", "max_age": "1h",
+	port := onFreePort(t, 0, func(port int) error {
+		_, err := p.core.UpsertStream(context.Background(), domain.StreamSpec{
+			Name: "writer",
+			Source: domain.SourceSpec{
+				Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)},
 			},
-		}},
+			Sinks: []domain.SinkSpec{{
+				Name: "outbox", Type: "buffer", From: "in",
+				Spec: map[string]any{
+					"driver": "sqlite", "sqlite": map[string]any{},
+					"queue": "outbox", "max_age": "1h",
+				},
+			}},
+		})
+		return err
 	})
-	require.NoError(t, err)
+	p.baseURL = fmt.Sprintf("http://127.0.0.1:%d", port)
 
 	readerSink.From = "outbox"
-	_, err = p.core.UpsertStream(context.Background(), domain.StreamSpec{
+	_, err := p.core.UpsertStream(context.Background(), domain.StreamSpec{
 		Name: "reader",
 		Source: domain.SourceSpec{
 			Name: "outbox", Type: "buffer",
