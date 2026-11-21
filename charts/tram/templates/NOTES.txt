@@ -4,9 +4,9 @@ Check that it runs:
 
   kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "tram.fullname" . }}
 
-{{- if .Values.manager.watchNamespaces }}
+{{- with (include "tram.watchNamespaces" . | fromJsonArray) }}
 
-It handles the Engines and Streams of: {{ join ", " .Values.manager.watchNamespaces }}.
+It handles the Engines and Streams of: {{ join ", " . }}.
 {{- else }}
 
 It handles the Engines and Streams of every namespace.

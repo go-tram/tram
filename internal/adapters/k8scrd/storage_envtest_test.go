@@ -255,6 +255,45 @@ func TestEngineMigratesBackAndDrainsVolumes(t *testing.T) {
 	assert.False(t, c.claimDeleted(t, ns, 0), "the new volume is not mistaken for drained")
 }
 
+// Adding storage back within the time to live of a kept drain Job deletes
+// the Job: its finished pod holds the deleted volume, whose name the new
+// instance needs.
+func TestStorageAddedBackReleasesKeptDrainJob(t *testing.T) {
+	t.Parallel()
+	c, ns := startStorageCluster(t)
+	c.createEngine(t, ns, storageEngine, tramv1alpha1.EngineSpec{Storage: storageSpec()})
+	c.requireOwned(t, ns, storageEngine, &appsv1.StatefulSet{})
+	c.createClaim(t, ns, 0)
+
+	c.updateEngine(t, ns, storageEngine, func(spec *tramv1alpha1.EngineSpec) { spec.Storage = nil })
+	var deployment appsv1.Deployment
+	c.makeReady(t, ns, &deployment)
+	c.requireGone(t, ns, storageEngine, &appsv1.StatefulSet{})
+	var job batchv1.Job
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		jobs := c.drainJobs(t, collect, ns)
+		if assert.Contains(collect, jobs, "0") {
+			job = jobs["0"]
+		}
+	}, eventuallyTimeout, pollInterval)
+	c.completeJob(t, job)
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		assert.True(collect, c.claimDeleted(t, ns, 0), "a drained volume is deleted")
+	}, eventuallyTimeout, pollInterval)
+	key := types.NamespacedName{Namespace: ns, Name: job.Name}
+	require.NoError(t, c.admin.Get(t.Context(), key, &job), "the drain Job is kept while no instance needs the volume")
+
+	c.updateEngine(t, ns, storageEngine, func(spec *tramv1alpha1.EngineSpec) { spec.Storage = storageSpec() })
+	c.requireOwned(t, ns, storageEngine, &appsv1.StatefulSet{})
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var kept batchv1.Job
+		err := c.admin.Get(t.Context(), key, &kept)
+		assert.True(collect, apierrors.IsNotFound(err) || !kept.DeletionTimestamp.IsZero(),
+			"the kept Job goes, so the volume can")
+	}, eventuallyTimeout, pollInterval)
+	c.requireEvent(t, ns, "VolumeReleased")
+}
+
 // requireEvent waits for an event with reason on the Engine.
 func (c *cluster) requireEvent(t *testing.T, ns, reason string) {
 	t.Helper()

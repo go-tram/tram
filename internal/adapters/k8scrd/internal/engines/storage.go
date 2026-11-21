@@ -62,6 +62,9 @@ type engineState struct {
 	deployment  *appsv1.Deployment
 	statefulSet *appsv1.StatefulSet
 	claims      []corev1.PersistentVolumeClaim
+	// deletedClaims are the volume claims being deleted; the finished pod of
+	// a drain Job kept for its logs holds its claim until the Job goes.
+	deletedClaims []corev1.PersistentVolumeClaim
 	// jobs are the drain Jobs by the ordinal of their volume, also finished
 	// ones kept for their logs.
 	jobs    map[int][]*batchv1.Job
@@ -94,8 +97,13 @@ func (r *EngineReconciler) load(ctx context.Context, engine *tramv1alpha1.Engine
 		return nil, fmt.Errorf("list volume claims: %w", err)
 	}
 	for _, claim := range claims.Items {
-		if _, ok := claimOrdinal(engine.Name, claim.Name); ok && claim.DeletionTimestamp.IsZero() {
+		if _, ok := claimOrdinal(engine.Name, claim.Name); !ok {
+			continue
+		}
+		if claim.DeletionTimestamp.IsZero() {
 			state.claims = append(state.claims, claim)
+		} else {
+			state.deletedClaims = append(state.deletedClaims, claim)
 		}
 	}
 
@@ -293,7 +301,36 @@ func (r *EngineReconciler) drain(
 	for i := range state.claims {
 		errs = append(errs, r.drainVolume(ctx, &pass, &state.claims[i]))
 	}
+	if !deleting {
+		for i := range state.deletedClaims {
+			errs = append(errs, r.releaseClaim(ctx, engine, state, &state.deletedClaims[i]))
+		}
+	}
 	return pass.result, errors.Join(errs...)
+}
+
+// releaseClaim deletes the drain Job kept for the logs of a deleted volume
+// once an instance needs a volume of the same name again, after storage was
+// added back or the Engine scaled up: the Job's finished pod keeps the old
+// claim from going, and with it the instance from starting, until the Job's
+// time to live ends.
+func (r *EngineReconciler) releaseClaim(
+	ctx context.Context,
+	engine *tramv1alpha1.Engine,
+	state *engineState,
+	claim *corev1.PersistentVolumeClaim,
+) error {
+	ordinal, _ := claimOrdinal(engine.Name, claim.Name)
+	job := state.drainJobFor(ordinal, claim)
+	if job == nil || !state.ownsVolume(engine, ordinal) {
+		return nil
+	}
+	logf.FromContext(ctx).Info("Deleting drain Job that holds a deleted volume an instance needs again",
+		"engine", client.ObjectKeyFromObject(engine), "claim", claim.Name, "job", job.Name)
+	r.event(engine, corev1.EventTypeNormal, "VolumeReleased", "DeleteDrainJob",
+		"Deleted drain Job %s early, with its logs: its pod held volume %s, which instance %d needs again",
+		job.Name, claim.Name, ordinal)
+	return r.deleteJob(ctx, job)
 }
 
 // drainPass is one round of drain over an Engine's volumes.
@@ -453,8 +490,9 @@ func (r *EngineReconciler) deleteJob(ctx context.Context, job *batchv1.Job) erro
 }
 
 // deleteClaim deletes a drained, expired or discarded volume. Its drain Job,
-// if any, stays for its logs until its time to live ends; its pod has
-// finished, so it does not hold the volume.
+// if any, stays for its logs until its time to live ends. Its finished pod
+// still holds the claim, so the volume goes with the Job, or earlier once an
+// instance needs it again; see releaseClaim.
 func (r *EngineReconciler) deleteClaim(ctx context.Context, claim *corev1.PersistentVolumeClaim) error {
 	if err := r.Delete(ctx, claim); client.IgnoreNotFound(err) != nil {
 		return fmt.Errorf("delete volume claim: %w", err)

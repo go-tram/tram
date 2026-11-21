@@ -11,9 +11,9 @@ metadata:
     {{- end }}
 spec:
   namespaceSelector:
-    {{- if .Values.manager.watchNamespaces }}
+    {{- with (include "tram.watchNamespaces" . | fromJsonArray) }}
     matchNames:
-      {{- toYaml .Values.manager.watchNamespaces | nindent 6 }}
+      {{- toYaml . | nindent 6 }}
     {{- else }}
     any: true
     {{- end }}

@@ -41,7 +41,7 @@ spec:
             - --log-level={{ .Values.manager.logLevel }}
             - --leader-elect={{ .Values.manager.leaderElect }}
             - --engine-image={{ default (include "tram.image" .) .Values.manager.engineImage }}
-            {{- with .Values.manager.watchNamespaces }}
+            {{- with (include "tram.watchNamespaces" . | fromJsonArray) }}
             - --watch-namespace={{ join "," . }}
             {{- end }}
             {{- with .Values.manager.extraArgs }}

@@ -48,3 +48,12 @@ app.kubernetes.io/component: manager
 {{- define "tram.image" -}}
 {{- printf "%s:%s" .Values.image.repository (default .Chart.AppVersion .Values.image.tag) }}
 {{- end }}
+
+{{/*
+The namespaces of manager.watchNamespaces as a JSON list, without empty
+entries: `helm --set 'manager.watchNamespaces={}'` sets [""], which means all
+namespaces like the empty list. Use it with `include ... | fromJsonArray`.
+*/}}
+{{- define "tram.watchNamespaces" -}}
+{{- compact (default (list) .Values.manager.watchNamespaces) | toJson -}}
+{{- end }}

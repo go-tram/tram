@@ -3,7 +3,8 @@ Binds the manager's role, rbac/manager/role.yaml, to its service account:
 cluster-wide, or with manager.watchNamespaces only in those namespaces and the
 release's, where the leader election lease is.
 */}}
-{{- if not .Values.manager.watchNamespaces }}
+{{- $namespaces := (include "tram.watchNamespaces" . | fromJsonArray) }}
+{{- if not $namespaces }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -19,7 +20,7 @@ subjects:
     name: {{ include "tram.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- else }}
-{{- range append .Values.manager.watchNamespaces .Release.Namespace | uniq }}
+{{- range append $namespaces .Release.Namespace | uniq }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

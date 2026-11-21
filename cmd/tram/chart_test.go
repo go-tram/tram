@@ -148,3 +148,26 @@ func TestChartSetsEngineImage(t *testing.T) {
 	args = renderedManagerArgs(t, helm, []string{"--set", "manager.engineImage=registry.example.com/tram:dev"})
 	assert.Contains(t, args, "--engine-image=registry.example.com/tram:dev")
 }
+
+// TestChartTreatsEmptyWatchNamespacesAsAll checks the list Helm makes of
+// `--set 'manager.watchNamespaces={}'`, [""]: it means every namespace, so the
+// manager gets no --watch-namespace= and keeps its ClusterRoleBinding.
+func TestChartTreatsEmptyWatchNamespacesAsAll(t *testing.T) {
+	t.Parallel()
+	helm, err := exec.LookPath("helm")
+	if err != nil {
+		t.Skip("helm is not installed")
+	}
+	values := []string{"--set", "manager.watchNamespaces={}"}
+
+	for _, arg := range renderedManagerArgs(t, helm, values) {
+		assert.NotContains(t, arg, "--watch-namespace")
+	}
+
+	chart := filepath.Join("..", "..", "charts", "tram")
+	out, err := exec.CommandContext(t.Context(), helm,
+		append([]string{"template", "tram", chart, "--namespace", "tram-system"}, values...)...).Output()
+	require.NoError(t, err)
+	assert.Contains(t, string(out), "kind: ClusterRoleBinding")
+	assert.NotContains(t, string(out), "kind: RoleBinding")
+}
