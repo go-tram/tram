@@ -1,0 +1,20 @@
+apiVersion: v2
+name: tram
+description: >-
+  The Tram manager, which runs Tram Engines on Kubernetes as Deployments, with
+  the Engine and Stream CRDs.
+type: application
+# The release workflow publishes the chart with the version of the release
+# tag as both version and appVersion; these are the values of the repository,
+# which deploy the latest image.
+version: 0.0.0
+appVersion: latest
+home: https://github.com/GO-TRAM/TRAM
+sources:
+  - https://github.com/GO-TRAM/TRAM
+keywords:
+  - opentelemetry
+  - otlp
+  - telemetry
+  - pipeline
+  - operator

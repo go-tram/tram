@@ -37,7 +37,7 @@ const (
 	// for.
 	leaderElectionID = "manager.tram.io"
 	// DefaultEngineClusterRole is the role of a Tram instance with the
-	// operator enabled, from config/rbac/role.yaml.
+	// operator enabled, from manifests/tram-manager/rbac/engine/role.yaml.
 	DefaultEngineClusterRole = "manager-role"
 )
 

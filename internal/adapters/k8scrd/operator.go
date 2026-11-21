@@ -4,9 +4,14 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
-//go:generate controller-gen crd paths="./..." output:crd:dir=config/crd/bases
-//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=config/rbac
-//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=config/rbac/manager
+// The CRDs and roles go to manifests/ of the repository and, the same, to the
+// templates of the Helm chart in charts/tram.
+//go:generate controller-gen crd paths="./..." output:crd:dir=../../../manifests/crds
+//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../manifests/tram-manager/rbac/engine
+//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../manifests/tram-manager/rbac/manager
+//go:generate controller-gen crd paths="./..." output:crd:dir=../../../charts/tram/templates/crds
+//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/engine
+//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/manager
 
 package k8scrd
 

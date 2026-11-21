@@ -12,15 +12,22 @@ Every example runs on the Engine `demo` from [`examples/engine.yaml`](examples/e
 
 ### Install the Manager and the Engine
 
-From the repository root:
+From the repository root, with the Helm chart [`charts/tram`](../../charts/tram/), which installs the CRDs, the roles and the manager:
 
 ```bash
-# CRDs, and the roles of the Engines' instances and of the manager
-kubectl apply --server-side -f internal/adapters/k8scrd/config/crd/bases/
-kubectl apply -f internal/adapters/k8scrd/config/rbac/role.yaml -f internal/adapters/k8scrd/config/rbac/manager/role.yaml
+helm install tram charts/tram --namespace tram-system --create-namespace
 
-# The manager; replace the image tram:dev in the file with yours
-kubectl apply -f examples/k8s/manager.yaml
+# The Engine that runs the examples
+kubectl apply -f examples/k8s/examples/engine.yaml
+kubectl wait engine/demo --for=condition=Ready
+```
+
+Or without Helm, with the kustomization in [`manifests/`](../../manifests/): the CRDs in `manifests/crds/`, and the manager with its roles in `manifests/tram-manager/`, in the namespace `tram-system`. Apply it server-side, since the CRDs are too large for a client-side apply. From the repository it deploys the image `latest`; every [GitHub Release](https://github.com/GO-TRAM/TRAM/releases) has the same manifests with the release's image as `tram.yaml`:
+
+```bash
+kubectl apply --server-side -k manifests/
+# or a release
+kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/download/v0.0.20/tram.yaml
 
 # The Engine that runs the examples
 kubectl apply -f examples/k8s/examples/engine.yaml
@@ -43,7 +50,6 @@ kubectl apply -f examples/k8s/examples/
 
 ## Layout
 
-- [`manager.yaml`](manager.yaml): `tram manager`, which runs Engines as Deployments, as two replicas with leader election; see [Engines](../../internal/adapters/k8scrd/README.md#engines)
 - [`examples/engine.yaml`](examples/engine.yaml): the Engine `demo`, which runs every example
 - [`examples/`](examples/): the Stream examples below
 

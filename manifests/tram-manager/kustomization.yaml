@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - rbac/manager/role.yaml
+  - rbac/engine/role.yaml
+  - clusterrolebinding.yaml
+  - deployment.yaml
+# The release workflow sets the tag to the version of the release.
+images:
+  - name: ghcr.io/go-tram/tram
+    newTag: latest

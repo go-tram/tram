@@ -1,0 +1,79 @@
+# -- Replicas of the manager. With leader election, one works at a time and
+# another takes over when it stops.
+replicaCount: 2
+
+image:
+  # -- Image of the manager.
+  repository: ghcr.io/go-tram/tram
+  # -- Tag of the image; defaults to the chart's appVersion.
+  tag: ""
+  # -- Pull policy of the image.
+  pullPolicy: IfNotPresent
+
+# -- Secrets to pull the manager's image, e.g. [{name: ghcr}].
+imagePullSecrets: []
+
+# -- Overrides the chart name in the names of the resources.
+nameOverride: ""
+# -- Overrides the full name of the resources, release and chart name by default.
+fullnameOverride: ""
+
+manager:
+  # -- Namespaces whose Engines and Streams the manager handles; empty for all.
+  watchNamespaces: []
+  # -- Let only one replica work at a time. Leave it on with more than one replica.
+  leaderElect: true
+  # -- Log level: debug, info, warn or error.
+  logLevel: info
+  # -- More arguments for `tram manager`.
+  extraArgs: []
+  # -- Environment variables of the manager's container.
+  extraEnv: []
+
+serviceAccount:
+  # -- Create the manager's service account.
+  create: true
+  # -- Name of the service account; defaults to the full name.
+  name: ""
+  # -- Annotations of the service account.
+  annotations: {}
+
+# -- Annotations of the manager's pods.
+podAnnotations: {}
+# -- Labels of the manager's pods, besides the chart's.
+podLabels: {}
+
+# -- Security context of the manager's pods. The image's user, nonroot, is
+# 65532; runAsNonRoot needs it as a number.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Security context of the manager's container.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# -- Resources of the manager's container.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+# -- Priority class of the manager's pods.
+priorityClassName: ""
+# -- Node selector of the manager's pods.
+nodeSelector: {}
+# -- Tolerations of the manager's pods.
+tolerations: []
+# -- Affinity of the manager's pods.
+affinity: {}
+# -- Topology spread constraints of the manager's pods.
+topologySpreadConstraints: []

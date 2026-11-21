@@ -7,7 +7,7 @@ Lets TRAM run streams described by `Stream` custom resources (`io.tram.core/v1`)
 1. Install the custom resource definition:
 
    ```sh
-   kubectl apply -f internal/adapters/k8scrd/config/crd/bases/io.tram.core_streams.yaml
+   kubectl apply -f manifests/crds/io.tram.core_streams.yaml
    ```
 
 2. Start TRAM with the operator enabled:
@@ -24,7 +24,7 @@ Lets TRAM run streams described by `Stream` custom resources (`io.tram.core/v1`)
    kubectl apply -f examples/k8s/examples/otlp_basic.yaml
    ```
 
-When TRAM runs in a cluster, its service account needs the permissions in `config/rbac/role.yaml` (a `ClusterRole` named `manager-role`), bound with a `ClusterRoleBinding`. With `--watch-namespace`, a `RoleBinding` to that `ClusterRole` in each watched namespace is enough. The role includes reading `Secret` and `ConfigMap` resources, for [references to secrets](#secrets) and [config maps](#config-maps).
+When TRAM runs in a cluster, its service account needs the permissions in [`manifests/tram-manager/rbac/engine/role.yaml`](../../../manifests/tram-manager/rbac/engine/role.yaml) (a `ClusterRole` named `manager-role`), bound with a `ClusterRoleBinding`. With `--watch-namespace`, a `RoleBinding` to that `ClusterRole` in each watched namespace is enough. The role includes reading `Secret` and `ConfigMap` resources, for [references to secrets](#secrets) and [config maps](#config-maps).
 
 ## Selecting Streams
 
@@ -108,7 +108,7 @@ spec:
   source: ...
 ```
 
-`examples/k8s/manager.yaml` deploys the manager, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
+The Helm chart [`charts/tram`](../../../charts/tram/) or the kustomization in [`manifests/`](../../../manifests/) deploys the manager with the CRDs and roles, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
 
 ### The Manager
 
@@ -122,8 +122,8 @@ spec:
 
 | Role | File | Bound to |
 |------|------|----------|
-| `tram-manager` | `config/rbac/manager/role.yaml` | The manager's service account, with a `ClusterRoleBinding` (a `RoleBinding` per namespace with `--watch-namespace`). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and `bind` on `manager-role` |
-| `manager-role` | `config/rbac/role.yaml` | Each Engine's service account, by the manager, in the Engine's namespace |
+| `tram-manager` | `manifests/tram-manager/rbac/manager/role.yaml` | The manager's service account, with a `ClusterRoleBinding` (a `RoleBinding` per namespace with `--watch-namespace`). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and `bind` on `manager-role` |
+| `manager-role` | `manifests/tram-manager/rbac/engine/role.yaml` | Each Engine's service account, by the manager, in the Engine's namespace |
 
 Both `ClusterRole`s have to exist. With another `--engine-cluster-role`, grant the manager `bind` on that role instead.
 
@@ -266,12 +266,10 @@ data:
 | `internal/controller/stream_controller.go` | Reconciliation and the RBAC markers |
 | `api/v1alpha1/engine_types.go` | The `Engine` type and its kubebuilder markers |
 | `internal/engines/` | The controllers of `tram manager`: `engine_controller.go` runs Engines, `resources.go` builds their resources, `stream_controller.go` derives engine labels and `status.engines`; with their RBAC markers |
-| `config/crd/bases/`, `config/rbac/` | Generated CRD and RBAC manifests |
-| `config/rbac/manager/` | Generated RBAC of `tram manager` |
 | `operator.go` | Starts the controller manager inside TRAM |
 | `manager.go` | Starts the controller manager of `tram manager`, with leader election; caches only the resources it generates |
 
-After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0:
+After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0. They write the CRDs to `manifests/crds/` and the roles to `manifests/tram-manager/rbac/` at the repository root, and the same files to the templates of the Helm chart `charts/tram` (`templates/crds/` and `templates/tram-manager/rbac/`):
 
 ```sh
 go generate ./internal/adapters/k8scrd/...

@@ -15,19 +15,16 @@ api/v1alpha1/                              API group io.tram.core/v1alpha1: Engi
 internal/controller/stream_controller.go   Reconciliation logic and RBAC markers
 internal/controller/secrets.go             Resolves secret references in component specs
 internal/engines/                          Controllers of `tram manager`: Engines as Deployments or, with storage, StatefulSets; drain Jobs for volumes without an instance; finalizers that keep buffered events until they are drained or expired; engine labels and status.engines of Streams
-config/crd/bases/                          Generated CRD (DO NOT EDIT)
-config/rbac/role.yaml                      Generated RBAC (DO NOT EDIT)
-config/rbac/manager/role.yaml              Generated RBAC of `tram manager` (DO NOT EDIT)
 hack/boilerplate.go.txt                    Header for generated files
 ```
 
-Example resources live in `examples/k8s/` at the repository root.
+The generated CRDs and roles live in `manifests/` at the repository root (`crds/`, and `tram-manager/rbac/engine/` and `tram-manager/rbac/manager/`), with kustomizations, and the same files in the templates of the Helm chart `charts/tram` (`templates/crds/` and `templates/tram-manager/rbac/`). Example resources live in `examples/k8s/`.
 
 ## Critical Rules
 
 ### Never Edit Generated Files
 
-`api/v1/zz_generated.deepcopy.go`, `config/crd/bases/*` and `config/rbac/role.yaml` are produced by controller-gen v0.22.0 from the `//go:generate` directives in `operator.go`. After editing `*_types.go` or any marker, regenerate them:
+`api/v1/zz_generated.deepcopy.go` and the CRDs and roles in `manifests/crds/` and `manifests/tram-manager/rbac/` are produced by controller-gen v0.22.0 from the `//go:generate` directives in `operator.go`, which write the CRDs and roles a second time into the chart's `charts/tram/templates/crds/` and `charts/tram/templates/tram-manager/rbac/`. After editing `*_types.go` or any marker, regenerate them:
 
 ```sh
 go generate ./internal/adapters/k8scrd/...
@@ -51,7 +48,7 @@ Do not use `make manifests`, `make generate` or the `kubebuilder` CLI; they are 
 - **Selection:** `--watch-namespace` and `--engine` only limit the manager's cache (`cacheOptions`). Read `Stream` resources through the manager's client, never an uncached reader, so a resource that leaves the selection is reconciled as deleted
 - **Permanent errors:** wrap errors that retrying cannot fix with `reconcile.TerminalError`; other errors are retried with backoff
 - **RBAC:** declare permissions with `+kubebuilder:rbac` markers on the reconciler and regenerate
-- **Manager RBAC:** markers in `internal/controller/` end up in the role of Tram instances, markers in `internal/engines/` in the role of `tram manager` (`config/rbac/manager/role.yaml`); keep them apart
+- **Manager RBAC:** markers in `internal/controller/` end up in the role of Tram instances, markers in `internal/engines/` in the role of `tram manager` (`manifests/tram-manager/rbac/manager/role.yaml`); keep them apart
 - **Engine labels:** only `tram manager` writes labels with the prefix `engine.tram.io/`, derived from `spec.engineRefs` with `tramv1.WithEngineLabels`. Tram instances only select them (`--engine`) and never write labels. The labels are just an index for the cache: the instances' reconciler checks `spec.engineRefs` (`Stream.RefersToEngine`) before running a Stream, so never rely on the label alone
 - **Status ownership:** Tram instances write `Stream.status.active`; `tram manager` writes `Stream.status.engines` and the whole `Engine.status`
 - **Engine resources:** apply them server-side with `client.Apply` and field owner `engines.FieldOwner`, built as apply configurations in `internal/engines/resources.go`. Every generated resource carries `engines.ManagedByLabel`, since the manager's cache only holds resources with it

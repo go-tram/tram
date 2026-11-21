@@ -44,6 +44,7 @@ vars:
   CONTROLLER_GEN_VERSION: v0.22.0
   GOLANGCI_LINT_VERSION: v2.15.0
   SETUP_ENVTEST_VERSION: v0.25.2
+  KUBECONFORM_VERSION: v0.8.0
   # svu computes release versions from the tags; run with `go run`, so it
   # needs no install.
   SVU_VERSION: v3.4.4
@@ -101,6 +102,33 @@ tasks:
     cmds:
       - golangci-lint run {{.CLI_ARGS}} {{.PACKAGES}}
 
+  chart:lint:
+    desc: Lint the Helm chart and validate what it renders against the Kubernetes schemas (needs helm and kubeconform)
+    preconditions:
+      - sh: command -v helm
+        msg: helm is missing; install it, see https://helm.sh/docs/intro/install/
+      - sh: command -v kubeconform
+        msg: kubeconform is missing; run `task tools`
+    vars:
+      # kubeconform's default schemas lack the one of CustomResourceDefinition,
+      # which is recursive; the schemas with references to each other have it.
+      KUBECONFORM_ARGS: >-
+        -strict -summary -schema-location default
+        -schema-location 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/{{`{{.ResourceKind}}{{.KindSuffix}}`}}.json'
+    cmds:
+      - helm lint --strict charts/tram
+      # The default values, then the options that change what is rendered.
+      - helm template tram charts/tram --namespace tram-system | kubeconform {{.KUBECONFORM_ARGS}}
+      - >-
+        helm template tram charts/tram --namespace tram-system
+        --set 'manager.watchNamespaces={team-a,team-b}'
+        --set 'manager.extraArgs={--log-level=debug}'
+        --set 'imagePullSecrets[0].name=registry'
+        --set serviceAccount.create=false --set serviceAccount.name=tram
+        --set podLabels.team=observability --set podAnnotations.example=yes
+        --set 'tolerations[0].operator=Exists'
+        | kubeconform {{.KUBECONFORM_ARGS}}
+
   fmt:
     desc: Format the code with the formatters configured for golangci-lint (goimports, golines)
     cmds:
@@ -114,16 +142,38 @@ tasks:
       - task: test:e2e
 
   ci:
-    desc: Run what the CI workflows run, ci:lint and ci:test, one after the other
+    desc: Run what the CI workflows run, ci:lint, ci:test and ci:chart, one after the other
     cmds:
       - task: ci:lint
       - task: ci:test
+      - task: ci:chart
 
   ci:lint:
     desc: Run the CI lint job - install the pinned golangci-lint, then task lint
     cmds:
       - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
       - task: lint
+
+  ci:chart:
+    desc: Run the CI chart job - check that the chart's and manifests' CRDs and roles are generated, then task chart:lint
+    summary: |
+      Installs the pinned controller-gen and kubeconform, regenerates the
+      CRDs and roles into manifests/ and charts/tram and fails if that
+      changes them, i.e. if they were not regenerated after a change to the
+      types or RBAC markers; then lints and validates the chart. Commit or
+      stash changes under manifests/ and charts/ before running it locally.
+    cmds:
+      - go install sigs.k8s.io/controller-tools/cmd/controller-gen@{{.CONTROLLER_GEN_VERSION}}
+      - go install github.com/yannh/kubeconform/cmd/kubeconform@{{.KUBECONFORM_VERSION}}
+      - go generate ./internal/adapters/k8scrd/
+      - |
+        changed="$(git status --porcelain -- manifests charts internal/adapters/k8scrd)"
+        if [ -n "$changed" ]; then
+          echo "$changed"
+          echo "The generated CRDs and roles are out of date; run task generate and commit them" >&2
+          exit 1
+        fi
+      - task: chart:lint
 
   ci:test:
     desc: Run the CI test job - unit and end-to-end tests
@@ -339,7 +389,7 @@ tasks:
   k8s:crd:
     desc: Install the Stream CRD into the current Kubernetes context
     cmds:
-      - kubectl apply -f internal/adapters/k8scrd/config/crd/bases/io.tram.core_streams.yaml
+      - kubectl apply -f manifests/crds/io.tram.core_streams.yaml
 
   # --- Tools ---------------------------------------------------------------
 
@@ -355,3 +405,4 @@ tasks:
       - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
       - go install golang.org/x/perf/cmd/benchstat@latest
       - go install sigs.k8s.io/controller-runtime/tools/setup-envtest@{{.SETUP_ENVTEST_VERSION}}
+      - go install github.com/yannh/kubeconform/cmd/kubeconform@{{.KUBECONFORM_VERSION}}

@@ -31,6 +31,8 @@ Only needed to regenerate code (`task generate`), installed with `task tools`:
 - [buf](https://buf.build/) and the protoc plugins used in `buf.gen.yaml`
 - [controller-gen](https://book.kubebuilder.io/reference/controller-gen) for the Kubernetes CRD and deepcopy code
 
+Only needed to check the Helm chart (`task chart:lint`): [Helm](https://helm.sh/docs/intro/install/), and [kubeconform](https://github.com/yannh/kubeconform), installed with `task tools`.
+
 ### Install Dependencies
 
 ```bash
@@ -746,13 +748,13 @@ When adding new components:
 
 ### Checks on Pull Requests
 
-The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as two parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests.
+The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as three parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
 
 The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.
 
 ### Releases
 
-A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint and test jobs, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`.
+A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint, test and chart jobs, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`. Then it publishes the Helm chart `charts/tram` to `oci://ghcr.io/go-tram/charts/tram` with that version as chart and app version, renders `manifests/` with the image of that version into `tram.yaml`, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. In the repository the chart keeps the version `0.0.0` and the manifests the image tag `latest`; do not bump them.
 
 Tag releases with the release tasks rather than by hand. They use [svu](https://github.com/caarlos0/svu) to compute the version from the existing tags, check that you are on main, that it matches `origin/main` and has no uncommitted changes, run `task check`, and then create and push the annotated tag:
 

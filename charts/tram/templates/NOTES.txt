@@ -1,0 +1,21 @@
+The Tram manager runs in {{ .Release.Namespace }} as {{ include "tram.fullname" . }}.
+
+Check that it runs:
+
+  kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "tram.fullname" . }}
+
+{{- if .Values.manager.watchNamespaces }}
+
+It handles the Engines and Streams of: {{ join ", " .Values.manager.watchNamespaces }}.
+{{- else }}
+
+It handles the Engines and Streams of every namespace.
+{{- end }}
+
+Create an Engine, which the manager runs as a Deployment, and a Stream on it;
+examples/k8s/examples/ in the repository has examples:
+
+  kubectl apply -f engine.yaml
+  kubectl wait engine/<name> --for=condition=Ready
+  kubectl apply -f stream.yaml
+  kubectl get engines,streams

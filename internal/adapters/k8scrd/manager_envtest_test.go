@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -159,7 +158,7 @@ func TestManagerNeedsOnlyItsClusterRole(t *testing.T) {
 	t.Parallel()
 	c := startCluster(t)
 
-	content, err := os.ReadFile(filepath.Join("config", "rbac", "manager", "role.yaml"))
+	content, err := os.ReadFile(manifest("tram-manager", "rbac", "manager", roleFile))
 	require.NoError(t, err)
 	var role rbacv1.ClusterRole
 	require.NoError(t, yaml.Unmarshal(content, &role))
