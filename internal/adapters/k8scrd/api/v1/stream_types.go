@@ -76,6 +76,7 @@ type StreamSpec struct {
 	// ports are opened and no consumers are attached. Used to pause a
 	// stream, e.g. the writer of a buffer while its queue is drained.
 	// +optional
+	// +kubebuilder:default=false
 	Suspended *bool `json:"suspended,omitempty"`
 }
 
@@ -114,9 +115,13 @@ const ConditionAccepted = "Accepted"
 const ConditionStorageAvailable = "StorageAvailable"
 
 type StreamStatus struct {
-	// Active tells whether the stream runs.
+	// Mounted tells whether an instance loaded the stream: it is built and
+	// runs, or it is suspended. False if it could not be built, e.g. because
+	// a secret is missing, or if the instance cannot run it, e.g. a stream
+	// with a buffer on an Engine without storage.
 	// +optional
-	Active bool `json:"active"`
+	// +kubebuilder:default=false
+	Mounted bool `json:"mounted"`
 	// Engines reports, per entry of spec.engineRefs, whether the Engine
 	// accepts the Stream.
 	// +optional
@@ -138,7 +143,8 @@ type StreamEngineStatus struct {
 // +genclient
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Active",type=boolean,JSONPath=`.status.active`
+// +kubebuilder:printcolumn:name="Mounted",type=boolean,JSONPath=`.status.mounted`
+// +kubebuilder:printcolumn:name="Suspended",type=boolean,JSONPath=`.spec.suspended`
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 type Stream struct {

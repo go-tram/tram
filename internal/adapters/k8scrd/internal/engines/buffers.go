@@ -46,6 +46,14 @@ func bufferMaxAges(stream *tramv1.Stream) []time.Duration {
 	return ages
 }
 
+// writesBuffer reports whether a stream is active and writes to a buffer: its
+// writes would land on volumes that go away when the Engine loses its
+// storage. A suspended stream writes nothing.
+func writesBuffer(stream *tramv1.Stream) bool {
+	suspended := stream.Spec.Suspended != nil && *stream.Spec.Suspended
+	return !suspended && len(bufferMaxAges(stream)) > 0
+}
+
 // usesBuffer reports whether a stream writes to or reads from a buffer, so
 // it needs the storage of its Engine.
 func usesBuffer(stream *tramv1.Stream) bool {

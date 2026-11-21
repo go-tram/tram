@@ -130,7 +130,7 @@ func (c *cluster) requireActive(t *testing.T, namespace, name string) {
 		var stream tramv1.Stream
 		key := types.NamespacedName{Namespace: namespace, Name: name}
 		assert.NoError(collect, c.admin.Get(t.Context(), key, &stream))
-		assert.True(collect, stream.Status.Active)
+		assert.True(collect, stream.Status.Mounted)
 	}, eventuallyTimeout, pollInterval)
 }
 
@@ -437,7 +437,7 @@ func TestOperatorAppliesConfigMaps(t *testing.T) {
 	require.NoError(t, c.admin.Create(t.Context(), conflict))
 	require.Eventually(t, func() bool {
 		var s tramv1.Stream
-		return c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: "s"}, &s) == nil && !s.Status.Active
+		return c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: "s"}, &s) == nil && !s.Status.Mounted
 	}, eventuallyTimeout, pollInterval, "conflicting config maps deactivate the stream")
 	assert.Equal(t, map[string]any{"t1": "r3"}, core.resolvedTable(ns+".s"), "the stream keeps its last table")
 

@@ -202,7 +202,7 @@ func TestReconcileRetriesUnresolvableConfigMaps(t *testing.T) {
 
 			var stream tramv1.Stream
 			require.NoError(t, c.Get(t.Context(), client.ObjectKey{Namespace: "ns", Name: "s"}, &stream))
-			assert.False(t, stream.Status.Active)
+			assert.False(t, stream.Status.Mounted)
 		})
 	}
 }

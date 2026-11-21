@@ -114,7 +114,7 @@ func TestReconcileUpsertsOnlyOnChange(t *testing.T) {
 
 	var stream tramv1.Stream
 	require.NoError(t, r.Get(t.Context(), types.NamespacedName{Namespace: "default", Name: "s"}, &stream))
-	assert.True(t, stream.Status.Active)
+	assert.True(t, stream.Status.Mounted)
 
 	stream.Spec.Source.Spec = &runtime.RawExtension{Raw: []byte(`{"http_port":4319}`)}
 	require.NoError(t, r.Update(t.Context(), &stream))
@@ -196,7 +196,7 @@ func TestReconcileRunsOnlyStreamsThatReferToTheEngine(t *testing.T) {
 	var stream tramv1.Stream
 	key := types.NamespacedName{Namespace: "default", Name: "s"}
 	require.NoError(t, r.Get(t.Context(), key, &stream))
-	assert.False(t, stream.Status.Active, "the status is left to the engines that run the Stream")
+	assert.False(t, stream.Status.Mounted, "the status is left to the engines that run the Stream")
 
 	stream.Spec.EngineRefs = []tramv1.EngineReference{{Name: "mapper"}}
 	require.NoError(t, r.Update(t.Context(), &stream))

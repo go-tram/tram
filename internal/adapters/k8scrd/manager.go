@@ -132,6 +132,7 @@ func NewManager(opts ManagerOptions, logger *slog.Logger) (*Manager, error) {
 		Client:      mgr.GetClient(),
 		Image:       opts.EngineImage,
 		ClusterRole: clusterRole,
+		Recorder:    mgr.GetEventRecorder(engines.FieldOwner),
 	}).SetupWithManager(mgr); err != nil {
 		return nil, fmt.Errorf("set up engine controller: %w", err)
 	}

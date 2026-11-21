@@ -24,6 +24,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/events"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -56,6 +57,9 @@ type EngineReconciler struct {
 	// ClusterRole is bound to the service account of every Engine in its
 	// namespace: the role of a Tram instance with the operator enabled.
 	ClusterRole string
+	// Recorder records events on Engines, e.g. when a volume was drained;
+	// nil records none.
+	Recorder events.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=io.tram.core,resources=engines,verbs=get;list;watch
@@ -72,6 +76,7 @@ type EngineReconciler struct {
 // +kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=get;list;watch;delete
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 // +kubebuilder:rbac:groups=io.tram.core,resources=engines,verbs=update;patch
+// +kubebuilder:rbac:groups=events.k8s.io,resources=events,verbs=create;patch
 
 func (r *EngineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var engine tramv1alpha1.Engine
@@ -90,16 +95,19 @@ func (r *EngineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 	before := engine.DeepCopy()
 
-	if inUse := state.streamsNeedingStorage(); engine.Spec.Storage == nil && state.statefulSet != nil &&
-		len(inUse) > 0 {
-		// Without storage, the buffer Streams could not run on the Deployment,
-		// so the Engine keeps its StatefulSet until no Stream needs it.
+	if writers := state.activeBufferWriters(); engine.Spec.Storage == nil && state.statefulSet != nil &&
+		len(writers) > 0 {
+		// Removing storage ends the Streams' writes to buffers, so the Engine
+		// keeps its StatefulSet until their authors stopped them: suspended
+		// or removed the buffer sink. Reading Streams may stay; drain Jobs
+		// deliver the volumes through them.
 		meta.SetStatusCondition(&engine.Status.Conditions, metav1.Condition{
 			Type:   tramv1alpha1.ConditionReconciled,
 			Status: metav1.ConditionFalse,
 			Reason: "StorageInUse",
-			Message: fmt.Sprintf("spec.storage was removed, but Streams with a buffer still run on the Engine: %s; "+
-				"move or delete them, and the Engine migrates to a Deployment", strings.Join(inUse, ", ")),
+			Message: fmt.Sprintf("spec.storage was removed, but Streams still write to buffers on the Engine: %s; "+
+				"suspend them or remove their buffer sinks, and the Engine migrates to a Deployment while drain "+
+				"Jobs deliver the volumes through the reading Streams", strings.Join(writers, ", ")),
 			ObservedGeneration: engine.Generation,
 		})
 		return ctrl.Result{}, r.patchStatus(ctx, before, &engine)
@@ -363,7 +371,8 @@ func (r *EngineReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // streamEngines enqueues the Engines a Stream is labeled for, before and after
-// a change of its labels, so their stream counts follow.
+// a change of its labels or spec, so their stream counts and the storage
+// they hold follow.
 func streamEngines() handler.EventHandler {
 	enqueue := func(q workqueue.TypedRateLimitingInterface[reconcile.Request], objs ...client.Object) {
 		for _, obj := range objs {
@@ -379,7 +388,11 @@ func streamEngines() handler.EventHandler {
 			enqueue(q, e.Object)
 		},
 		UpdateFunc: func(_ context.Context, e event.UpdateEvent, q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-			if !equality.Semantic.DeepEqual(e.ObjectOld.GetLabels(), e.ObjectNew.GetLabels()) {
+			// Labels change the Engines a Stream belongs to; its spec, e.g.
+			// suspending a Stream that writes to a buffer, may release the
+			// storage an Engine is asked to give up.
+			if !equality.Semantic.DeepEqual(e.ObjectOld.GetLabels(), e.ObjectNew.GetLabels()) ||
+				e.ObjectOld.GetGeneration() != e.ObjectNew.GetGeneration() {
 				enqueue(q, e.ObjectOld, e.ObjectNew)
 			}
 		},

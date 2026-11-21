@@ -83,7 +83,7 @@ func (r *StreamReconciler) syncLabels(ctx context.Context, stream *tramv1.Stream
 
 // syncStatus writes an entry per engine reference to status.engines, with an
 // Accepted condition that tells whether the Engine exists. Only the manager
-// writes status.engines; the instances write status.active.
+// writes status.engines; the instances write status.mounted.
 func (r *StreamReconciler) syncStatus(ctx context.Context, stream *tramv1.Stream) error {
 	engines := make([]tramv1.StreamEngineStatus, 0, len(stream.Spec.EngineRefs))
 	for _, ref := range stream.Spec.EngineRefs {

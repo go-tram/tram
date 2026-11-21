@@ -78,6 +78,7 @@ func runDrain(ctx context.Context, logger *slog.Logger, opts drainOptions) (err 
 		Kubeconfig: opts.kubeconfig,
 		Namespaces: opts.watchNamespaces,
 		Engine:     opts.engine,
+		HasDataDir: true,
 		Drain:      true,
 	}, logger)
 	if err != nil {

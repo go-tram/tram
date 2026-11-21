@@ -50,6 +50,9 @@ type Options struct {
 	Kubeconfig string
 	Namespaces []string
 	Engine     string
+	// HasDataDir tells whether the instance has a data directory for
+	// buffers; without one, Streams with a buffer are not run.
+	HasDataDir bool
 	// Drain runs only the Streams that read from a buffer, for `tram drain`.
 	Drain              bool
 	skipNameValidation bool
@@ -110,6 +113,7 @@ func New(core ports.Core, opts Options, logger *slog.Logger) (*Operator, error) 
 		Core:       core,
 		References: mgr.GetAPIReader(),
 		Engine:     opts.Engine,
+		HasDataDir: opts.HasDataDir,
 		Drain:      opts.Drain,
 	}).SetupWithManager(mgr); err != nil {
 		return nil, fmt.Errorf("set up controller: %w", err)
