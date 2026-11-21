@@ -47,8 +47,9 @@ Tram is a cloud-native, in-memory data pipeline framework that:
 
 ### Follow-ups (do in separate PRs, after the branch that introduced them merges)
 
-- **Metric naming contract:** mostly done on `feature/metric_validation`: `internal/metrics` holds the prefix, attribute keys and kind values, and `internal/core/metrics.go` and `internal/adapters/stage/valuemap/valuemap.go` build their names and labels from it; docs/content/guide/metrics.md documents the schema. Still open: a conformance test that collects all instruments via an otel ManualReader (pattern exists in internal/core/metrics_test.go and the valuemap stream-label test) and asserts name grammar, label taxonomy, and unit and description being set, so a component that ignores the contract fails a test instead of a dashboard.
+- **Metric naming contract:** done on `feature/metric_validation`. `internal/metrics` holds the prefix, attribute keys and kind values; `internal/core/metrics.go` and `internal/adapters/stage/valuemap/valuemap.go` build their names and labels from it; docs/content/guide/metrics.md documents the schema; `TestMetricsFollowTheNamingContract` in `internal/e2e/` collects every instrument of a running pipeline and asserts name grammar, label keys, the stream label, and description and unit, so a component that ignores the contract fails a test.
   Context: introduced with the stream-labeled value_map metrics on the buffer-stage branch.
+- Declarative on/off for the metrics of components (like the lookup outcomes of `value_map`) would need a proto/API/CRD change; do it once a second component records its own.
 
 ### Review Focus Areas
 
