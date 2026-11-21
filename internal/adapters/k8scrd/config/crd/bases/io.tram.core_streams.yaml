@@ -18,6 +18,11 @@ spec:
     - jsonPath: .status.active
       name: Active
       type: boolean
+    - description: The source does not run; no ports are opened and no consumers are
+        attached
+      jsonPath: .spec.suspended
+      name: Suspended
+      type: boolean
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
