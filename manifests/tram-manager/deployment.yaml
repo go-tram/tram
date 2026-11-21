@@ -28,6 +28,9 @@ spec:
           image: ghcr.io/go-tram/tram # tag set in kustomization.yaml
           args:
             - manager
+            # Engines that set no spec.image run this image; the release
+            # workflow sets the tag, like the image's in kustomization.yaml.
+            - --engine-image=ghcr.io/go-tram/tram:latest
           resources:
             requests:
               cpu: 100m

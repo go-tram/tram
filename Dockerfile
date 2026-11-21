@@ -24,7 +24,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/tram /tram
-USER nonroot:nonroot
+# nonroot, by number: Kubernetes verifies runAsNonRoot only for a numeric
+# user.
+USER 65532:65532
 
 # HTTP API and gRPC API. OTLP sources open the ports set in their specs.
 EXPOSE 8080 50051

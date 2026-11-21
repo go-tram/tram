@@ -1,0 +1,29 @@
+{{- if .Values.engineMetrics.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "tram.fullname" . }}-engines
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tram.labels" . | nindent 4 }}
+    {{- with .Values.engineMetrics.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  namespaceSelector:
+    {{- with (include "tram.watchNamespaces" . | fromJsonArray) }}
+    matchNames:
+      {{- toYaml . | nindent 6 }}
+    {{- else }}
+    any: true
+    {{- end }}
+  # The instances of every Engine; drain Jobs serve no metrics.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tram
+      app.kubernetes.io/component: engine
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.engineMetrics.podMonitor.interval }}
+{{- end }}
