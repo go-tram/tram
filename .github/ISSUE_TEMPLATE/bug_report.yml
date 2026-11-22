@@ -1,0 +1,72 @@
+name: Bug report
+description: TRAM does something wrong, crashes or loses data
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please do not report security vulnerabilities here; report them privately as described in SECURITY.md.
+        Remove secrets, tokens and credentials from configurations and logs before you paste them.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What TRAM did, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The steps, ideally with the smallest stream configuration that shows the problem.
+      placeholder: |
+        1. Create the stream below with `tram ...` or `kubectl apply -f ...`
+        2. Send ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Stream configuration
+      description: The stream, or Stream resource, involved. Pasted as is; it is shown as YAML.
+      render: yaml
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The relevant log lines of TRAM, or of the operator and drain Jobs on Kubernetes.
+      render: text
+
+  - type: input
+    id: version
+    attributes:
+      label: TRAM version
+      description: The release, image tag or commit.
+      placeholder: v0.0.19, ghcr.io/go-tram/tram:0.0.19 or a commit
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How TRAM runs
+      multiple: true
+      options:
+        - Binary
+        - Container
+        - Kubernetes with the Helm chart
+        - Kubernetes with the manifests
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Anything else that may matter, e.g. OS, Kubernetes version, broker (NATS, Kafka, AMQP) and its version, the senders and receivers of the data.
