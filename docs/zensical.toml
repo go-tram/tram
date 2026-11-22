@@ -26,6 +26,7 @@ watch = [
   "../charts/tram/README.md",
   "../examples/config/README.md",
   "../examples/k8s/README.md",
+  "../examples/tests/README.md",
   "../cliff.toml",
 ]
 
@@ -34,6 +35,7 @@ nav = [
   { "Guide" = [
       { "Getting Started" = "guide/getting-started.md" },
       { "Streams" = "guide/streams.md" },
+      { "Testing Streams" = "guide/testing.md" },
       { "Sending Data to TRAM" = "guide/sending-data.md" },
       { "HTTP API" = "guide/api.md" },
       { "Security" = "guide/security.md" },
@@ -56,6 +58,7 @@ nav = [
       { "Examples" = [
           { "Streams" = "deployment/examples/streams.md" },
           { "Kubernetes" = "deployment/examples/kubernetes.md" },
+          { "Tests" = "deployment/examples/tests.md" },
       ] },
   ] },
   { "Operations" = [

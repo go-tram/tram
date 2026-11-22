@@ -45,6 +45,7 @@ RELEASES = "development/releases.md"
 TITLES = {
     GETTING_STARTED: "Getting Started",
     STREAMS: "Streams",
+    "guide/testing.md": "Testing Streams",
     "guide/sending-data.md": "Sending Data to TRAM",
     API: "HTTP API",
     "guide/security.md": "Security",
@@ -60,6 +61,7 @@ TITLES = {
     "deployment/kubernetes/streams.md": "Stream Resources",
     "deployment/examples/streams.md": "Stream Examples",
     "deployment/examples/kubernetes.md": "Kubernetes Examples",
+    "deployment/examples/tests.md": "Test Examples",
     "operations/metrics.md": "Metrics",
     "operations/benchmarks.md": "Benchmarks",
     "development/contributing.md": "Contributing",
@@ -81,7 +83,7 @@ SECTIONS = {
         "Available Components": (STREAMS, False),
         "Advanced Configuration": (STREAMS, UNWRAP),
         "Updating a Stream": (STREAMS, False),
-        "Testing a Stream": (STREAMS, False),
+        "Testing a Stream": ("guide/testing.md", UNWRAP),
         "Sending Data to TRAM": ("guide/sending-data.md", UNWRAP),
         "Container Image": ("deployment/container.md", False),
         "Configuration Sources": ("deployment/container.md", False),
@@ -117,6 +119,9 @@ SECTIONS = {
     },
     "examples/k8s/README.md": {
         "TRAM Example Configurations for Kubernetes": ("deployment/examples/kubernetes.md", UNWRAP),
+    },
+    "examples/tests/README.md": {
+        "Examples with Test Cases": ("deployment/examples/tests.md", UNWRAP),
     },
     "BENCHMARK.md": {
         "Benchmarks": ("operations/benchmarks.md", UNWRAP),

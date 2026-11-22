@@ -394,29 +394,17 @@ A `PUT` to an existing stream changes as little as possible:
 
 If an update fails, e.g. because of an invalid component spec, the request returns an error and the previous version of the stream keeps running. Delete and create a stream to restart it completely.
 
-### Dry Run
-
-`PUT /v1/streams/{name}` with `"dry_run": true` in the request body validates the stream and reports what applying it would do, without changing the running stream. The flag is a field of the request body, not a query parameter, because the PUT body maps to the whole request message. The response holds a `plan`:
-
-```json
-{
-  "stream": { "...": "the requested stream" },
-  "plan": {
-    "action": "STREAM_PLAN_ACTION_HOT_SWAP",
-    "sourceReplaced": false,
-    "createdNodes": ["enrich"],
-    "stoppedNodes": ["old-sink"]
-  }
-}
-```
-
-`action` is `STREAM_PLAN_ACTION_NOOP` (nothing would change), `STREAM_PLAN_ACTION_HOT_SWAP` (the source keeps running and its stages and sinks are replaced below it) or `STREAM_PLAN_ACTION_REBUILD` (the stream is new, stopped, or its source changed: it would be stopped and created again). An invalid spec is rejected with `400` as usual; nothing is applied either way.
-
 If the source of a stream stops on its own, e.g. because the NATS stream of a broker source does not exist yet, TRAM restarts the stream after a delay that grows from 1 second to 1 minute while it keeps failing. A `PUT` of the unchanged stream restarts it right away.
+
+Check an update before applying it with a [dry run](#dry-run).
 
 ---
 
 ## Testing a Stream
+
+There are two ways to check a stream before it runs for real: **test cases** run its stages against sample events, locally or in CI, and a **dry run** asks a running instance what applying a change would do.
+
+### Test Cases
 
 A stream can carry test cases in `tests`. They are never run by loading the stream; only an explicit test run executes them:
 
@@ -424,7 +412,18 @@ A stream can carry test cases in `tests`. They are never run by loading the stre
 tram test stream.json [--secrets secrets.json]
 ```
 
-The file holds either a bare stream object or a file sync file that wraps it in `{"stream": {...}}`, like the examples in `examples/tests/`; see `examples/tests/otlp_with_filters.json` for a stream with test cases.
+The file holds either a bare stream object or a file sync file that wraps it in `{"stream": {...}}`, like the [examples with test cases](examples/tests/README.md); see [`otlp_with_filters.json`](examples/tests/otlp_with_filters.json) for a stream with test cases.
+
+```mermaid
+flowchart LR
+    inputs[/"tests[].input"/] --> testsource(["test source<br/>replaces the source"])
+    subgraph tree["the stream's tree, in memory"]
+        testsource --> stages["the real stages"]
+        stages --> capture(["capture sinks<br/>replace the sinks"])
+    end
+    capture --> compare{"compare with<br/>tests[].expect"}
+    compare --> result(["PASS or FAIL,<br/>exit code 0 or 1"])
+```
 
 The stream is loaded into its own in-memory tree: the source is replaced by a test source that emits the test inputs, and every sink by a capture sink, so no external system is contacted. The stages are the real stages and process the events.
 
@@ -451,6 +450,36 @@ Each test has a `name`, an `input` event and the expected outcome per sink in `e
 ```
 
 `--secrets` reads a JSON file mapping `"<name>/<key>"` to values and resolves `secretKeyRef` references in stage specs. A reference that cannot be resolved is an error naming the reference, never its value. Source and sink specs are not used by a test run. The exit code is 0 when all tests pass and 1 otherwise.
+
+### Running Tests in CI
+
+`tram test` takes one file and exits with `1` if a test fails, so a CI job runs it for every stream file, e.g. with the [container image](#container-image), whose entry point is `tram`:
+
+```bash
+for f in streams/*.json; do
+  docker run --rm -v "$PWD:/work" ghcr.io/go-tram/tram:latest test "/work/$f" || exit 1
+done
+```
+
+Test cases are part of the stream files of the API and file sync. The `Stream` resource of the [Kubernetes operator](internal/adapters/k8scrd/README.md) has no `tests` field, so keep the tests of a stream that runs on Kubernetes in a stream file next to its resource, and test that file.
+
+### Dry Run
+
+`PUT /v1/streams/{name}` with `"dry_run": true` in the request body validates the stream and reports what applying it would do, without changing the running stream. The flag is a field of the request body, not a query parameter, because the PUT body maps to the whole request message. The response holds a `plan`:
+
+```json
+{
+  "stream": { "...": "the requested stream" },
+  "plan": {
+    "action": "STREAM_PLAN_ACTION_HOT_SWAP",
+    "sourceReplaced": false,
+    "createdNodes": ["enrich"],
+    "stoppedNodes": ["old-sink"]
+  }
+}
+```
+
+`action` is `STREAM_PLAN_ACTION_NOOP` (nothing would change), `STREAM_PLAN_ACTION_HOT_SWAP` (the source keeps running and its stages and sinks are replaced below it) or `STREAM_PLAN_ACTION_REBUILD` (the stream is new, stopped, or its source changed: it would be stopped and created again). An invalid spec is rejected with `400` as usual; nothing is applied either way.
 
 ---
 

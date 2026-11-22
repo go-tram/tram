@@ -20,6 +20,7 @@ on:
       - charts/tram/README.md
       - examples/config/README.md
       - examples/k8s/README.md
+      - examples/tests/README.md
       - cliff.toml
       - .github/workflows/pages.yml
   workflow_dispatch:
