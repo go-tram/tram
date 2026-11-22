@@ -22,6 +22,12 @@
         <loc>https://gotram.dev/contributing/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/examples/kubernetes/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/examples/streams/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/guide/api/</loc>
       </url>
       <url>
