@@ -22,6 +22,13 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - No processing stages
 - **Kubernetes version**: [../k8s/examples/otlp_basic.yaml](../k8s/examples/otlp_basic.yaml)
 
+#### [`otlp_grpc.json`](otlp_grpc.json)
+**Purpose**: Receive OTLP over gRPC and HTTP in one stream.
+- Receives OTLP/gRPC on port 4317, the default of most OpenTelemetry SDKs, and OTLP/HTTP on port 4329
+- Forwards both to another OTLP endpoint
+- Send to it e.g. with `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317`, or from an OpenTelemetry Collector with the `otlp` exporter and `tls.insecure: true`
+- **Kubernetes version**: [../k8s/examples/otlp_grpc.yaml](../k8s/examples/otlp_grpc.yaml)
+
 #### [`otlp_secure.json`](otlp_secure.json)
 **Purpose**: Secure OTLP forwarding with HTTPS and authentication headers.
 - HTTPS endpoint

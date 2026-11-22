@@ -43,7 +43,7 @@ Emits an empty event at a fixed interval, for testing how a stream is wired. Sta
 
 ### OTLP Source
 
-Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP). OTLP over gRPC is not supported.
+Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC), or both. Set `http_port`, `grpc_port` or both; a stream that uses both gets the data of either protocol.
 
 **Type:** `otlp`
 
@@ -51,7 +51,8 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP). OTLP over gRPC is no
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `http_port` | int | Yes | - | Port to listen on, on all network interfaces |
+| `http_port` | int | One of the two | - | Port for OTLP/HTTP, on all network interfaces; usually `4318` |
+| `grpc_port` | int | One of the two | - | Port for OTLP/gRPC, on all network interfaces; usually `4317`. Must differ from `http_port` |
 | `delivery_timeout` | string | No | `"8s"` | Maximum time to pass a request on to the stages and sinks, as a Go duration. A request that takes longer is cancelled and answered with `503`, which clients retry |
 | `retry_after` | string | No | `"5s"` | How long clients should wait before retrying a `503`, as a Go duration. Sent as the `Retry-After` header in whole seconds, rounded up |
 
@@ -62,20 +63,21 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP). OTLP over gRPC is no
   "name": "otlp-receiver",
   "type": "otlp",
   "spec": {
-    "http_port": 4318
+    "http_port": 4318,
+    "grpc_port": 4317
   }
 }
 ```
 
-**Responses:**
+**Responses** (OTLP/HTTP status, OTLP/gRPC code):
 
-| Status | When |
-|--------|------|
-| `200` | Empty response message in the request's encoding, once all sinks have accepted the data |
-| `422` | Body cannot be read or parsed, contains a duplicate key, or holds data rejected by a stage or sink (e.g. `validation` with `on_mismatch: reject`) |
-| `413` | Body larger than 20 MiB, also after decompression |
-| `415` | Other content types or encodings |
-| `503` | Passing the data on failed or took longer than `delivery_timeout`; sent with a `Retry-After` header. The only status OTLP clients retry — the only answer the request itself did not cause |
+| HTTP | gRPC | When |
+|------|------|------|
+| `200` | `OK` | Empty response message in the request's encoding, once all sinks have accepted the data |
+| `422` | `InvalidArgument` | Body cannot be read or parsed, contains a duplicate key, or holds data rejected by a stage or sink (e.g. `validation` with `on_mismatch: reject`) |
+| `413` | `ResourceExhausted` | Body larger than 20 MiB, also after decompression |
+| `415` | - | Other content types or encodings |
+| `503` | `Unavailable` | Passing the data on failed or took longer than `delivery_timeout`; sent with a `Retry-After` header over HTTP and a `RetryInfo` detail over gRPC, both from `retry_after`. The only status OTLP clients retry — the only answer the request itself did not cause |
 
 ??? note "Behavior"
 
@@ -86,7 +88,9 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP). OTLP over gRPC is no
     - A rejection is answered with `422` wherever it comes from, including a sink whose destination refuses the data permanently, e.g. an [OTLP Sink](#otlp-sink) whose destination answers `401`, `403` or `404` because of its own configuration. The client then drops data it did not cause to be refused
     - The default `delivery_timeout` is below the 10s that OpenTelemetry SDK exporters wait by default, so they get the `503` before they give up. `batch` and `delay` stages have to leave time for it, see [Hold Times](#hold-times). Raise it for pipelines that take longer, e.g. with a `delay` stage or slow sinks, and for clients that wait longer, like the OpenTelemetry Collector (30s by default). A batch that is already being sent when the timeout expires is still awaited, since it holds data of other requests too
     - A request may take up to 1 minute to send, which leaves time for large bodies on slow connections
-    - The port is opened when the stream is created, so a port that is already in use fails the stream creation
+    - The ports are opened when the stream is created, so a port that is already in use fails the stream creation. An update that keeps the source keeps its ports open
+    - Over gRPC, it serves the OTLP `LogsService`, `MetricsService` and `TraceService`, without TLS. Messages may be compressed with gzip; the 20 MiB limit applies to the decompressed message
+    - Partial success is not used: a request is accepted or refused as a whole, over both protocols
 
 ### Broker Source
 
