@@ -324,7 +324,7 @@ data:
 | `operator.go` | Starts the controller manager inside TRAM |
 | `manager.go` | Starts the controller manager of `tram manager`, with leader election; caches only the resources it generates |
 
-After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0. They write the CRDs to `manifests/crds/` and the roles to `manifests/tram-manager/rbac/` at the repository root, and the same files to the templates of the Helm chart `charts/tram` (`templates/crds/` and `templates/tram-manager/rbac/`):
+After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0. They write the CRDs to `manifests/crds/` and the roles to `manifests/tram-manager/rbac/` at the repository root, and the same files to the Helm chart `charts/tram`, the CRDs to its `crds/` directory and the roles to `templates/tram-manager/rbac/`:
 
 ```sh
 go generate ./internal/adapters/k8scrd/...

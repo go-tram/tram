@@ -101,7 +101,7 @@ func TestChartRunsAsNumericNonRootUser(t *testing.T) {
 	}
 	chart := filepath.Join("..", "..", "charts", "tram")
 	out, err := exec.CommandContext(t.Context(), helm,
-		"template", "tram", chart, "--namespace", "tram-system", "--set", "crds.install=false").Output()
+		"template", "tram", chart, "--namespace", "tram-system").Output()
 	require.NoError(t, err)
 
 	for doc := range strings.SplitSeq(string(out), "\n---\n") {

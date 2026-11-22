@@ -9,7 +9,7 @@
 //go:generate controller-gen crd paths="./..." output:crd:dir=../../../manifests/crds
 //go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../manifests/tram-manager/rbac/engine
 //go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../manifests/tram-manager/rbac/manager
-//go:generate controller-gen crd paths="./..." output:crd:dir=../../../charts/tram/files/crds
+//go:generate controller-gen crd paths="./..." output:crd:dir=../../../charts/tram/crds
 //go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/engine
 //go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/manager
 
