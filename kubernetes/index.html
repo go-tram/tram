@@ -1422,6 +1422,24 @@
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 <p>The Helm chart <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram"><code>charts/tram</code></a> or the kustomization in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a> deploys the manager with the CRDs and roles, and <code>examples/k8s/examples/</code> holds an Engine and Streams that run on it.</p>
+<p>What the manager creates for an Engine, and how its instances find their Streams:</p>
+<pre class="mermaid"><code>flowchart LR
+    manager["tram manager"]
+    subgraph ns["Engine's namespace"]
+        engine[/"Engine blue-line"/]
+        stream[/"Stream&lt;br/&gt;spec.engineRefs: blue-line"/]
+        refs[/"Secrets and ConfigMaps&lt;br/&gt;the Stream refers to"/]
+        workload["Deployment,&lt;br/&gt;or StatefulSet with storage"]
+        others["Service, ServiceAccount, RoleBinding,&lt;br/&gt;PodDisruptionBudget, HorizontalPodAutoscaler"]
+        instances["TRAM instances&lt;br/&gt;tram server&lt;br/&gt;--engine blue-line"]
+    end
+    manager -- watches --&gt; engine
+    manager -- creates --&gt; workload
+    manager -- creates --&gt; others
+    manager -- "labels engine.tram.io/blue-line" --&gt; stream
+    workload -- runs --&gt; instances
+    instances -- "watch Streams labeled for blue-line, run them" --&gt; stream
+    instances -. read .-&gt; refs</code></pre>
 <h3 id="the-manager">The Manager<a class="headerlink" href="#the-manager" title="Permanent link">&para;</a></h3>
 <p><code>tram manager</code> runs no streams. It runs one Deployment or StatefulSet per <code>Engine</code>, and it labels every <code>Stream</code> <code>engine.tram.io/&lt;name&gt;</code> (with an empty value) for each engine its <code>spec.engineRefs</code> name; the instances of an engine select the key, e.g. <code>kubectl get streams -l engine.tram.io/engine-1</code>. Run it once per cluster, or as several replicas, of which one at a time works:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./tram<span class="w"> </span>manager<span class="w"> </span>--engine-image<span class="w"> </span>registry.example.com/tram:1.14.0
@@ -1452,6 +1470,21 @@
 <h3 id="storage-for-buffers">Storage for buffers<a class="headerlink" href="#storage-for-buffers" title="Permanent link">&para;</a></h3>
 <p>The <a href="../components/#buffers">buffer sink and source</a> keep their queues on the instance's disk. With <code>spec.storage</code>, the manager runs the Engine as a StatefulSet in which every instance has a volume of its own (<code>ReadWriteOnce</code>, claim <code>data-tram-engine-&lt;engine&gt;-&lt;ordinal&gt;</code>) mounted as its data directory. Without it, the Engine runs as a Deployment, and Streams with a buffer sink or source do not run on it. Every such Stream reports per Engine in <code>status.engines[].conditions</code> whether it can: <code>StorageAvailable</code> is <code>True</code>, or <code>False</code> with reason <code>EngineHasNoStorage</code>, or <code>StorageMigrating</code> while the instances move to a StatefulSet.</p>
 <p><strong>Rule: buffered events are never discarded before their <code>max_age</code> because of a change in Kubernetes.</strong> The manager keeps every volume either with a running instance or with a drain Job, and deletes a volume only when its drain Job finished, or once everything on it has expired.</p>
+<p>The life of a volume:</p>
+<pre class="mermaid"><code>stateDiagram-v2
+    direction LR
+    state "Used by its instance" as used
+    state "Drained by a Job" as draining
+    state "Kept, drain failed" as failed
+    [*] --&gt; used: instance starts
+    used --&gt; draining: instance goes, by scale-down, removed storage or a deleted Engine
+    draining --&gt; used: scale-up stops the Job
+    draining --&gt; failed: Job fails after its retries
+    failed --&gt; draining: Job deleted by hand
+    draining --&gt; [*]: queues empty or expired, VolumeDrained
+    draining --&gt; [*]: Job older than largest max_age plus 1h, VolumeExpired
+    used --&gt; [*]: instance goes while the Engine has the discard annotation, VolumeDiscarded
+    draining --&gt; [*]: discard annotation set, VolumeDiscarded</code></pre>
 <table>
 <thead>
 <tr>

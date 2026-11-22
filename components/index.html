@@ -1192,10 +1192,41 @@
 <li><strong>Delivery Guarantee:</strong> Delivery is at-least-once, and TRAM does not deduplicate. A sink can receive the same data again, e.g. when a client retries after a <code>503</code> although some sinks had already accepted the data, when a broker message is redelivered after one branch of its stream failed, or when a publish succeeded but its acknowledgement was lost. Deduplicate at the destination where duplicates matter.</li>
 </ul>
 <h3 id="buffers">Buffers<a class="headerlink" href="#buffers" title="Permanent link">&para;</a></h3>
-<p>A buffer rides out outages of a destination by storing events on the instance's disk: one stream writes them with a <a href="sinks/#buffer-sink">Buffer Sink</a>, another reads them with a <a href="sources/#buffer-source">Buffer Source</a> and delivers them. The queue name connects the two. Pipelines stay synchronous and in memory; the queue is a broker embedded in the instance, and the Buffer Source handles deliveries like the Broker Source.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>stream otlp-to-buffer:  OTLP Source ──▶ Buffer Sink   (queue: outbox)
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>stream buffer-to-otlp:  Buffer Source (queue: outbox) ──▶ batch ──▶ OTLP Sink
-</code></pre></div>
+<p>A stream processes events <strong>only in memory</strong>: it answers its source once every sink accepted an event, and keeps nothing on disk. A stream therefore cannot write events ahead by itself. A buffer does that with <strong>two streams</strong>: one writes events to a queue on the instance's disk with a <a href="sinks/#buffer-sink">Buffer Sink</a>, the other reads them with a <a href="sources/#buffer-source">Buffer Source</a> and delivers them. The queue name connects the two. Both streams stay synchronous and in memory; the queue between them is a broker embedded in the instance, and the Buffer Source handles deliveries like the Broker Source.</p>
+<pre class="mermaid"><code>flowchart LR
+    clients([OTLP clients]) --&gt; otlp
+    subgraph instance["TRAM instance"]
+        subgraph writer["stream otlp-to-buffer, in memory"]
+            otlp([OTLP source]) --&gt; bufsink([buffer sink])
+        end
+        queue[("queue outbox&lt;br/&gt;in the data directory")]
+        subgraph reader["stream buffer-to-otlp, in memory"]
+            bufsource([buffer source]) --&gt; batch[batch] --&gt; otlpsink([OTLP sink])
+        end
+        bufsink -- "store, sync to disk" --&gt; queue
+        queue -- "deliver, retry until max_age" --&gt; bufsource
+    end
+    otlpsink --&gt; backend([destination])</code></pre>
+<p>This is a write-ahead log for a pipeline: the writing stream answers its clients as soon as an event is on disk, and the reading stream delivers it later, retrying while the destination is down:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as Client
+    participant W as stream otlp-to-buffer
+    participant Q as queue on disk
+    participant R as stream buffer-to-otlp
+    participant D as destination
+    C-&gt;&gt;W: Export request
+    W-&gt;&gt;Q: store event
+    Q--&gt;&gt;W: synced to disk
+    W--&gt;&gt;C: 200 OK
+    Note over C,W: The client is done, the event is safe on disk.
+    Q-&gt;&gt;R: deliver event
+    R-&gt;&gt;D: send
+    D--&gt;&gt;R: 503, destination down
+    Note over Q,R: back off and retry, until max_age
+    Q-&gt;&gt;R: deliver event again
+    R-&gt;&gt;D: send
+    D--&gt;&gt;R: 200 OK
+    R--&gt;&gt;Q: delivered, remove event</code></pre>
 <ul>
 <li><strong>The queue is local.</strong> A Buffer Source reads only the queue of its own instance. Run both streams on the same instance, on Kubernetes on the same Engine; every instance then has a queue of its own</li>
 <li><strong>Data directory.</strong> Queues live in <code>tram server --data-dir</code>, which has to be on a volume that outlives the process. Without it, streams with a buffer sink or source fail to build. On Kubernetes, an <a href="../kubernetes/#storage-for-buffers">Engine with storage</a> gives every instance a volume and sets it</li>
@@ -1208,7 +1239,7 @@
 <p>A stream with <code>"suspended": true</code> stays defined but does not run: its source is not started, and its stages and sinks are not built, so it opens no port and reads from no broker or buffer. Setting it back to <code>false</code> starts the stream again. Use it to pause a stream, e.g. during maintenance of a destination, or to drain a buffer.</p>
 <h3 id="hold-times">Hold Times<a class="headerlink" href="#hold-times" title="Permanent link">&para;</a></h3>
 <p>A source like OTLP waits for a delivery only for a limited time, its <code>delivery_timeout</code>, and then answers with <code>503</code>. <code>batch</code> stages can hold an event back for up to their <code>timeout</code>, <code>delay</code> stages for their <code>delay</code>. When a stream is created or updated, TRAM adds up these hold times on the way from the source to each sink and rejects the stream if the sum reaches the source's limit: every event that does not fill its batch would be cancelled, so the stream would fail as soon as traffic gets low. The error names the stages:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>stream spec is invalid: on the way to sink openobserve-traces, batch-traces (10s) can hold an event for 10s, but source otlp cancels deliveries after 8s
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>stream spec is invalid: on the way to sink openobserve-traces, batch-traces (10s) can hold an event for 10s, but source otlp cancels deliveries after 8s
 </code></pre></div>
 <p>An update that is rejected leaves the running stream unchanged. Shorten the <code>timeout</code> or <code>delay</code>, or raise the source's <code>delivery_timeout</code>, and keep that below the time the clients wait. Sources without such a limit, like the Broker Source, are not checked.</p>
 
