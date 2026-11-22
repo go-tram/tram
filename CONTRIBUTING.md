@@ -761,11 +761,13 @@ A release is a version tag on main. The release workflow (`.github/workflows/rel
 Tag releases with the release tasks rather than by hand. They use [svu](https://github.com/caarlos0/svu) to compute the version from the existing tags, check that you are on main, that it matches `origin/main` and has no uncommitted changes, run `task check`, and then create and push the annotated tag:
 
 ```bash
-task release:next    # from the Conventional Commits since the last tag: feat → minor, fix → patch, at least a patch
-task release:patch   # v0.0.14 → v0.0.15
-task release:minor   # v0.0.14 → v0.1.0
-task release:major   # v0.0.14 → v1.0.0
+task release:next    # from the Conventional Commits since the last tag: breaking → major, feat → minor, others → patch
+task release:patch   # v0.1.0 → v0.1.1
+task release:minor   # v0.1.0 → v0.2.0
+task release:major   # v0.1.0 → v1.0.0
 ```
+
+A breaking change is a pull request title with `!` before the colon, e.g. `feat(api)!: remove the v1alpha1 Stream API`, or a `BREAKING CHANGE:` line in its description, which becomes the body of the squashed commit. While the version is `0.x`, `release:next` bumps the minor version for a breaking change instead of the major one, so `v1.0.0` is only tagged on purpose, with `release:major`.
 ---
 
 ## 🤔 Getting Help
