@@ -932,6 +932,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#transform-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Transform Stage
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1766,6 +1777,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#transform-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Transform Stage
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2543,7 +2565,7 @@
 <a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="value-map-stage">Value Map Stage<a class="headerlink" href="#value-map-stage" title="Permanent link">&para;</a></h2>
-<p>Looks up a source attribute in a table for every record and sets a target attribute to the mapped value, or to <code>default</code> on a miss (missing attribute or no table entry). Every record is passed on; nothing is filtered, dropped or held back.</p>
+<p>Looks up a source attribute in a table for every record and sets a target attribute to the mapped value, or to <code>default</code> on a miss (missing attribute or no table entry). Every record is passed on; nothing is filtered, dropped or held back. It maps values by data, a table; to compute attributes from others by logic, use the <a href="#transform-stage">Transform Stage</a>, e.g. after this stage on its result.</p>
 <p><strong>Type:</strong> <code>value_map</code></p>
 <p><strong>Configuration:</strong></p>
 <table>
@@ -2656,6 +2678,191 @@
 <li>A lookup miss is a defined state, not an error: the record is still passed on, with the target attribute set to <code>default</code></li>
 <li>Every record is annotated, so the stage always passes on a copy of the event: the containers it annotates (records of each signal) are rebuilt, resources, scopes and metric metadata are shared</li>
 <li>The table is fixed while the stream runs. To change it, update the stream with a changed spec, through the API, the config sync or a <code>Stream</code> resource, or change the config maps a <code>Stream</code> resource selects its table from; the usual stream update applies: an update with an identical spec changes nothing, an update with just a changed spec replaces the stage without touching the source</li>
+<li>The stage holds no events back and does not count toward the <a href="../#hold-times">Hold Times</a></li>
+</ul>
+</details>
+<h2 id="transform-stage">Transform Stage<a class="headerlink" href="#transform-stage" title="Permanent link">&para;</a></h2>
+<p>Changes the attributes of log records, metric data points and spans, and of their scopes and resources, with the statements of the driver chosen by <code>driver</code>. The driver's options are under the driver's name, e.g. <code>cel:</code>. Use it to derive attributes from others, rename keys to a convention, cut long values, or remove attributes nobody should store. To look values up in a table, use the <a href="#value-map-stage">Value Map Stage</a> instead; to encrypt or hash values, the <a href="#encryption-stage">Encryption Stage</a>.</p>
+<p><strong>Type:</strong> <code>transform</code></p>
+<p><strong>Configuration:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>driver</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>-</td>
+<td>The language of the statements: <code>cel</code> (Common Expression Language)</td>
+</tr>
+<tr>
+<td><code>on_error</code></td>
+<td>string</td>
+<td>No</td>
+<td><code>skip</code></td>
+<td>What happens when a statement fails on a resource, scope or entry: <code>skip</code> the statement and keep the entry, <code>drop</code> the entry (or the resource or scope with its entries), or <code>reject</code> the event (<code>422</code> for OTLP clients)</td>
+</tr>
+<tr>
+<td><code>cel</code></td>
+<td>object</td>
+<td>With <code>driver: cel</code></td>
+<td>-</td>
+<td>Options of the CEL driver, see below</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CEL driver options:</strong> a list of statements per signal, at least one list.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>logs</code></td>
+<td>[]statement</td>
+<td>Statements for logs</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>[]statement</td>
+<td>Statements for metrics, applied to their data points</td>
+</tr>
+<tr>
+<td><code>traces</code></td>
+<td>[]statement</td>
+<td>Statements for traces</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Statements:</strong> each has exactly one operation, which names the target path, and an optional <code>when</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Arguments</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>set</code></td>
+<td><code>value</code>: CEL expression</td>
+<td>Sets the attribute to the value: a string, bool, int, double or bytes. Replaces an existing value</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>-</td>
+<td>Removes the attribute; a missing one is no error</td>
+</tr>
+<tr>
+<td><code>rename</code></td>
+<td><code>to</code>: key</td>
+<td>Moves the value to the key <code>to</code> in the same attributes, replacing a value there; a missing attribute is no error</td>
+</tr>
+<tr>
+<td><code>truncate</code></td>
+<td><code>length</code>: int ≥ 1</td>
+<td>Shortens a string value to <code>length</code> characters; other types stay as they are</td>
+</tr>
+<tr>
+<td>(any)</td>
+<td><code>when</code>: CEL expression</td>
+<td>The statement only runs where it returns <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Target paths and when statements run:</strong> the path decides how often a statement runs, so a statement on the resource runs once per resource, not once per record that shares it:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Runs once per</th>
+<th>CEL variables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resource.attributes['key']</code></td>
+<td>resource</td>
+<td><code>resource</code></td>
+</tr>
+<tr>
+<td><code>scope.attributes['key']</code></td>
+<td>scope</td>
+<td><code>resource</code>, <code>scope</code></td>
+</tr>
+<tr>
+<td><code>attributes['key']</code></td>
+<td>log record, metric data point or span</td>
+<td><code>resource</code>, <code>scope</code>, and <code>record</code> (logs), <code>metric</code> and <code>datapoint</code> (metrics) or <code>span</code> (traces)</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    event(["event, copied"]) --&gt; resource["resource statements&lt;br/&gt;once per resource"]
+    resource --&gt; scope["scope statements&lt;br/&gt;once per scope"]
+    scope --&gt; entry["entry statements&lt;br/&gt;once per record, data point or span"]
+    entry --&gt; next(["next stage or sink"])
+    resource -. "failed statement" .-&gt; onerror{"on_error"}
+    scope -.-&gt; onerror
+    entry -.-&gt; onerror
+    onerror -- skip --&gt; continue["next statement"]
+    onerror -- drop --&gt; dropped["entry, scope or resource removed"]
+    onerror -- reject --&gt; rejected["event rejected, 422"]</code></pre>
+<p>Within a signal, the resource statements run first, then the scope statements, then the entry statements, each group in the order of the list. Keys go in single or double quotes.</p>
+<p><strong>Functions:</strong> besides standard CEL, expressions have the <a href="https://github.com/google/cel-go/blob/master/ext/README.md#strings">string functions</a> of CEL, e.g. <code>split</code>, <code>replace</code>, <code>lowerAscii</code>, <code>substring</code>, <code>trim</code>, and <code>attr(attributes, 'key')</code>, which returns the value of an attribute: a string, bool, int, double or bytes, or <code>null</code> if it is missing. Arrays and key-value lists are returned as their OTLP <code>AnyValue</code>.</p>
+<p><strong>Example:</strong> derive the environment from the namespace, drop a secret, follow the semantic conventions and keep notes short:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">{</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"normalize"</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"transform"</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otlp-in"</span><span class="p">,</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cel"</span><span class="p">,</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="nt">"cel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">      </span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">          </span><span class="nt">"set"</span><span class="p">:</span><span class="w"> </span><span class="s2">"resource.attributes['deployment.environment']"</span><span class="p">,</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attr(resource.attributes, 'k8s.namespace.name').split('-')[1]"</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"delete"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attributes['password']"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"rename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attributes['user']"</span><span class="p">,</span><span class="w"> </span><span class="nt">"to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user.name"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"truncate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attributes['note']"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">256</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="w">          </span><span class="nt">"set"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attributes['level']"</span><span class="p">,</span>
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="w">          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"record.severity_text.lowerAscii()"</span><span class="p">,</span>
+<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a><span class="w">          </span><span class="nt">"when"</span><span class="p">:</span><span class="w"> </span><span class="s2">"record.severity_text != ''"</span>
+<a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a><span class="w">      </span><span class="p">],</span>
+<a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a><span class="w">      </span><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"rename"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attributes['http.method']"</span><span class="p">,</span><span class="w"> </span><span class="nt">"to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http.request.method"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>examples/tests/otlp_with_transform.json</code> holds this stream with test cases; run them with <code>tram test</code>.</p>
+<p><strong>Metrics:</strong> <code>tram.stage.transform.failed</code> (<code>{statement}</code>) counts the statements that failed, by <code>stream</code>, <code>node</code> and <code>signal</code>, whatever <code>on_error</code> then did. The first failure in a minute is also logged as a warning with its error.</p>
+<details class="note">
+<summary>Behavior</summary>
+<ul>
+<li>The stage changes a copy of the signals it has statements for; the event it receives is shared with sibling branches and stays as it is. Signals without statements are passed on as they are</li>
+<li>A statement fails when an expression fails, e.g. on a missing attribute (<code>null</code> has no <code>split</code>), or returns a value that is no string, bool, int, double or bytes. With <code>on_error: skip</code>, use <code>when</code> or <code>attr(...) != null</code> to run a statement only where it applies, so the failed metric shows real problems</li>
+<li>A resource or scope that an event does not have is created for statements that set something on it, and left out again otherwise</li>
+<li>With <code>drop</code>, scopes and resources that lose all their entries are removed, and an event that loses all of them is not passed on</li>
+<li>The statements are compiled when the stream is created or updated, so an invalid statement fails the request, also as a <a href="../../guide/testing/#dry-run">dry run</a>, naming the statement and its signal</li>
+<li>Each entry statement costs a CEL evaluation per log record, data point or span; resource and scope statements run once per resource and scope and cost little. On one core, the stage handles about 2 million log records per second with one entry statement and about 1.4 million with four (<code>BenchmarkNotifyLogs</code> in <code>internal/adapters/stage/transform</code>); prefer resource statements where the value is the same for all entries of a resource</li>
 <li>The stage holds no events back and does not count toward the <a href="../#hold-times">Hold Times</a></li>
 </ul>
 </details>

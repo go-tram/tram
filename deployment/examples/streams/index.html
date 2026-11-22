@@ -1379,6 +1379,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_with_transformjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_with_transform.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_with_validationjson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2133,6 +2144,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_with_transformjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_with_transform.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_with_validationjson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2472,6 +2494,12 @@
 - Shows how to use CEL expressions in filters
 - Sends filtered data to customer-specific endpoint
 - <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_with_filters.yaml">../k8s/examples/otlp_with_filters.yaml</a></p>
+<h4 id="otlp_with_transformjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/tests/otlp_with_transform.json"><code>otlp_with_transform.json</code></a><a class="headerlink" href="#otlp_with_transformjson" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Normalize attributes with the transform stage. Lives in <code>../tests/</code> because it carries test cases.
+- Derives <code>deployment.environment</code> on the resource from the namespace, once per resource
+- Deletes <code>password</code>, renames <code>user</code> to <code>user.name</code>, truncates <code>note</code> and lowercases the severity into <code>level</code>
+- Its test cases show a normalized record and one the statements do not apply to, kept as it is (<code>on_error: skip</code>); run them with <code>tram test ../tests/otlp_with_transform.json</code>
+- <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_with_transform.yaml">../k8s/examples/otlp_with_transform.yaml</a></p>
 <h4 id="otlp_with_validationjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_with_validation.json"><code>otlp_with_validation.json</code></a><a class="headerlink" href="#otlp_with_validationjson" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: OTLP forwarding with CEL validation.
 - Validates that all resources have <code>service.name</code> attribute
@@ -2627,6 +2655,7 @@ The OTLP sink automatically uses the correct paths:
 <li><code>config/otlp_secure.json</code> ↔ <code>k8s/examples/otlp_secure.yaml</code></li>
 <li><code>config/otlp_batch.json</code> ↔ <code>k8s/examples/otlp_batch.yaml</code></li>
 <li><code>tests/otlp_with_filters.json</code> ↔ <code>k8s/examples/otlp_with_filters.yaml</code></li>
+<li><code>tests/otlp_with_transform.json</code> ↔ <code>k8s/examples/otlp_with_transform.yaml</code></li>
 <li><code>config/otlp_with_validation.json</code> ↔ <code>k8s/examples/otlp_with_validation.yaml</code></li>
 <li><code>config/otlp_multi_sink.json</code> ↔ <code>k8s/examples/otlp_multi_sink.yaml</code></li>
 <li><code>config/otlp_nats_bridge.json</code> ↔ <code>k8s/examples/otlp_nats_bridge.yaml</code></li>
