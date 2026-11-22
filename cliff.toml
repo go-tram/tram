@@ -1,0 +1,66 @@
+# git-cliff configuration (https://git-cliff.org) for the release notes.
+# They come from the commit messages on main, which are the squash-merged
+# pull request titles in Conventional Commits form; older commits that do
+# not follow it are listed under "Other". The release workflow puts the
+# notes of a tag into its GitHub Release (`git-cliff --current`), and
+# docs/generate.py writes the notes of all tags to the Releases page of the
+# documentation. Commits after the latest tag are left out of both.
+
+[changelog]
+header = """
+# Releases
+
+The changes of every TRAM release, newest first.
+
+"""
+body = """
+{%- macro remote_url() -%}
+  https://github.com/GO-TRAM/TRAM
+{%- endmacro -%}
+{% if version -%}
+## [{{ version }}]({{ self::remote_url() }}/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim | upper_first }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif -%}
+  {% if commit.breaking %}**breaking:** {% endif -%}
+  {{ commit.message | split(pat="\n") | first | trim | upper_first }}
+{%- endfor %}
+{% endfor %}
+{% if previous.version -%}
+[All changes since {{ previous.version }}]({{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }})
+{% endif %}
+{% endif -%}
+"""
+trim = true
+footer = ""
+postprocessors = [
+  { pattern = '\(#(\d+)\)', replace = "([#${1}](https://github.com/GO-TRAM/TRAM/pull/${1}))" },
+]
+
+[git]
+conventional_commits = true
+# Commits that are not Conventional Commits go to "Other".
+filter_unconventional = false
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+tag_pattern = "v[0-9].*"
+topo_order = false
+sort_commits = "newest"
+
+# The first parser that matches decides the group; the HTML comments only
+# order the groups and are stripped from the headings.
+commit_parsers = [
+  { message = "^Merge (pull request|branch|remote-tracking branch)", skip = true },
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^refactor", group = "<!-- 3 -->Refactoring" },
+  { message = "^docs", group = "<!-- 4 -->Documentation" },
+  { message = "^revert", group = "<!-- 5 -->Reverts" },
+  { message = "^chore\\(deps\\)", group = "<!-- 6 -->Dependencies" },
+  { message = "^(Bump|Update .* requirement)", group = "<!-- 6 -->Dependencies" },
+  { message = "^(test|build|ci|chore|style)", group = "<!-- 7 -->Maintenance" },
+  { message = ".*", group = "<!-- 8 -->Other" },
+]

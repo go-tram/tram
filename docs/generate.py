@@ -14,11 +14,16 @@ sections, and rewrites their links: links to a section point to the page it
 ended up on, links to docs/assets/ to the site's assets, and links to any
 other file of the repository to the file on GitHub. The generated pages
 and the copied assets are written to content/ and gitignored.
+
+The Releases page comes from the git history: git-cliff (see cliff.toml)
+writes the notes of every version tag, the same the GitHub Release of the
+tag gets. It needs the full history with the tags, not a shallow clone.
 """
 
 import posixpath
 import re
 import shutil
+import subprocess
 import unicodedata
 from collections import defaultdict
 from pathlib import Path
@@ -33,6 +38,7 @@ GETTING_STARTED = "guide/getting-started.md"
 STREAMS = "guide/streams.md"
 API = "guide/api.md"
 COMPONENTS_INDEX = "components/index.md"
+RELEASES = "releases.md"
 
 # Title of every generated page, in the order of the navigation.
 TITLES = {
@@ -217,8 +223,25 @@ def first_page(source):
     return next(target[0] for target in SECTIONS[source].values() if target)
 
 
+def releases():
+    """The Releases page: the notes of every version tag, by git-cliff."""
+    git = ["git", "-C", str(REPO)]
+    shallow = subprocess.run(
+        git + ["rev-parse", "--is-shallow-repository"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    if shallow == "true":
+        raise SystemExit("the Releases page needs the full history: git fetch --unshallow --tags")
+    if shutil.which("git-cliff") is None:
+        raise SystemExit("git-cliff not found: pip install -r docs/requirements.txt")
+    return subprocess.run(
+        ["git-cliff", "--config", str(REPO / "cliff.toml"), "--repository", str(REPO)],
+        check=True, capture_output=True, text=True,
+    ).stdout
+
+
 def clean():
-    for page in TITLES:
+    for page in [*TITLES, RELEASES]:
         (CONTENT / page).unlink(missing_ok=True)
     shutil.rmtree(CONTENT / "assets", ignore_errors=True)
 
@@ -234,6 +257,8 @@ def main():
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(content, encoding="utf-8")
         print(f"generated content/{page}")
+    (CONTENT / RELEASES).write_text(releases(), encoding="utf-8")
+    print(f"generated content/{RELEASES}")
     assets = CONTENT / "assets"
     shutil.copytree(ASSETS, assets)
     print(f"copied assets/ to content/assets/ ({len(list(ASSETS.rglob('*')))} entries)")

@@ -36,6 +36,7 @@ tools/loadgen/
 /docs/content/kubernetes.md
 /docs/content/benchmarks.md
 /docs/content/contributing.md
+/docs/content/releases.md
 __pycache__/
 examples/tenant-routing-k8s/
 examples/tenant-routing-demo/
