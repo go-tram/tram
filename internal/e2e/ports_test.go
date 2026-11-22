@@ -26,8 +26,10 @@ import (
 func TestOnFreePortMovesToAnotherPort(t *testing.T) {
 	t.Parallel()
 
+	// Take the port on all interfaces, as the OTLP source listens: on macOS,
+	// a port taken only on 127.0.0.1 is still free on the others.
 	var lc net.ListenConfig
-	taken, err := lc.Listen(t.Context(), "tcp", "127.0.0.1:0")
+	taken, err := lc.Listen(t.Context(), "tcp", ":0")
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = taken.Close() })
 	takenPort := taken.Addr().(*net.TCPAddr).Port
