@@ -454,9 +454,73 @@ Each test has a `name`, an `input` event and the expected outcome per sink in `e
 
 ---
 
+## 📥 Sending Data to TRAM
+
+TRAM receives data; it does not collect it. Clients push OTLP over HTTP to an [OTLP Source](COMPONENTS.md#otlp-source), or TRAM reads from a broker or a buffer. There is no source that scrapes Prometheus endpoints or tails log files, so whatever cannot send OTLP itself needs an agent that collects its data and sends it on:
+
+```mermaid
+flowchart LR
+    sdk["App with an OpenTelemetry SDK"] -- OTLP/HTTP --> tram(["TRAM<br/>OTLP source"])
+    scrape["App with /metrics"] -. scraped by .-> agent["Agent: OpenTelemetry Collector,<br/>Grafana Alloy or Fluent Bit"]
+    files["Log files of the node"] -. read by .-> agent
+    agent -- OTLP/HTTP --> tram
+    producer["Producer"] -- "OTLP protobuf messages" --> broker[("NATS, Kafka or AMQP")]
+    broker --> tram2(["TRAM<br/>broker source"])
+```
+
+| Pattern | How | When |
+|---|---|---|
+| **SDK** | The application exports OTLP itself, with `OTEL_EXPORTER_OTLP_ENDPOINT=http://<tram>:4318` and `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` | Instrumented applications; no agent to run |
+| **Sidecar** | An agent in the application's pod scrapes or reads it and sends OTLP to TRAM | Per-application settings, or isolation between tenants; costs resources in every pod |
+| **Node agent** | An agent per node, e.g. a DaemonSet, reads the logs of all pods on the node and scrapes their metrics | The usual way for logs and scraped metrics on Kubernetes |
+| **Gateway** | A central agent scrapes many targets, or receives OTLP over gRPC, and forwards to TRAM | Few targets, or protocols TRAM does not speak |
+| **Broker** | Producers publish OTLP protobuf messages to NATS, Kafka or AMQP; a [Broker Source](COMPONENTS.md#broker-source) reads them | Decoupling senders from TRAM, or replaying data |
+
+Agents have to send **OTLP over HTTP**, protobuf or JSON, optionally gzip-compressed; the OTLP Source does not accept OTLP over gRPC. With the OpenTelemetry Collector, that is the `otlphttp` exporter, e.g. for scraped metrics:
+
+```yaml
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: my-app
+          static_configs:
+            - targets: ["my-app:9090"]
+exporters:
+  otlphttp:
+    endpoint: http://tram:4318   # the exporter appends /v1/metrics, /v1/logs and /v1/traces
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      exporters: [otlphttp]
+```
+
+TRAM answers `503` when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.
+
+## 🐳 Container Image
+
+Every release publishes a multi-architecture image (`linux/amd64`, `linux/arm64`) as `ghcr.io/go-tram/tram:<version>`, e.g. `0.0.19`, and as `latest`. It holds only the `tram` binary on a distroless base, runs as the non-root user `65532` and starts `tram server` with both APIs listening on all interfaces of the container:
+
+```bash
+docker run --rm -p 8080:8080 -p 50051:50051 -p 4318:4318 ghcr.io/go-tram/tram:latest
+```
+
+Publish the ports the sources of your streams listen on as well, e.g. `4318` for an OTLP source. Arguments replace the default command, so repeat the endpoints when adding flags, e.g. for file sync and buffers:
+
+```bash
+docker run --rm -p 8080:8080 -p 4318:4318 \
+  -v "$PWD/config:/config" -v tram-data:/data \
+  ghcr.io/go-tram/tram:latest \
+  server --http-endpoint=0.0.0.0:8080 --grpc-endpoint=0.0.0.0:50051 \
+  --enable-file-sync --config-dir /config --data-dir /data
+```
+
+The directories have to be writable by the user `65532`. The image has no shell; debug from another container in the same network.
+
 ## ⚙️ Configuration Sources
 
-Besides the API, streams can be managed from two further sources. All of them change the same set of streams.
+Besides the API, streams can be managed from files and, on Kubernetes, from `Stream` resources through the [operator](internal/adapters/k8scrd/README.md). All of them change the same set of streams.
 
 ### File Sync
 
@@ -483,12 +547,12 @@ The operator watches `Stream` resources (`io.tram.core/v1`) and runs each as a s
 Alternatively, `tram manager` runs `Engine` resources (`io.tram.core/v1alpha1`) as Deployments of TRAM instances, and a `Stream` names the engines that run it in `spec.engineRefs`; see [Engines](internal/adapters/k8scrd/README.md#engines) and `examples/k8s/`. The Helm chart [`charts/tram`](charts/tram/), or the kustomization in [`manifests/`](manifests/), installs the manager with the CRDs:
 
 ```bash
-helm install tram oci://ghcr.io/go-tram/charts/tram --version 0.0.20 --namespace tram-system --create-namespace
+helm install tram oci://ghcr.io/go-tram/charts/tram --namespace tram-system --create-namespace
 # or
-kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/download/v0.0.20/tram.yaml
+kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/latest/download/tram.yaml
 ```
 
-Every release publishes the chart and the manifests with its version; from the repository, `charts/tram` and `kubectl apply --server-side -k manifests/` deploy the image `latest`.
+Without `--version`, Helm installs the latest chart; every release publishes the chart and the manifests with its version, e.g. `--version 0.0.19` or `releases/download/v0.0.19/tram.yaml`. From the repository, `charts/tram` and `kubectl apply --server-side -k manifests/` deploy the image `latest`.
 
 ---
 

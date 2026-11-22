@@ -1,14 +1,16 @@
-# Tram Helm Chart
+# TRAM Helm Chart
 
-Deploys `tram manager`, which runs every `Engine` resource as a Deployment (or StatefulSet) of Tram instances in the Engine's namespace, and the `Engine` and `Stream` CRDs. Engines and Streams are resources you create, not part of the chart; see [Engines](../../internal/adapters/k8scrd/README.md#engines) and the examples in [`examples/k8s/examples/`](../../examples/k8s/examples/).
+Deploys `tram manager`, which runs every `Engine` resource as a Deployment (or StatefulSet) of TRAM instances in the Engine's namespace, and the `Engine` and `Stream` CRDs. Engines and Streams are resources you create, not part of the chart; see [Engines](../../internal/adapters/k8scrd/README.md#engines) and the examples in [`examples/k8s/examples/`](../../examples/k8s/examples/).
 
 ## Install
 
 Every release publishes the chart to `oci://ghcr.io/go-tram/charts/tram`, with the release's version as both the chart version and the app version:
 
 ```bash
-helm install tram oci://ghcr.io/go-tram/charts/tram --version 0.0.20 --namespace tram-system --create-namespace
+helm install tram oci://ghcr.io/go-tram/charts/tram --namespace tram-system --create-namespace
 ```
+
+Without `--version`, Helm installs the latest release; add e.g. `--version 0.0.19` to pin one.
 
 The chart is attached to the [GitHub Release](https://github.com/GO-TRAM/TRAM/releases) as `tram-<version>.tgz` as well. From the repository, the chart has the version `0.0.0` and deploys the image `latest`, which is the latest release:
 

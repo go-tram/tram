@@ -33,11 +33,9 @@ tools/loadgen/
 /docs/content/assets/
 /docs/content/guide/
 /docs/content/components/
-/docs/content/kubernetes.md
-/docs/content/benchmarks.md
-/docs/content/contributing.md
-/docs/content/examples/
-/docs/content/releases.md
+/docs/content/deployment/
+/docs/content/operations/
+/docs/content/development/
 __pycache__/
 examples/tenant-routing-k8s/
 examples/tenant-routing-demo/
