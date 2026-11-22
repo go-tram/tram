@@ -102,7 +102,7 @@ SECTIONS = {
         "Benchmarks": ("benchmarks.md", UNWRAP),
     },
     "CONTRIBUTING.md": {
-        "Contributing to Tram": ("contributing.md", UNWRAP),
+        "Contributing to TRAM": ("contributing.md", UNWRAP),
         "Table of Contents": None,
     },
 }
@@ -140,6 +140,7 @@ class Splitter:
         # Stack of enclosing sections: (level, page, shift of heading levels).
         self.stack, self.page, self.shift = [], None, 0
         self.current, self.parts = [], []
+        self.seen = set()
 
     def flush(self):
         if self.page and self.current:
@@ -150,6 +151,7 @@ class Splitter:
         """Returns the page of a heading, the shift of its heading levels and
         whether it is unwrapped."""
         if title in self.sections:
+            self.seen.add(title)
             target = self.sections[title]
             page, unwrap = target if target else (None, False)
             return page, (1 if unwrap else 2) - level, unwrap
@@ -188,6 +190,10 @@ def split(source, text, sections, anchors):
             continue
         splitter.current.append(line)
     splitter.flush()
+    # A heading renamed in the document would silently drop its section.
+    missing = sections.keys() - splitter.seen
+    if missing:
+        raise SystemExit(f"{source} has no heading {', '.join(sorted(missing))}; update SECTIONS in docs/generate.py")
     return splitter.parts
 
 
@@ -257,6 +263,9 @@ def clean():
 def main():
     chunks, anchors = split_all()
     clean()
+    empty = [page for page in TITLES if not chunks[page]]
+    if empty:
+        raise SystemExit(f"no section goes to {', '.join(empty)}; check SECTIONS in docs/generate.py")
     for page, title in TITLES.items():
         content = f"# {title}\n\n" + "".join(
             rewrite(source, page, text, anchors) for source, text in chunks[page]
