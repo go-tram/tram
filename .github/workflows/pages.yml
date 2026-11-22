@@ -70,6 +70,12 @@ jobs:
             git -C pages remote add origin "$remote"
           fi
           cp -r src/docs/site/. pages/
+          # GitHub Pages takes the custom domain from the CNAME file of the
+          # branch it serves; without it, the domain is dropped on every
+          # deploy. The domain is the one of site_url in zensical.toml.
+          python3 -c 'import sys, tomllib, urllib.parse; print(urllib.parse.urlsplit(tomllib.load(open(sys.argv[1], "rb"))["project"]["site_url"]).hostname)' \
+            src/docs/zensical.toml > pages/CNAME
+          echo "Custom domain: $(cat pages/CNAME)"
 
           cd pages
           git config user.name "GitHub Actions"
