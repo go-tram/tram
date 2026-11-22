@@ -1,6 +1,6 @@
-# Tram Example Configurations
+# TRAM Example Configurations
 
-This directory contains example JSON configurations for Tram streams. The examples demonstrate various pipeline patterns including OTLP sinks, broker sources over NATS, and benchmark scenarios.
+This directory contains example JSON configurations for TRAM streams. The examples demonstrate various pipeline patterns including OTLP sinks, broker sources over NATS, and benchmark scenarios.
 
 ## Quick Start
 
@@ -13,7 +13,7 @@ All examples in this directory have corresponding Kubernetes YAML configurations
 
 ### Basic OTLP Examples
 
-These examples demonstrate using the OTLP sink in Tram for various use cases.
+These examples demonstrate using the OTLP sink in TRAM for various use cases.
 
 #### [`otlp_basic.json`](otlp_basic.json)
 **Purpose**: Simple OTLP to OTLP forwarding configuration.
@@ -94,7 +94,7 @@ These examples demonstrate using the OTLP sink in Tram for various use cases.
 
 ### Benchmark Configurations
 
-These configurations match the exact scenarios used in the Tram benchmarks (see [BENCHMARK.md](../../BENCHMARK.md)). They demonstrate pipelines with OTLP sources, various processing stages, and broker sinks over NATS. The JetStream streams have to exist, since Tram creates none.
+These configurations match the exact scenarios used in the TRAM benchmarks (see [BENCHMARK.md](../../BENCHMARK.md)). They demonstrate pipelines with OTLP sources, various processing stages, and broker sinks over NATS. The JetStream streams have to exist, since TRAM creates none.
 
 #### [`benchmark_otlp_nats.json`](benchmark_otlp_nats.json)
 **Purpose**: Exact configuration for the `otlp-nats` benchmark scenario: **OTLP → NATS**
@@ -144,7 +144,7 @@ The OTLP sink automatically uses the correct paths:
 
 ### Broker Source/Sink Reference (NATS driver)
 
-Tram creates no streams: set them up before the stream starts, e.g. `nats stream add input-stream --subjects 'telemetry.>' --defaults`. See [COMPONENTS.md](../../COMPONENTS.md#broker-source) for all fields.
+TRAM creates no streams: set them up before the stream starts, e.g. `nats stream add input-stream --subjects 'telemetry.>' --defaults`. See [COMPONENTS.md](../../COMPONENTS.md#broker-source) for all fields.
 
 **Broker Source Fields:**
 - `driver`: `nats`
