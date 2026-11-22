@@ -269,8 +269,9 @@ tasks:
     desc: Upgrade TRAM from the latest release to this repository in a kind cluster and check that buffered events survive
     summary: |
       Creates the kind cluster tram-upgrade if it is missing, builds the image
-      of this repository, pulls the image of the release to upgrade from, loads
-      both into the cluster and runs test/upgrade/run.sh. Set FROM_VERSION to
+      of this repository, pulls the image of the release to upgrade from, or
+      builds it from the release's tag if it cannot be pulled, loads both into
+      the cluster and runs test/upgrade/run.sh. Set FROM_VERSION to
       upgrade from another release than the latest tag, e.g.
       `task test:upgrade FROM_VERSION=0.1.0`. Delete the cluster afterwards
       with `kind delete cluster --name tram-upgrade`. With Podman, kind runs
@@ -288,7 +289,18 @@ tasks:
     cmds:
       - kind get clusters | grep -qx {{.UPGRADE_CLUSTER}} || kind create cluster --name {{.UPGRADE_CLUSTER}}
       - '{{.CONTAINER_TOOL}} build -t {{.UPGRADE_IMAGE}}:upgrade-test .'
-      - '{{.CONTAINER_TOOL}} pull {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}'
+      # Without access to the registry, e.g. to a private package, build the
+      # release's image from its tag instead.
+      - |
+        if ! {{.CONTAINER_TOOL}} pull {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}; then
+          echo "Cannot pull {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}; building it from the tag v{{.FROM_VERSION}}"
+          # Inside the repository, so a Podman machine on macOS sees it.
+          dir=".upgrade-from-v{{.FROM_VERSION}}"
+          git worktree add --quiet --detach "$dir" v{{.FROM_VERSION}}
+          {{.CONTAINER_TOOL}} build -t {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}} "$dir"; status=$?
+          git worktree remove --force "$dir"
+          exit $status
+        fi
       - kind load docker-image --name {{.UPGRADE_CLUSTER}} {{.UPGRADE_IMAGE}}:upgrade-test {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}
       - kubectl config use-context kind-{{.UPGRADE_CLUSTER}}
       - FROM_VERSION={{.FROM_VERSION}} IMAGE={{.UPGRADE_IMAGE}} NEW_TAG=upgrade-test test/upgrade/run.sh
