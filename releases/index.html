@@ -1,0 +1,1756 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, extensible pipeline framework for logs, metrics and traces">
+      
+      
+      
+        <link rel="canonical" href="https://gotram.dev/releases/">
+      
+      
+      
+      
+        <link rel="prev" href="../benchmarks/">
+      
+      
+        <link rel="next" href="../contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/TRAM.svg">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Releases - TRAM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TRAM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Releases
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/getting-started/" class="md-tabs__link">
+          
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../components/" class="md-tabs__link">
+          
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kubernetes/" class="md-tabs__link">
+        
+  
+  Kubernetes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../benchmarks/" class="md-tabs__link">
+        
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="././" class="md-tabs__link">
+        
+  
+  Releases
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
+        
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    TRAM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration Sources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Security
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Components
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Components
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/stages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stages
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sinks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0019-2026-11-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.19 - 2026-11-21
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.19 - 2026-11-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dependencies
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0018-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.18 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.18 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0017-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.17 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.17 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0016-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.16 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.16 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Features
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bug Fixes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Documentation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Maintenance
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0019-2026-11-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.19 - 2026-11-21
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.19 - 2026-11-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dependencies
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0018-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.18 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.18 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0017-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.17 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.17 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0016-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.0.16 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.0.16 - 2026-11-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Features
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bug Fixes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Documentation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Maintenance
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Other
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="releases">Releases<a class="headerlink" href="#releases" title="Permanent link">&para;</a></h1>
+<p>The changes of every TRAM release, newest first.</p>
+<h2 id="v0019-2026-11-21"><a href="https://github.com/GO-TRAM/TRAM/releases/tag/v0.0.19">v0.0.19</a> - 2026-11-21<a class="headerlink" href="#v0019-2026-11-21" title="Permanent link">&para;</a></h2>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Bump the go-dependencies group across 1 directory with 17 updates (<a href="https://github.com/GO-TRAM/TRAM/pull/7">#7</a>)</li>
+<li>Update zensical requirement in /docs in the docs-dependencies group (<a href="https://github.com/GO-TRAM/TRAM/pull/6">#6</a>)</li>
+<li>Bump grafana/grafana from 11.5.2 to 13.3.1 in /examples/demo/grafana (<a href="https://github.com/GO-TRAM/TRAM/pull/5">#5</a>)</li>
+</ul>
+<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Add buffer source and sink with SQLite driver (<a href="https://github.com/GO-TRAM/TRAM/pull/8">#8</a>)</li>
+</ul>
+<p><a href="https://github.com/GO-TRAM/TRAM/compare/v0.0.18...v0.0.19">All changes since v0.0.18</a></p>
+<h2 id="v0018-2026-11-20"><a href="https://github.com/GO-TRAM/TRAM/releases/tag/v0.0.18">v0.0.18</a> - 2026-11-20<a class="headerlink" href="#v0018-2026-11-20" title="Permanent link">&para;</a></h2>
+<h3 id="other_1">Other<a class="headerlink" href="#other_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Feature/dependabot pages ssh (<a href="https://github.com/GO-TRAM/TRAM/pull/4">#4</a>)</li>
+<li>Make the CI and release workflows work on GitHub Actions (<a href="https://github.com/GO-TRAM/TRAM/pull/3">#3</a>)</li>
+</ul>
+<p><a href="https://github.com/GO-TRAM/TRAM/compare/v0.0.17...v0.0.18">All changes since v0.0.17</a></p>
+<h2 id="v0017-2026-11-20"><a href="https://github.com/GO-TRAM/TRAM/releases/tag/v0.0.17">v0.0.17</a> - 2026-11-20<a class="headerlink" href="#v0017-2026-11-20" title="Permanent link">&para;</a></h2>
+<h3 id="other_2">Other<a class="headerlink" href="#other_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Update release.yml</li>
+</ul>
+<p><a href="https://github.com/GO-TRAM/TRAM/compare/v0.0.16...v0.0.17">All changes since v0.0.16</a></p>
+<h2 id="v0016-2026-11-20"><a href="https://github.com/GO-TRAM/TRAM/releases/tag/v0.0.16">v0.0.16</a> - 2026-11-20<a class="headerlink" href="#v0016-2026-11-20" title="Permanent link">&para;</a></h2>
+<h3 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Delete stream-selector</li>
+<li>Add engine ref</li>
+<li>Move stream to k8s examples folder</li>
+</ul>
+<h3 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Examples</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fix unclosed quote in README component diagram</li>
+</ul>
+<h3 id="maintenance">Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Move module to github.com/go-tram/tram</li>
+<li>Move module to codeberg.org/tram/tram</li>
+<li>Run lint and tests as parallel jobs on codeberg-medium</li>
+<li>Add Forgejo Actions CI and release workflows</li>
+</ul>
+<h3 id="other_3">Other<a class="headerlink" href="#other_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Update pages.yml</li>
+<li>Update Repo path</li>
+<li>Move from forgejo to github actions</li>
+<li>Update .golangci.yml</li>
+<li>Update zensical.toml</li>
+<li>Read test stream files like file sync and fix lint findings</li>
+<li>Move test example to examples/tests directory</li>
+<li>Add stream testing support with tram test command</li>
+<li>Add dry run support for stream upserts</li>
+<li>Use the shared driver package for crypto drivers and fix lint findings</li>
+<li>Add decryption stage with local and STACKIT KMS drivers</li>
+<li>Add encryption stage with local and STACKIT KMS drivers</li>
+<li>Accept redeliveries in the AMQP reconnect test</li>
+<li>Wait for the ack in the broker source partition test</li>
+<li>Use package paths relative to the module in the Taskfile</li>
+<li>Split filter and validation stages into concept and driver</li>
+<li>Keep loadgen out of lint and tests and silence two lint findings</li>
+<li>Remove stream test references that slipped into the logo commit</li>
+<li>Remove broker technology references from sink documentation</li>
+<li>Use the PNG wordmark for the docs header logo and favicon</li>
+<li>Update .gitignore</li>
+<li>Harmonize the docs color scheme with the brand palette</li>
+<li>Actually lighten code blocks in dark mode</li>
+<li>Hide the permalink anchor on the docs hero wordmark</li>
+<li>Bring the docs hero wordmark back to 16rem</li>
+<li>Center the docs hero and calm the wordmark down</li>
+<li>Stack the docs hero wordmark above the text, lighten dark-mode code blocks, split Engine/Stream examples</li>
+<li>Show the TRAM wordmark instead of the TRAM heading on the docs start page</li>
+<li>Fix Pages workflow clone URL casing for the allowlist</li>
+<li>Restore TRAM logo assets referenced by the docs</li>
+<li>Update logo assets and references</li>
+<li>Switch documentation tooling from MkDocs to Zensical</li>
+<li>Delete 1</li>
+<li>Remove architecture lint rules and add logger injection to stage</li>
+<li>Add constants for repeated strings in tests and docs</li>
+<li>Add tests for stream hot swapping with sources stages and sinks</li>
+<li>Add Engine resources run by tram manager</li>
+<li>Add tests for event reference sharing and fanout hot-swapping</li>
+<li>Split broker driver interface into publishing and subscribing sides</li>
+<li>Document Solace through the AMQP driver</li>
+<li>Add AMQP 1.0 broker driver</li>
+<li>Wait for new topics in kafkatest</li>
+<li>Add Kafka broker driver</li>
+<li>Update benchmark results for the broker source and sink</li>
+<li>Remove the nats source and sink in favor of broker</li>
+<li>Add broker source and sink with the NATS driver</li>
+<li>Add NATS JetStream broker driver</li>
+<li>Add broker driver contract, partitioning and test kit</li>
+<li>Revert "Add cloudevent sink and source"</li>
+<li>Add cloudevent sink and source</li>
+<li>Add config map selectors for Stream resources</li>
+<li>Add max_pending configuration to NATS sink</li>
+<li>Add value_map stage for attribute value lookup and mapping</li>
+<li>Update benchmark results and documentation</li>
+<li>Add secret reference resolution for Kubernetes operator</li>
+<li>Add OTLP URL routing with CEL expressions</li>
+<li>Update NATS connection handling and add batch size limiting</li>
+<li>Add NATS partitioning support</li>
+<li>Add NATS partitioning support</li>
+<li>Add NATS stream configuration options for replicas, discard policy and</li>
+<li>Update benchmark results and increase NATS workers limit</li>
+<li>Add noop sink implementation</li>
+<li>Update benchmark results after performance improvements</li>
+<li>Update Taskfile for Podman remote detection and Go 1.27.2</li>
+<li>Add metrics configuration to streams</li>
+<li>Add pprof endpoint for diagnostics</li>
+<li>Update benchmark documentation with NATS load test results</li>
+<li>Update documentation URLs to gotram.dev</li>
+<li>Add documentation site configuration</li>
+<li>Add CLA and ignore tenant-routing-k8s setup</li>
+<li>Switch license to MPL 2.0</li>
+<li>Add CRD printer columns for Active and Age</li>
+<li>Update stream status with Patch instead of Update</li>
+<li>Update benchmark results from latest run</li>
+<li>Update gitignore to exclude loadgen tool output</li>
+<li>Remove loadgen tooling</li>
+<li>Refactor loadgen to validate data points per metric type</li>
+<li>Add load generator tool for tenant routing load test</li>
+<li>Update .gitignore</li>
+<li>Add routing by record attribute test</li>
+<li>Refactor partitioning logic into domain package and add fuzz tests</li>
+<li>Update NATS sink documentation and metrics routing</li>
+<li>Add duplicate key detection to OTLP source</li>
+<li>Fix trailing whitespace in test files</li>
+<li>Update OTLP source to use HTTP 422 for client errors and add retry-after</li>
+<li>Add hold mechanism to capture sink for testing</li>
+<li>Remove loadgen tooling</li>
+<li>Update benchmark results</li>
+<li>Update NATS sink retention policy and max age for benchmarking</li>
+<li>Add retry logic for failed stream syncs</li>
+<li>Add load generator tool with Dockerfile and main program</li>
+<li>Add request size metrics for OTLP source</li>
+<li>Fix NATS sink retention policy handling</li>
+<li>Update NATS sink benchmark to use max_age instead of retention</li>
+<li>Update NATS sink documentation with retention policy and max_age</li>
+<li>Add NATS stream retention policy and max_age support</li>
+<li>Update NATS sink to publish all messages before waiting for</li>
+<li>Remove redundant comments</li>
+<li>Add NATS JetStream compression support</li>
+<li>Update NATS source workers limit and documentation</li>
+<li>Add resource and scope accessors to NATS sink helper</li>
+<li>Add NATS subject variables for direct record access</li>
+<li>Add streams idle cost benchmark</li>
+<li>Update Grafana dashboard queries to include stream dimension</li>
+<li>Add test:all task and document it</li>
+<li>Add Kubernetes operator envtest support</li>
+<li>Add Kubernetes operator namespace and label selection</li>
+<li>Update batch sizes in demo configuration</li>
+<li>Add cancelled outcome for context cancellation</li>
+<li>Update demo configuration and documentation with load test results</li>
+<li>Simplify comments to clarify intent</li>
+<li>Add hold time validation to stream creation</li>
+<li>Add hold time validation for pipeline streams</li>
+<li>Update Docker volume mount options for demo config</li>
+<li>Add metrics for records passed through nodes</li>
+<li>Update metrics to measure sources</li>
+<li>Add Prometheus metrics endpoint and instrumentation</li>
+<li>Add traces support to demo pipeline and dashboards</li>
+<li>Add demo setup for OpenObserve integration</li>
+<li>Rename Loki demo setup directory to demo</li>
+<li>Add .claude/ to gitignore</li>
+<li>Remove .claude/settings.json</li>
+<li>Add Loki demo setup with OTLP pipeline</li>
+<li>Add Taskfile and container tooling</li>
+<li>Update documentation and add new API endpoints</li>
+<li>Add delivery timeout to OTLP source</li>
+<li>Add subject validation to NATS sink</li>
+<li>Update NATS sink and source components with stream management and retry</li>
+<li>Fix failed stream update handling</li>
+<li>Add API server error handling and driver cancellation</li>
+<li>Update OTLP source to support JSON payloads and compression</li>
+<li>Update CEL validator and NATS sink to reject invalid expressions</li>
+<li>Add automatic restart for crashed sources</li>
+<li>Add stream name validation to prevent directory escape</li>
+<li>Update configsync to handle unreadable files gracefully</li>
+<li>Update OTLP sink to handle multiple signals per event</li>
+<li>Update documentation to reflect Tram's broader scope beyond OTLP sinks</li>
+<li>Update documentation links to consolidated READMEs</li>
+<li>Rename example files to README</li>
+<li>Add OTLP and benchmark example configurations</li>
+<li>Add OTLP sink for OpenTelemetry endpoint delivery</li>
+<li>Optimize filter functions for OTLP signal processing</li>
+<li>Add export test helpers for components</li>
+<li>Update project configuration and logging to use slog</li>
+<li>Update NATS source to interrupt fetches immediately on Stop</li>
+<li>Add lint configuration and NATS integration tests</li>
+<li>Update end-to-end test documentation and add e2e package</li>
+<li>Add benchmark infrastructure and documentation</li>
+<li>Add <code>-p 1</code> flag to benchmark commands for accurate results</li>
+<li>Update NATS sink subject handling and grouping</li>
+<li>Add NATS benchmarks and containerized test utilities</li>
+<li>Update stream handling to support live updates</li>
+<li>BBAIC</li>
+<li>Add batch stage and benchmarks</li>
+<li>Remove macOS cruft</li>
+<li>Update project references from Stream to Tram</li>
+<li>Update error handling in gRPC API and improve Kubernetes CRD spec</li>
+<li>Update dependencies and improve core stream handling</li>
+<li>WIP k8s controller</li>
+<li>WIP first version of a k8s controller</li>
+<li>Update configsync.go</li>
+<li>Add stream existence check before upsert</li>
+<li>Fix configsync resource handling and cleanup backup files</li>
+<li>Add configuration sync with file watcher</li>
+<li>Fix CEL expression documentation in CEL Filter Stage</li>
+<li>Add Bruno API collection</li>
+<li>Add NATS sink with subject routing and component stop methods</li>
+<li>Add NATS sink documentation to COMPONENTS.md</li>
+<li>Add NATS sink (WIP) and refactor OTLP parsing</li>
+<li>Update OTLP source documentation to reflect HTTP-only protocol support</li>
+<li>Add NATS source component and update documentation</li>
+<li>Update CEL validator spec field names and references</li>
+<li>Add NATS source adapter and simplify base source</li>
+<li>Rename CELFilter to CELValidator and improve error handling</li>
+<li>Refactor CEL validator environment creation</li>
+<li>Fix CEL validator to use correct OTLP data structure</li>
+<li>Rename celfilter stage to celvalidator</li>
+<li>Update colored-logo.svg</li>
+<li>Add small colored logo asset</li>
+<li>Update logo reference in README</li>
+<li>Add example webp asset</li>
+<li>Rename cel_filter component to cel_validator</li>
+<li>Add project logo to README and docs</li>
+<li>Update CEL filter to support separate expressions for logs, metrics, and</li>
+<li>Add stream architecture diagram</li>
+<li>Support filtering logs metrics and traces separately in CEL filter</li>
+<li>Update diagram references and add example setup</li>
+<li>Add component documentation and update README</li>
+<li>Update CEL filter to use native domain.Event type</li>
+<li>Add error handling to OTLP source handlers</li>
+<li>Rename project from Stream to Tram</li>
+<li>Remove GRPC port validation</li>
+<li>Update event passing to use pointers consistently</li>
+<li>Update OTLP source to properly handle context cancellation</li>
+<li>Add error handling to subscriber notifications and introduce OTLP source</li>
+<li>Update README pipeline structure examples</li>
+<li>Update documentation with diagrams and remove CONTRIBUTION.md</li>
+<li>Use typed context keys for path tracking</li>
+<li>Add OTLP support to Event type</li>
+<li>Move Event type to dedicated file</li>
+<li>Add Node domain type for pipeline tree structure</li>
+<li>Update domain model to use tree structure</li>
+<li>Add parent references and processor field to Node struct</li>
+<li>Refactor tree structure to use dedicated Tree type</li>
+<li>Add tree domain model and utilities</li>
+<li>Rename DAG terminology to Tree terminology</li>
+<li>Add project documentation files</li>
+<li>Add spec fields to Source Stage and Sink messages</li>
+<li>Add project documentation files</li>
+<li>Add base adapters for sources, stages and sinks</li>
+<li>Add core shutdown and noop stage implementation</li>
+<li>Update core.go</li>
+<li>First working MVP</li>
+<li>Implement factory pattern</li>
+<li>Adjust core implementation</li>
+<li>Add tests and improve software architecture</li>
+<li>Code review comments</li>
+<li>Adjust api definition</li>
+<li>Initial API setup</li>
+<li>Create go.mod</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../benchmarks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Benchmarks">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Benchmarks
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../contributing/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Contributing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/GO-TRAM/TRAM" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+    
+  </body>
+</html>
