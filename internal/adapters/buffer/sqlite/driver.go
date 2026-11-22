@@ -68,7 +68,7 @@ func (d *Driver) pathOf(queue string) (string, error) {
 	if err := validateQueue(queue); err != nil {
 		return "", err
 	}
-	return filepath.Join(d.dataDir, queue+"-v2.db"), nil
+	return filepath.Join(d.dataDir, queue+".db"), nil
 }
 
 // queueName is the queue of a file path.
