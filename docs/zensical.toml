@@ -23,8 +23,10 @@ watch = [
   "../BENCHMARK.md",
   "../CONTRIBUTING.md",
   "../internal/adapters/k8scrd/README.md",
+  "../charts/tram/README.md",
   "../examples/config/README.md",
   "../examples/k8s/README.md",
+  "../examples/tests/README.md",
   "../cliff.toml",
 ]
 
@@ -33,9 +35,9 @@ nav = [
   { "Guide" = [
       { "Getting Started" = "guide/getting-started.md" },
       { "Streams" = "guide/streams.md" },
+      { "Testing Streams" = "guide/testing.md" },
+      { "Sending Data to TRAM" = "guide/sending-data.md" },
       { "HTTP API" = "guide/api.md" },
-      { "Configuration Sources" = "guide/configuration.md" },
-      { "Metrics" = "guide/metrics.md" },
       { "Security" = "guide/security.md" },
   ] },
   { "Components" = [
@@ -44,14 +46,29 @@ nav = [
       { "Stages" = "components/stages.md" },
       { "Sinks" = "components/sinks.md" },
   ] },
-  { "Examples" = [
-      { "Streams" = "examples/streams.md" },
-      { "Kubernetes" = "examples/kubernetes.md" },
+  { "Deployment" = [
+      { "Container & Binary" = "deployment/container.md" },
+      { "Kubernetes" = [
+          "deployment/kubernetes/index.md",
+          { "Helm Chart" = "deployment/kubernetes/helm.md" },
+          { "Engines" = "deployment/kubernetes/engines.md" },
+          { "Storage for Buffers" = "deployment/kubernetes/storage.md" },
+          { "Stream Resources" = "deployment/kubernetes/streams.md" },
+      ] },
+      { "Examples" = [
+          { "Streams" = "deployment/examples/streams.md" },
+          { "Kubernetes" = "deployment/examples/kubernetes.md" },
+          { "Tests" = "deployment/examples/tests.md" },
+      ] },
   ] },
-  { "Kubernetes" = "kubernetes.md" },
-  { "Benchmarks" = "benchmarks.md" },
-  { "Releases" = "releases.md" },
-  { "Contributing" = "contributing.md" },
+  { "Operations" = [
+      { "Metrics" = "operations/metrics.md" },
+      { "Benchmarks" = "operations/benchmarks.md" },
+  ] },
+  { "Development" = [
+      { "Contributing" = "development/contributing.md" },
+      { "Releases" = "development/releases.md" },
+  ] },
 ]
 
 extra_css = ["stylesheets/extra.css"]
