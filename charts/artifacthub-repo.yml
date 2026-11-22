@@ -1,0 +1,8 @@
+# Repository metadata for Artifact Hub (https://artifacthub.io). The release
+# workflow pushes it next to the chart, as ghcr.io/go-tram/charts/tram with
+# the tag artifacthub.io, where Artifact Hub reads it: the repositoryID marks
+# the publisher as verified, the owners can claim the repository.
+repositoryID: 1c2ca053-8730-4697-9075-436d91c1e98f
+owners:
+  - name: Lars Hick
+    email: lars.hick@eljoth.de
