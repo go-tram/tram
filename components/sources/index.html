@@ -1734,7 +1734,7 @@
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="otlp-source">OTLP Source<a class="headerlink" href="#otlp-source" title="Permanent link">&para;</a></h2>
-<p>Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP). OTLP over gRPC is not supported.</p>
+<p>Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC), or both. Set <code>http_port</code>, <code>grpc_port</code> or both; a stream that uses both gets the data of either protocol.</p>
 <p><strong>Type:</strong> <code>otlp</code></p>
 <p><strong>Configuration:</strong></p>
 <table>
@@ -1751,9 +1751,16 @@
 <tr>
 <td><code>http_port</code></td>
 <td>int</td>
-<td>Yes</td>
+<td>One of the two</td>
 <td>-</td>
-<td>Port to listen on, on all network interfaces</td>
+<td>Port for OTLP/HTTP, on all network interfaces; usually <code>4318</code></td>
+</tr>
+<tr>
+<td><code>grpc_port</code></td>
+<td>int</td>
+<td>One of the two</td>
+<td>-</td>
+<td>Port for OTLP/gRPC, on all network interfaces; usually <code>4317</code>. Must differ from <code>http_port</code></td>
 </tr>
 <tr>
 <td><code>delivery_timeout</code></td>
@@ -1776,38 +1783,45 @@
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otlp-receiver"</span><span class="p">,</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otlp"</span><span class="p">,</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"http_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">4318</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"http_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">4318</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">"grpc_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">4317</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>Responses:</strong></p>
+<p><strong>Responses</strong> (OTLP/HTTP status, OTLP/gRPC code):</p>
 <table>
 <thead>
 <tr>
-<th>Status</th>
+<th>HTTP</th>
+<th>gRPC</th>
 <th>When</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>200</code></td>
+<td><code>OK</code></td>
 <td>Empty response message in the request's encoding, once all sinks have accepted the data</td>
 </tr>
 <tr>
 <td><code>422</code></td>
+<td><code>InvalidArgument</code></td>
 <td>Body cannot be read or parsed, contains a duplicate key, or holds data rejected by a stage or sink (e.g. <code>validation</code> with <code>on_mismatch: reject</code>)</td>
 </tr>
 <tr>
 <td><code>413</code></td>
+<td><code>ResourceExhausted</code></td>
 <td>Body larger than 20 MiB, also after decompression</td>
 </tr>
 <tr>
 <td><code>415</code></td>
+<td>-</td>
 <td>Other content types or encodings</td>
 </tr>
 <tr>
 <td><code>503</code></td>
-<td>Passing the data on failed or took longer than <code>delivery_timeout</code>; sent with a <code>Retry-After</code> header. The only status OTLP clients retry — the only answer the request itself did not cause</td>
+<td><code>Unavailable</code></td>
+<td>Passing the data on failed or took longer than <code>delivery_timeout</code>; sent with a <code>Retry-After</code> header over HTTP and a <code>RetryInfo</code> detail over gRPC, both from <code>retry_after</code>. The only status OTLP clients retry — the only answer the request itself did not cause</td>
 </tr>
 </tbody>
 </table>
@@ -1821,7 +1835,9 @@
 <li>A rejection is answered with <code>422</code> wherever it comes from, including a sink whose destination refuses the data permanently, e.g. an <a href="../sinks/#otlp-sink">OTLP Sink</a> whose destination answers <code>401</code>, <code>403</code> or <code>404</code> because of its own configuration. The client then drops data it did not cause to be refused</li>
 <li>The default <code>delivery_timeout</code> is below the 10s that OpenTelemetry SDK exporters wait by default, so they get the <code>503</code> before they give up. <code>batch</code> and <code>delay</code> stages have to leave time for it, see <a href="../#hold-times">Hold Times</a>. Raise it for pipelines that take longer, e.g. with a <code>delay</code> stage or slow sinks, and for clients that wait longer, like the OpenTelemetry Collector (30s by default). A batch that is already being sent when the timeout expires is still awaited, since it holds data of other requests too</li>
 <li>A request may take up to 1 minute to send, which leaves time for large bodies on slow connections</li>
-<li>The port is opened when the stream is created, so a port that is already in use fails the stream creation</li>
+<li>The ports are opened when the stream is created, so a port that is already in use fails the stream creation. An update that keeps the source keeps its ports open</li>
+<li>Over gRPC, it serves the OTLP <code>LogsService</code>, <code>MetricsService</code> and <code>TraceService</code>, without TLS. Messages may be compressed with gzip; the 20 MiB limit applies to the decompressed message</li>
+<li>Partial success is not used: a request is accepted or refused as a whole, over both protocols</li>
 </ul>
 </details>
 <h2 id="broker-source">Broker Source<a class="headerlink" href="#broker-source" title="Permanent link">&para;</a></h2>

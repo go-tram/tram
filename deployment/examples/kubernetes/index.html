@@ -1362,6 +1362,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_grpcyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_grpc.yaml</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_debugyaml" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2328,6 +2339,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_grpcyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_grpc.yaml</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_debugyaml" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2941,6 +2963,11 @@
 - Forwards to a central OTLP collector
 - No processing stages
 - <strong>JSON version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_basic.json">../config/otlp_basic.json</a></p>
+<h4 id="otlp_grpcyaml"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_grpc.yaml"><code>otlp_grpc.yaml</code></a><a class="headerlink" href="#otlp_grpcyaml" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: OTLP over gRPC and HTTP into one stream
+- Receives OTLP/gRPC on port 4317 and OTLP/HTTP on port 4329; the example Engine lists both ports, so its Service exposes them
+- Forwards both to a central OTLP collector
+- <strong>JSON version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_grpc.json">../config/otlp_grpc.json</a></p>
 <h4 id="otlp_debugyaml"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_debug.yaml"><code>otlp_debug.yaml</code></a><a class="headerlink" href="#otlp_debugyaml" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: OTLP into the debug sink, to see what reaches an Engine
 - Receives OTLP data on port 4327

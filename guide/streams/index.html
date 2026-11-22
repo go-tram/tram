@@ -1826,7 +1826,7 @@
 </table>
 <p>For detailed documentation on each component and its configuration, see <a href="../../components/">COMPONENTS.md</a>.</p>
 <pre class="mermaid"><code>flowchart LR
-    otlp_src(["otlp source&lt;br&gt;OTLP/HTTP"]) --&gt; tram(["TRAM"])
+    otlp_src(["otlp source&lt;br&gt;OTLP/HTTP, OTLP/gRPC"]) --&gt; tram(["TRAM"])
     broker_src(["broker source"]) --&gt; tram
     generator(["generator source"]) --&gt; tram
     tram --&gt; otlp_sink(["otlp sink"])

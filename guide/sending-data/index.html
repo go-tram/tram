@@ -1561,12 +1561,12 @@
 
 
 <h1 id="sending-data-to-tram">Sending Data to TRAM<a class="headerlink" href="#sending-data-to-tram" title="Permanent link">&para;</a></h1>
-<p>TRAM receives data; it does not collect it. Clients push OTLP over HTTP to an <a href="../../components/sources/#otlp-source">OTLP Source</a>, or TRAM reads from a broker or a buffer. There is no source that scrapes Prometheus endpoints or tails log files, so whatever cannot send OTLP itself needs an agent that collects its data and sends it on:</p>
+<p>TRAM receives data; it does not collect it. Clients push OTLP over HTTP or gRPC to an <a href="../../components/sources/#otlp-source">OTLP Source</a>, or TRAM reads from a broker or a buffer. There is no source that scrapes Prometheus endpoints or tails log files, so whatever cannot send OTLP itself needs an agent that collects its data and sends it on:</p>
 <pre class="mermaid"><code>flowchart LR
-    sdk["App with an OpenTelemetry SDK"] -- OTLP/HTTP --&gt; tram(["TRAM&lt;br/&gt;OTLP source"])
+    sdk["App with an OpenTelemetry SDK"] -- "OTLP/HTTP or gRPC" --&gt; tram(["TRAM&lt;br/&gt;OTLP source"])
     scrape["App with /metrics"] -. scraped by .-&gt; agent["Agent: OpenTelemetry Collector,&lt;br/&gt;Grafana Alloy or Fluent Bit"]
     files["Log files of the node"] -. read by .-&gt; agent
-    agent -- OTLP/HTTP --&gt; tram
+    agent -- "OTLP/HTTP or gRPC" --&gt; tram
     producer["Producer"] -- "OTLP protobuf messages" --&gt; broker[("NATS, Kafka or AMQP")]
     broker --&gt; tram2(["TRAM&lt;br/&gt;broker source"])</code></pre>
 <table>
@@ -1580,7 +1580,7 @@
 <tbody>
 <tr>
 <td><strong>SDK</strong></td>
-<td>The application exports OTLP itself, with <code>OTEL_EXPORTER_OTLP_ENDPOINT=http://&lt;tram&gt;:4318</code> and <code>OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf</code></td>
+<td>The application exports OTLP itself, e.g. with <code>OTEL_EXPORTER_OTLP_ENDPOINT=http://&lt;tram&gt;:4317</code> over gRPC, the default of most SDKs, or <code>http://&lt;tram&gt;:4318</code> with <code>OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf</code></td>
 <td>Instrumented applications; no agent to run</td>
 </tr>
 <tr>
@@ -1595,8 +1595,8 @@
 </tr>
 <tr>
 <td><strong>Gateway</strong></td>
-<td>A central agent scrapes many targets, or receives OTLP over gRPC, and forwards to TRAM</td>
-<td>Few targets, or protocols TRAM does not speak</td>
+<td>A central agent scrapes many targets, or receives protocols TRAM does not speak, and forwards to TRAM</td>
+<td>Few targets, or protocols other than OTLP</td>
 </tr>
 <tr>
 <td><strong>Broker</strong></td>
@@ -1605,7 +1605,7 @@
 </tr>
 </tbody>
 </table>
-<p>Agents have to send <strong>OTLP over HTTP</strong>, protobuf or JSON, optionally gzip-compressed; the OTLP Source does not accept OTLP over gRPC. With the OpenTelemetry Collector, that is the <code>otlphttp</code> exporter, e.g. for scraped metrics:</p>
+<p>Agents send <strong>OTLP over gRPC</strong> to the source's <code>grpc_port</code>, or <strong>over HTTP</strong>, protobuf or JSON, to its <code>http_port</code>; both may be gzip-compressed. With the OpenTelemetry Collector, that is the <code>otlp</code> exporter for gRPC or the <code>otlphttp</code> exporter for HTTP, e.g. for scraped metrics:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">receivers</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">prometheus</span><span class="p">:</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">config</span><span class="p">:</span>
@@ -1614,15 +1614,17 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">          </span><span class="nt">static_configs</span><span class="p">:</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"my-app:9090"</span><span class="p p-Indicator">]</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nt">exporters</span><span class="p">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">otlphttp</span><span class="p">:</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://tram:4318</span><span class="w">   </span><span class="c1"># the exporter appends /v1/metrics, /v1/logs and /v1/traces</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="nt">service</span><span class="p">:</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">pipelines</span><span class="p">:</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">prometheus</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlphttp</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tram:4317</span><span class="w">          </span><span class="c1"># the source's grpc_port</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">tls</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">      </span><span class="nt">insecure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">             </span><span class="c1"># the OTLP source serves gRPC without TLS</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nt">service</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">pipelines</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">prometheus</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<p>TRAM answers <code>503</code> when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.</p>
+<p>TRAM answers <code>503</code>, or <code>Unavailable</code> over gRPC, when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.</p>
 
 
 

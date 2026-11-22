@@ -1285,6 +1285,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_grpcjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_grpc.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_securejson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2017,6 +2028,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_grpcjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_grpc.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_securejson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2385,6 +2407,12 @@
 - Forwards to another OTLP endpoint
 - No processing stages
 - <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_basic.yaml">../k8s/examples/otlp_basic.yaml</a></p>
+<h4 id="otlp_grpcjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_grpc.json"><code>otlp_grpc.json</code></a><a class="headerlink" href="#otlp_grpcjson" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Receive OTLP over gRPC and HTTP in one stream.
+- Receives OTLP/gRPC on port 4317, the default of most OpenTelemetry SDKs, and OTLP/HTTP on port 4329
+- Forwards both to another OTLP endpoint
+- Send to it e.g. with <code>OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317</code>, or from an OpenTelemetry Collector with the <code>otlp</code> exporter and <code>tls.insecure: true</code>
+- <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_grpc.yaml">../k8s/examples/otlp_grpc.yaml</a></p>
 <h4 id="otlp_securejson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_secure.json"><code>otlp_secure.json</code></a><a class="headerlink" href="#otlp_securejson" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: Secure OTLP forwarding with HTTPS and authentication headers.
 - HTTPS endpoint
