@@ -1,7 +1,8 @@
 # Zensical configuration. The site is built with `zensical build -f
 # docs/zensical.toml` after `python docs/generate.py` generated the guide,
 # components, operator, benchmark and contributing pages in content/ from
-# the Markdown files of the repository; the images come from assets/.
+# the Markdown files of the repository, and the releases page from the git
+# tags with git-cliff; the images come from assets/.
 
 [project]
 site_name = "TRAM"
@@ -22,6 +23,7 @@ watch = [
   "../BENCHMARK.md",
   "../CONTRIBUTING.md",
   "../internal/adapters/k8scrd/README.md",
+  "../cliff.toml",
 ]
 
 nav = [
@@ -42,6 +44,7 @@ nav = [
   ] },
   { "Kubernetes" = "kubernetes.md" },
   { "Benchmarks" = "benchmarks.md" },
+  { "Releases" = "releases.md" },
   { "Contributing" = "contributing.md" },
 ]
 

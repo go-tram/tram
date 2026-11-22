@@ -1,12 +1,15 @@
 # Builds the documentation in docs/ with Zensical and publishes it to the
 # root of the pages branch, which GitHub Pages serves at https://go-tram.github.io/TRAM/
-# through a webhook of the repository.
+# through a webhook of the repository. A version tag rebuilds it from main,
+# so the Releases page lists the new release.
 name: Pages
 
 on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
     paths:
       - docs/**
       - README.md
@@ -14,6 +17,7 @@ on:
       - BENCHMARK.md
       - CONTRIBUTING.md
       - internal/adapters/k8scrd/README.md
+      - cliff.toml
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -31,11 +35,15 @@ jobs:
       # Canonical repository path
       REPO: GO-TRAM/TRAM
     steps:
+      # The full history with the tags, for the Releases page. For a tag,
+      # main is built as it is, since the tag is on main.
       - name: Check out main
         run: |
-          git clone --depth 1 --branch "${GITHUB_REF_NAME}" \
+          git clone --quiet --branch main \
             "https://${GITHUB_TOKEN}@github.com/${REPO}.git" src
-          git -C src checkout --quiet "${GITHUB_SHA}"
+          if [ "${GITHUB_REF_TYPE}" = branch ]; then
+            git -C src checkout --quiet "${GITHUB_SHA}"
+          fi
 
       - name: Build site
         working-directory: src
