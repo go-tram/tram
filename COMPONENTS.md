@@ -2,6 +2,75 @@
 
 This document provides detailed documentation for all implemented sources, stages, and sinks in TRAM.
 
+## 🗺️ How Components Fit Together
+
+A stream is a tree of components: exactly one **source** at the root, which receives or produces events, any number of **stages**, which filter, check, change or merge them, and **sinks** as the leaves, which deliver them. Every component names the one it receives from in `from`, so a stream can branch: each branch gets the same events and handles them on its own. See [Streams](README.md#core-concepts) for how a stream runs.
+
+```mermaid
+flowchart LR
+    src(["source<br/>otlp, broker, buffer, generator"]) --> s1["stage<br/>validation"]
+    s1 --> s2["stage<br/>filter"] --> s3["stage<br/>transform, value_map, encryption"] --> s4["stage<br/>batch"] --> k1(["sink<br/>broker"])
+    s1 --> k2(["sink<br/>otlp"])
+    src --> k3(["sink<br/>buffer, debug"])
+```
+
+## 📋 All Components
+
+| Component | Kind | Drivers | Signals | Holds events back | State on disk | Performance |
+|-----------|------|---------|---------|-------------------|---------------|-------------|
+| [`otlp`](#otlp-source) | source | – | logs, metrics, traces | – | – | ✓ |
+| [`broker`](#broker-source) | source | `nats`, `kafka`, `amqp` | one per source (`signal`) | – | – | ✓ NATS |
+| [`buffer`](#buffer-source) | source | `sqlite` | logs, metrics, traces | – | reads the queue | – |
+| [`generator`](#generator-source) | source | – | empty events | – | – | – |
+| [`validation`](#validation-stage) | stage | `cel` | per signal | – | – | ✓ |
+| [`filter`](#filter-stage) | stage | `cel` | per signal | – | – | ✓ |
+| [`value_map`](#value-map-stage) | stage | – | logs, metrics, traces | – | – | ✓ |
+| [`encryption`](#encryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
+| [`decryption`](#decryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
+| [`batch`](#batch-stage) | stage | – | logs, metrics, traces | up to `timeout` | – | ✓ |
+| [`delay`](#delay-stage) | stage | – | logs, metrics, traces | for `delay` | – | – |
+| [`noop`](#no-op-stage) | stage | – | logs, metrics, traces | – | – | ✓ |
+| [`otlp`](#otlp-sink) | sink | – | logs, metrics, traces | – | – | – |
+| [`broker`](#broker-sink) | sink | `nats`, `kafka`, `amqp` | per signal (`destination`) | – | – | ✓ NATS |
+| [`buffer`](#buffer-sink) | sink | `sqlite` | logs, metrics, traces | – | writes the queue | – |
+| [`debug`](#debug-sink) | sink | – | logs, metrics, traces | – | – | – |
+
+- **Holds events back:** the caller waits while the stage holds an event, which counts toward the [Hold Times](#hold-times) a stream may add up.
+- **State on disk:** everything else works in memory; only a buffer keeps events on the instance's disk, between two streams. See [Buffers](#buffers).
+- **Performance:** the component's page shows its measured costs; see [Benchmarks](BENCHMARK.md) for complete streams.
+
+## 🧭 Which Component for What
+
+| To … | Use |
+|------|-----|
+| receive OTLP from SDKs, agents or a Collector | [`otlp` source](#otlp-source), with `header_attributes` for what a proxy in front knows, e.g. the tenant |
+| read from or write to NATS, Kafka or AMQP | [`broker` source](#broker-source) and [`broker` sink](#broker-sink) |
+| ride out an outage of a destination | a [`buffer` sink](#buffer-sink) in one stream and a [`buffer` source](#buffer-source) in another; see [Buffers](#buffers) |
+| accept or refuse whole requests | [`validation`](#validation-stage), with `on_mismatch: reject` before a batch |
+| keep only some records | [`filter`](#filter-stage) |
+| set an attribute from a table, e.g. tenant → router | [`value_map`](#value-map-stage) |
+| keep values secret on their way | [`encryption`](#encryption-stage) before the sinks, [`decryption`](#decryption-stage) where they may be read |
+| send fewer, larger requests or messages | [`batch`](#batch-stage) before the sink |
+| route each record to its own destination | the `destination` expressions of the [`broker` sink](#broker-sink), or `url_expression` of the [`otlp` sink](#otlp-sink) |
+| see what a stream does | [`debug` sink](#debug-sink), or `tram test` with test cases; see [Testing a Stream](README.md#testing-a-stream) |
+| try out how a stream is wired | [`generator` source](#generator-source) and [`noop` stage](#no-op-stage) |
+
+## 🔌 Drivers
+
+Some components are a concept with exchangeable technologies: the broker source and sink with NATS, Kafka or AMQP, the buffer with SQLite, encryption and decryption with a local key or a KMS, filter and validation with CEL. Such a component names its technology in `driver` and holds the driver's options under the driver's name; the fields beside them are the component's own and apply to every driver:
+
+```yaml
+type: broker
+spec:
+  driver: nats                  # the technology
+  nats:                         # the options of that driver
+    url: nats://nats:4222
+  destination:                  # the component's own fields, the same for every driver
+    logs: "'logs.' + resource.attributes.get_attr('service.name')"
+```
+
+Switching the technology changes `driver` and its options; what the component does stays the same. Options of a driver other than the one `driver` names are refused, so a spec cannot name one driver and configure another.
+
 ---
 
 ## 📡 Sources
