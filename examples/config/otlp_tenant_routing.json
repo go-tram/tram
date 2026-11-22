@@ -1,0 +1,59 @@
+{
+  "stream": {
+    "name": "otlp_tenant_routing",
+    "source": {
+      "name": "tenant_in",
+      "type": "otlp",
+      "spec": {
+        "http_port": 4331,
+        "grpc_port": 4332,
+        "header_attributes": {
+          "X-Tram-Router": "tram.router.id"
+        }
+      }
+    },
+    "stages": [
+      {
+        "name": "require_router",
+        "type": "validation",
+        "from": "tenant_in",
+        "spec": {
+          "driver": "cel",
+          "on_mismatch": "reject",
+          "cel": {
+            "logs": "logs.resource_logs.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))",
+            "metrics": "metrics.resource_metrics.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))",
+            "traces": "traces.resource_spans.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))"
+          }
+        }
+      },
+      {
+        "name": "batch",
+        "type": "batch",
+        "from": "require_router",
+        "spec": {
+          "max_records": 1000,
+          "timeout": "200ms"
+        }
+      }
+    ],
+    "sinks": [
+      {
+        "name": "routers",
+        "type": "broker",
+        "from": "batch",
+        "spec": {
+          "driver": "nats",
+          "nats": {
+            "url": "nats://localhost:4222"
+          },
+          "destination": {
+            "logs": "'router.' + resource.attributes.get_attr('tram.router.id') + '.logs'",
+            "metrics": "'router.' + resource.attributes.get_attr('tram.router.id') + '.metrics'",
+            "traces": "'router.' + resource.attributes.get_attr('tram.router.id') + '.traces'"
+          }
+        }
+      }
+    ]
+  }
+}

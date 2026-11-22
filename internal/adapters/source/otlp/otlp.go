@@ -79,6 +79,8 @@ type OTLP struct {
 	// retryDelay the RetryInfo of retriable gRPC ones.
 	retryAfter string
 	retryDelay time.Duration
+	// headers are the header_attributes of the spec, in a fixed order.
+	headers []headerMapping
 }
 
 func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) (*OTLP, error) {
@@ -95,6 +97,10 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 	if err != nil {
 		return nil, err
 	}
+	headers, err := newHeaderMappings(base.Spec().HeaderAttributes)
+	if err != nil {
+		return nil, err
+	}
 
 	o := &OTLP{
 		Source:               base,
@@ -103,6 +109,7 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 		responseWriteTimeout: responseWriteTimeout,
 		retryAfter:           retryAfterHeader(retryAfter),
 		retryDelay:           retryAfter,
+		headers:              headers,
 	}
 
 	if port := base.Spec().HTTPPort; port != 0 {
@@ -275,6 +282,13 @@ func (o *OTLP) receive(
 	}
 	if key, duplicate := duplicateKey(event); duplicate {
 		return "", http.StatusUnprocessableEntity, fmt.Sprintf("Attribute key %q appears more than once", key)
+	}
+	if err = applyHeaders(
+		event,
+		o.headers,
+		func(m headerMapping) []string { return r.Header.Values(m.header) },
+	); err != nil {
+		return "", http.StatusUnprocessableEntity, err.Error()
 	}
 	event.Request = request
 

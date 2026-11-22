@@ -55,6 +55,7 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC
 | `grpc_port` | int | One of the two | - | Port for OTLP/gRPC, on all network interfaces; usually `4317`. Must differ from `http_port` |
 | `delivery_timeout` | string | No | `"8s"` | Maximum time to pass a request on to the stages and sinks, as a Go duration. A request that takes longer is cancelled and answered with `503`, which clients retry |
 | `retry_after` | string | No | `"5s"` | How long clients should wait before retrying a `503`, as a Go duration. Sent as the `Retry-After` header in whole seconds, rounded up |
+| `header_attributes` | object | No | - | Request headers to copy into resource attributes, as header name → attribute key, e.g. `{"X-Tram-Router": "tram.router.id"}`. Over gRPC, the metadata of the same name. See below |
 
 **Example:**
 
@@ -68,6 +69,22 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC
   }
 }
 ```
+
+**Header attributes:** a proxy in front of TRAM, e.g. one ingress per tenant, can tell TRAM something about a request that the client must not choose, such as the tenant or the router its data belongs to, by setting a header. `header_attributes` makes that part of the data: the source sets the attribute on every resource of the request, where stages and sinks read it, e.g. a broker sink's destination `'router.' + resource.attributes.get_attr('tram.router.id') + '.logs'`, and where it survives a broker between streams, since broker messages carry no headers.
+
+```json
+{
+  "name": "customer-in",
+  "type": "otlp",
+  "spec": {
+    "http_port": 4318,
+    "grpc_port": 4317,
+    "header_attributes": { "X-Tram-Router": "tram.router.id" }
+  }
+}
+```
+
+The header decides the attribute alone: a value the client put into the attribute itself is replaced, and removed when the header is missing or empty. A header with several values is refused (`422`, `InvalidArgument` over gRPC), since it is unclear which one the proxy meant, e.g. when it appended its value to a header the client sent instead of replacing it. The header is only as trustworthy as the way to TRAM: let only the proxy reach the source's port, e.g. with a network policy, and have it replace the header rather than add to it.
 
 **Responses** (OTLP/HTTP status, OTLP/gRPC code):
 
@@ -91,6 +108,7 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC
     - The ports are opened when the stream is created, so a port that is already in use fails the stream creation. An update that keeps the source keeps its ports open
     - Over gRPC, it serves the OTLP `LogsService`, `MetricsService` and `TraceService`, without TLS. Messages may be compressed with gzip; the 20 MiB limit applies to the decompressed message
     - Partial success is not used: a request is accepted or refused as a whole, over both protocols
+    - Header names in `header_attributes` are matched regardless of case. Two headers may not set the same attribute
 
 ### Broker Source
 

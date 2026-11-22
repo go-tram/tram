@@ -199,6 +199,25 @@ func (p *pipeline) postTo(t *testing.T, path string, payload proto.Message, time
 	return resp.StatusCode
 }
 
+// postWithHeader posts logs with one request header, e.g. the one an ingress
+// sets, and returns the status.
+func (p *pipeline) postWithHeader(t *testing.T, logs *logspb.LogsData, name, value string) int {
+	t.Helper()
+	body, err := proto.Marshal(logs)
+	require.NoError(t, err)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, p.baseURL+"/v1/logs", bytes.NewReader(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/x-protobuf")
+	req.Header.Set(name, value)
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
+	if err != nil {
+		return 0
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	_ = resp.Body.Close()
+	return resp.StatusCode
+}
+
 func (p *pipeline) postConcurrently(t *testing.T, requests ...*logspb.LogsData) []int {
 	t.Helper()
 	codes := make([]int, len(requests))

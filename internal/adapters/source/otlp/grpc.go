@@ -24,6 +24,7 @@ import (
 	// Registers the gzip compressor, so clients may compress requests.
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -102,6 +103,10 @@ func (s traceService) Export(
 func (o *OTLP) export(ctx context.Context, event *domain.Event) error {
 	if key, duplicate := duplicateKey(event); duplicate {
 		return status.Errorf(codes.InvalidArgument, "attribute key %q appears more than once", key)
+	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	if err := applyHeaders(event, o.headers, func(m headerMapping) []string { return md.Get(m.metadata) }); err != nil {
+		return status.Error(codes.InvalidArgument, err.Error())
 	}
 	if size, ok := ctx.Value(sizeKey{}).(*requestSize); ok {
 		event.Request = &domain.Request{
