@@ -80,8 +80,16 @@ jobs:
       - name: Check
         run: task ci:${{ matrix.target }}
 
-  image:
+  # Upgrades from the previous release to the tag in a kind cluster.
+  upgrade:
     needs: check
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/upgrade.yml
+
+  image:
+    needs: [check, upgrade]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -184,6 +192,22 @@ jobs:
           digest="$(awk '/^Digest:/ {print $2}' dist/push.log)"
           test -n "${digest}"
           cosign sign --yes "${CHARTS#oci://}/tram@${digest}"
+
+      - name: Install oras
+        uses: oras-project/setup-oras@ac735097e22fe643015b0d19645f7c9a69942128 # v2.0.4
+
+      # Artifact Hub reads the repository metadata from the tag artifacthub.io
+      # of the chart's repository, with these media types.
+      - name: Push the Artifact Hub metadata
+        env:
+          ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: charts
+        run: |
+          echo "${GITHUB_TOKEN}" | oras login ghcr.io --username "${ACTOR}" --password-stdin
+          oras push "${CHARTS#oci://}/tram:artifacthub.io" \
+            --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+            artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
 
       # The version of git-cliff comes from docs/requirements.txt, which
       # Dependabot updates, so the Releases page of the documentation uses

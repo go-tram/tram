@@ -1,0 +1,51 @@
+# otlp_tenant_routing.yaml - route tenant data by a header an ingress sets.
+# An ingress per tenant at <router-id>.example.com sets X-Tram-Router; the
+# source copies it into the resource attribute tram.router.id, replacing
+# anything the client sent there, and the broker sink routes each record to
+# router.<router-id>.<signal>. Let only the ingress reach the ports.
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: otlp-tenant-routing
+spec:
+  engineRefs:
+    - name: demo
+  source:
+    type: otlp
+    name: tenant_in
+    spec:
+      http_port: 4331
+      grpc_port: 4332
+      header_attributes:
+        X-Tram-Router: tram.router.id
+  stages:
+    # Before the batch, so a request without a valid router is refused on
+    # its own instead of failing a batch shared with other tenants.
+    - type: validation
+      name: require_router
+      from: tenant_in
+      spec:
+        driver: cel
+        on_mismatch: reject
+        cel:
+          logs: "logs.resource_logs.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))"
+          metrics: "metrics.resource_metrics.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))"
+          traces: "traces.resource_spans.all(r, r.resource.attributes.exists(a, a.key == 'tram.router.id' && a.value.string_value.matches('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')))"
+    - type: batch
+      name: batch
+      from: require_router
+      spec:
+        max_records: 1000
+        timeout: 200ms
+  sinks:
+    - type: broker
+      name: routers
+      from: batch
+      spec:
+        driver: nats
+        nats:
+          url: nats://nats:4222
+        destination:
+          logs: "'router.' + resource.attributes.get_attr('tram.router.id') + '.logs'"
+          metrics: "'router.' + resource.attributes.get_attr('tram.router.id') + '.metrics'"
+          traces: "'router.' + resource.attributes.get_attr('tram.router.id') + '.traces'"

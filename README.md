@@ -257,7 +257,7 @@ For detailed documentation on each component and its configuration, see [COMPONE
 
 ```mermaid
 flowchart LR
-    otlp_src(["otlp source<br>OTLP/HTTP"]) --> tram(["TRAM"])
+    otlp_src(["otlp source<br>OTLP/HTTP, OTLP/gRPC"]) --> tram(["TRAM"])
     broker_src(["broker source"]) --> tram
     generator(["generator source"]) --> tram
     tram --> otlp_sink(["otlp sink"])
@@ -485,27 +485,27 @@ Test cases are part of the stream files of the API and file sync. The `Stream` r
 
 ## 📥 Sending Data to TRAM
 
-TRAM receives data; it does not collect it. Clients push OTLP over HTTP to an [OTLP Source](COMPONENTS.md#otlp-source), or TRAM reads from a broker or a buffer. There is no source that scrapes Prometheus endpoints or tails log files, so whatever cannot send OTLP itself needs an agent that collects its data and sends it on:
+TRAM receives data; it does not collect it. Clients push OTLP over HTTP or gRPC to an [OTLP Source](COMPONENTS.md#otlp-source), or TRAM reads from a broker or a buffer. There is no source that scrapes Prometheus endpoints or tails log files, so whatever cannot send OTLP itself needs an agent that collects its data and sends it on:
 
 ```mermaid
 flowchart LR
-    sdk["App with an OpenTelemetry SDK"] -- OTLP/HTTP --> tram(["TRAM<br/>OTLP source"])
+    sdk["App with an OpenTelemetry SDK"] -- "OTLP/HTTP or gRPC" --> tram(["TRAM<br/>OTLP source"])
     scrape["App with /metrics"] -. scraped by .-> agent["Agent: OpenTelemetry Collector,<br/>Grafana Alloy or Fluent Bit"]
     files["Log files of the node"] -. read by .-> agent
-    agent -- OTLP/HTTP --> tram
+    agent -- "OTLP/HTTP or gRPC" --> tram
     producer["Producer"] -- "OTLP protobuf messages" --> broker[("NATS, Kafka or AMQP")]
     broker --> tram2(["TRAM<br/>broker source"])
 ```
 
 | Pattern | How | When |
 |---|---|---|
-| **SDK** | The application exports OTLP itself, with `OTEL_EXPORTER_OTLP_ENDPOINT=http://<tram>:4318` and `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` | Instrumented applications; no agent to run |
+| **SDK** | The application exports OTLP itself, e.g. with `OTEL_EXPORTER_OTLP_ENDPOINT=http://<tram>:4317` over gRPC, the default of most SDKs, or `http://<tram>:4318` with `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` | Instrumented applications; no agent to run |
 | **Sidecar** | An agent in the application's pod scrapes or reads it and sends OTLP to TRAM | Per-application settings, or isolation between tenants; costs resources in every pod |
 | **Node agent** | An agent per node, e.g. a DaemonSet, reads the logs of all pods on the node and scrapes their metrics | The usual way for logs and scraped metrics on Kubernetes |
-| **Gateway** | A central agent scrapes many targets, or receives OTLP over gRPC, and forwards to TRAM | Few targets, or protocols TRAM does not speak |
+| **Gateway** | A central agent scrapes many targets, or receives protocols TRAM does not speak, and forwards to TRAM | Few targets, or protocols other than OTLP |
 | **Broker** | Producers publish OTLP protobuf messages to NATS, Kafka or AMQP; a [Broker Source](COMPONENTS.md#broker-source) reads them | Decoupling senders from TRAM, or replaying data |
 
-Agents have to send **OTLP over HTTP**, protobuf or JSON, optionally gzip-compressed; the OTLP Source does not accept OTLP over gRPC. With the OpenTelemetry Collector, that is the `otlphttp` exporter, e.g. for scraped metrics:
+Agents send **OTLP over gRPC** to the source's `grpc_port`, or **over HTTP**, protobuf or JSON, to its `http_port`; both may be gzip-compressed. With the OpenTelemetry Collector, that is the `otlp` exporter for gRPC or the `otlphttp` exporter for HTTP, e.g. for scraped metrics:
 
 ```yaml
 receivers:
@@ -516,26 +516,47 @@ receivers:
           static_configs:
             - targets: ["my-app:9090"]
 exporters:
-  otlphttp:
-    endpoint: http://tram:4318   # the exporter appends /v1/metrics, /v1/logs and /v1/traces
+  otlp:
+    endpoint: tram:4317          # the source's grpc_port
+    tls:
+      insecure: true             # the OTLP source serves gRPC without TLS
 service:
   pipelines:
     metrics:
       receivers: [prometheus]
-      exporters: [otlphttp]
+      exporters: [otlp]
 ```
 
-TRAM answers `503` when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.
+TRAM answers `503`, or `Unavailable` over gRPC, when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.
+
+### One Ingress per Tenant
+
+When tenants send their own data, a proxy in front of TRAM can name the tenant, so the client cannot choose it: e.g. an ingress per tenant at `<router-id>.example.com` sets the header `X-Tram-Router`, and the OTLP source copies it into a resource attribute with `header_attributes`. Every resource of a request then carries it, and a broker sink routes each record by it, also when a batch stage has merged the requests of several tenants:
+
+```mermaid
+flowchart LR
+    a(["Tenant A"]) -- "a.example.com" --> ia["Ingress, sets<br/>X-Tram-Router: a"]
+    b(["Tenant B"]) -- "b.example.com" --> ib["Ingress, sets<br/>X-Tram-Router: b"]
+    ia --> src
+    ib --> src
+    subgraph stream["one stream"]
+        src(["OTLP source<br/>header_attributes"]) --> batch[batch] --> sink(["broker sink<br/>router. + tram.router.id + .logs"])
+    end
+    sink --> ra[("router.a.logs")]
+    sink --> rb[("router.b.logs")]
+```
+
+The header decides the attribute: a value a client sends in the attribute itself is replaced or removed. See [the OTLP Source](COMPONENTS.md#otlp-source) for the rules, and `examples/config/otlp_tenant_routing.json` for a stream that validates the router ID before the batch. Let only the proxy reach the source's port, and authenticate tenants there.
 
 ## 🐳 Container Image
 
 Every release publishes a multi-architecture image (`linux/amd64`, `linux/arm64`) as `ghcr.io/go-tram/tram:<version>`, e.g. `0.0.19`, and as `latest`. It is signed with cosign and carries an SBOM; see [Verifying Releases](SECURITY.md#verifying-releases). It holds only the `tram` binary on a distroless base, runs as the non-root user `65532` and starts `tram server` with both APIs listening on all interfaces of the container:
 
 ```bash
-docker run --rm -p 8080:8080 -p 50051:50051 -p 4318:4318 ghcr.io/go-tram/tram:latest
+docker run --rm -p 8080:8080 -p 50051:50051 -p 4317:4317 -p 4318:4318 ghcr.io/go-tram/tram:latest
 ```
 
-Publish the ports the sources of your streams listen on as well, e.g. `4318` for an OTLP source. Arguments replace the default command, so repeat the endpoints when adding flags, e.g. for file sync and buffers:
+Publish the ports the sources of your streams listen on as well, e.g. `4317` and `4318` for an OTLP source with gRPC and HTTP. Arguments replace the default command, so repeat the endpoints when adding flags, e.g. for file sync and buffers:
 
 ```bash
 docker run --rm -p 8080:8080 -p 4318:4318 \

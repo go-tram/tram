@@ -23,6 +23,8 @@ import (
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
 	tracepb "go.opentelemetry.io/proto/otlp/trace/v1"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/go-tram/tram/internal/adapters/source/base"
@@ -51,6 +53,9 @@ const (
 	contentTypeProtobuf      = "application/x-protobuf"
 	contentTypeProtobufAlias = "application/protobuf"
 	contentTypeJSON          = "application/json"
+
+	// encodingIdentity is the encoding of a request body that is not compressed.
+	encodingIdentity = "identity"
 )
 
 var (
@@ -61,14 +66,21 @@ var (
 type OTLP struct {
 	*base.Source[Spec]
 
-	logger     *slog.Logger
-	listener   net.Listener
-	httpServer *http.Server
+	logger *slog.Logger
+	// The listeners and servers of the ports the spec sets; nil without one.
+	httpListener net.Listener
+	httpServer   *http.Server
+	grpcListener net.Listener
+	grpcServer   *grpc.Server
 
 	deliveryTimeout      time.Duration
 	responseWriteTimeout time.Duration
-	// retryAfter is the Retry-After header of retriable responses.
+	// retryAfter is the Retry-After header of retriable HTTP responses, and
+	// retryDelay the RetryInfo of retriable gRPC ones.
 	retryAfter string
+	retryDelay time.Duration
+	// headers are the header_attributes of the spec, in a fixed order.
+	headers []headerMapping
 }
 
 func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) (*OTLP, error) {
@@ -85,22 +97,50 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 	if err != nil {
 		return nil, err
 	}
-
-	var lc net.ListenConfig
-	listener, err := lc.Listen(context.Background(), "tcp", fmt.Sprintf(":%d", base.Spec().HTTPPort))
+	headers, err := newHeaderMappings(base.Spec().HeaderAttributes)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %d: %w", domain.ErrPortUnavailable, base.Spec().HTTPPort, err)
+		return nil, err
 	}
 
 	o := &OTLP{
 		Source:               base,
 		logger:               logger,
-		listener:             listener,
 		deliveryTimeout:      deliveryTimeout,
 		responseWriteTimeout: responseWriteTimeout,
 		retryAfter:           retryAfterHeader(retryAfter),
+		retryDelay:           retryAfter,
+		headers:              headers,
 	}
 
+	if port := base.Spec().HTTPPort; port != 0 {
+		if o.httpListener, err = listen(port); err != nil {
+			return nil, err
+		}
+		o.httpServer = o.newHTTPServer()
+	}
+	if port := base.Spec().GRPCPort; port != 0 {
+		if o.grpcListener, err = listen(port); err != nil {
+			if o.httpListener != nil {
+				_ = o.httpListener.Close()
+			}
+			return nil, err
+		}
+		o.grpcServer = newGRPCServer(o)
+	}
+	return o, nil
+}
+
+// listen opens the port on all network interfaces.
+func listen(port int) (net.Listener, error) {
+	var lc net.ListenConfig
+	listener, err := lc.Listen(context.Background(), "tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return nil, fmt.Errorf("%w: %d: %w", domain.ErrPortUnavailable, port, err)
+	}
+	return listener, nil
+}
+
+func (o *OTLP) newHTTPServer() *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /v1/traces", o.handleTraces)
 	mux.HandleFunc("POST /v1/metrics", o.handleMetrics)
@@ -110,14 +150,12 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 	// passed on, and cut the connection after a slow but successful delivery,
 	// so the client retries data that arrived. handle bounds the delivery and
 	// the response write separately instead.
-	o.httpServer = &http.Server{
+	return &http.Server{
 		Handler:           mux,
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 		IdleTimeout:       idleTimeout,
 	}
-
-	return o, nil
 }
 
 func positiveDuration(field, raw string, fallback time.Duration) (time.Duration, error) {
@@ -142,13 +180,32 @@ func retryAfterHeader(d time.Duration) string {
 
 func (o *OTLP) DeliveryTimeout() time.Duration { return o.deliveryTimeout }
 
+// Run serves the configured ports until Stop.
 func (o *OTLP) Run(ctx context.Context) error {
-	o.logger.InfoContext(ctx, "Starting OTLP HTTP server",
-		slog.String("source", o.Name()), slog.Int("port", o.Spec().HTTPPort))
-	if err := o.httpServer.Serve(o.listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		o.logger.ErrorContext(ctx, "OTLP HTTP server failed", slog.String("source", o.Name()), slog.Any("error", err))
+	var g errgroup.Group
+	if o.httpServer != nil {
+		g.Go(func() error {
+			o.logger.InfoContext(ctx, "Starting OTLP HTTP server",
+				slog.String("source", o.Name()), slog.Int("port", o.Spec().HTTPPort))
+			if err := o.httpServer.Serve(o.httpListener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				o.logger.ErrorContext(ctx, "OTLP HTTP server failed",
+					slog.String("source", o.Name()), slog.Any("error", err))
+			}
+			return nil
+		})
 	}
-	return nil
+	if o.grpcServer != nil {
+		g.Go(func() error {
+			o.logger.InfoContext(ctx, "Starting OTLP gRPC server",
+				slog.String("source", o.Name()), slog.Int("port", o.Spec().GRPCPort))
+			if err := o.grpcServer.Serve(o.grpcListener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+				o.logger.ErrorContext(ctx, "OTLP gRPC server failed",
+					slog.String("source", o.Name()), slog.Any("error", err))
+			}
+			return nil
+		})
+	}
+	return g.Wait()
 }
 
 func (o *OTLP) handleMetrics(w http.ResponseWriter, r *http.Request) {
@@ -226,6 +283,13 @@ func (o *OTLP) receive(
 	if key, duplicate := duplicateKey(event); duplicate {
 		return "", http.StatusUnprocessableEntity, fmt.Sprintf("Attribute key %q appears more than once", key)
 	}
+	if err = applyHeaders(
+		event,
+		o.headers,
+		func(m headerMapping) []string { return r.Header.Values(m.header) },
+	); err != nil {
+		return "", http.StatusUnprocessableEntity, err.Error()
+	}
 	event.Request = request
 
 	ctx, cancel := context.WithTimeout(r.Context(), o.deliveryTimeout)
@@ -262,10 +326,10 @@ func requestContentType(r *http.Request) (string, bool) {
 func readBody(w http.ResponseWriter, r *http.Request) ([]byte, *domain.Request, error) {
 	wire := &countingReader{r: http.MaxBytesReader(w, r.Body, maxBodyBytes)}
 	var body io.Reader = wire
-	request := &domain.Request{Encoding: "identity"}
+	request := &domain.Request{Encoding: encodingIdentity}
 
 	switch encoding := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Encoding"))); encoding {
-	case "", "identity":
+	case "", encodingIdentity:
 	case "gzip":
 		gz, err := gzip.NewReader(body)
 		if err != nil {
@@ -301,16 +365,23 @@ func (c *countingReader) Read(p []byte) (int, error) {
 	return n, err
 }
 
+// Stop stops both servers, letting requests in flight finish for up to the
+// shutdown timeout, and closes the ports.
 func (o *OTLP) Stop() error {
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
-
-	err := o.httpServer.Shutdown(ctx)
-	if err != nil {
-		err = errors.Join(err, o.httpServer.Close())
+	var errs []error
+	if o.httpServer != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+		if err := o.httpServer.Shutdown(ctx); err != nil {
+			errs = append(errs, err, o.httpServer.Close())
+		}
+		if err := o.httpListener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+			errs = append(errs, err)
+		}
 	}
-	if cerr := o.listener.Close(); cerr != nil && !errors.Is(cerr, net.ErrClosed) {
-		err = errors.Join(err, cerr)
+	if o.grpcServer != nil {
+		// Stopping the server closes its listener.
+		errs = append(errs, stopGRPC(o.grpcServer, shutdownTimeout))
 	}
-	return err
+	return errors.Join(errs...)
 }

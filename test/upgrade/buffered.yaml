@@ -1,0 +1,64 @@
+# The Engine and Streams the upgrade test runs on the old release: blue-line
+# has storage, the writer stores what clients send in the queue outbox, and
+# the reader delivers it to the receiver, which does not exist yet, so the
+# events wait on the volume across the upgrade.
+apiVersion: io.tram.core/v1alpha1
+kind: Engine
+metadata:
+  name: blue-line
+  namespace: upgrade-test
+spec:
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  ports:
+    - name: otlp
+      port: 4318
+  storage:
+    size: 1Gi
+---
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: writer
+  namespace: upgrade-test
+spec:
+  engineRefs:
+    - name: blue-line
+  source:
+    name: in
+    type: otlp
+    spec:
+      http_port: 4318
+  sinks:
+    - name: outbox
+      type: buffer
+      from: in
+      spec:
+        driver: sqlite
+        sqlite: {}
+        queue: outbox
+        max_age: 1h
+---
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: reader
+  namespace: upgrade-test
+spec:
+  engineRefs:
+    - name: blue-line
+  source:
+    name: outbox
+    type: buffer
+    spec:
+      driver: sqlite
+      sqlite: {}
+      queue: outbox
+      retry_initial: 1s
+      retry_max: 5s
+  sinks:
+    - name: receiver
+      type: otlp
+      from: outbox
+      spec:
+        url: http://tram-engine-receiver:4318

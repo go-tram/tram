@@ -60,6 +60,43 @@ func TestBrokerNATS(t *testing.T) {
 		}, logsBySubject(t, messages))
 	})
 
+	t.Run("route each request by the router its header names", func(t *testing.T) {
+		t.Parallel()
+
+		out := n.brokerStream(t, "routers")
+		p := newEmptyPipeline(t, domain.SourceSpec{})
+		port := onFreePort(t, 0, func(port int) error {
+			p.in = domain.SourceSpec{Name: "in", Type: "otlp", Spec: map[string]any{
+				"http_port":         float64(port),
+				"header_attributes": map[string]any{"X-Tram-Router": "tram.router.id"},
+			}}
+			return p.tryUpdate([]domain.StageSpec{batchStage(3, "5s")}, []domain.SinkSpec{{
+				Name: "routers", Type: "broker", From: "batch", Spec: n.brokerSinkSpec(map[string]any{
+					"logs": fmt.Sprintf("'%s.' + resource.attributes.get_attr('tram.router.id') + '.logs'", out),
+				}),
+			}})
+		})
+		p.baseURL = fmt.Sprintf("http://127.0.0.1:%d", port)
+		// The third request claims router b in its payload, but its header,
+		// which the ingress sets, says a.
+		spoofed := request("search", rec{"s1", "A"})
+		spoofed.ResourceLogs[0].Resource.Attributes = append(spoofed.ResourceLogs[0].Resource.Attributes,
+			stringAttr("tram.router.id", "b"))
+
+		var codes [3]int
+		var wg sync.WaitGroup
+		wg.Go(func() { codes[0] = p.postWithHeader(t, request("checkout", rec{"c1", "A"}), "X-Tram-Router", "a") })
+		wg.Go(func() { codes[1] = p.postWithHeader(t, request("cart", rec{"k1", "B"}), "X-Tram-Router", "b") })
+		wg.Go(func() { codes[2] = p.postWithHeader(t, spoofed, "X-Tram-Router", "a") })
+		wg.Wait()
+		assert.Equal(t, [3]int{200, 200, 200}, codes)
+
+		assert.Equal(t, map[string][]string{
+			out + ".a.logs": {"checkout/e2e/c1", "search/e2e/s1"},
+			out + ".b.logs": {"cart/e2e/k1"},
+		}, logsBySubject(t, n.read(t, out)), "one batch, split by the router of each request's header")
+	})
+
 	t.Run("split into two streams", func(t *testing.T) {
 		t.Parallel()
 
