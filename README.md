@@ -529,6 +529,25 @@ service:
 
 TRAM answers `503`, or `Unavailable` over gRPC, when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.
 
+### One Ingress per Tenant
+
+When tenants send their own data, a proxy in front of TRAM can name the tenant, so the client cannot choose it: e.g. an ingress per tenant at `<router-id>.example.com` sets the header `X-Tram-Router`, and the OTLP source copies it into a resource attribute with `header_attributes`. Every resource of a request then carries it, and a broker sink routes each record by it, also when a batch stage has merged the requests of several tenants:
+
+```mermaid
+flowchart LR
+    a(["Tenant A"]) -- "a.example.com" --> ia["Ingress, sets<br/>X-Tram-Router: a"]
+    b(["Tenant B"]) -- "b.example.com" --> ib["Ingress, sets<br/>X-Tram-Router: b"]
+    ia --> src
+    ib --> src
+    subgraph stream["one stream"]
+        src(["OTLP source<br/>header_attributes"]) --> batch[batch] --> sink(["broker sink<br/>router. + tram.router.id + .logs"])
+    end
+    sink --> ra[("router.a.logs")]
+    sink --> rb[("router.b.logs")]
+```
+
+The header decides the attribute: a value a client sends in the attribute itself is replaced or removed. See [the OTLP Source](COMPONENTS.md#otlp-source) for the rules, and `examples/config/otlp_tenant_routing.json` for a stream that validates the router ID before the batch. Let only the proxy reach the source's port, and authenticate tenants there.
+
 ## 🐳 Container Image
 
 Every release publishes a multi-architecture image (`linux/amd64`, `linux/arm64`) as `ghcr.io/go-tram/tram:<version>`, e.g. `0.0.19`, and as `latest`. It holds only the `tram` binary on a distroless base, runs as the non-root user `65532` and starts `tram server` with both APIs listening on all interfaces of the container:

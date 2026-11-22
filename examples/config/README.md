@@ -22,6 +22,13 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - No processing stages
 - **Kubernetes version**: [../k8s/examples/otlp_basic.yaml](../k8s/examples/otlp_basic.yaml)
 
+#### [`otlp_tenant_routing.json`](otlp_tenant_routing.json)
+**Purpose**: Route the data of several tenants by a header an ingress per tenant sets.
+- Copies the header `X-Tram-Router` into the resource attribute `tram.router.id` with `header_attributes`, over HTTP (4331) and gRPC (4332); a value the client sent there itself is replaced
+- Rejects requests without a valid router ID before the batch, so one tenant's bad request does not fail a batch shared with others
+- Routes each record to the NATS subject `router.<router-id>.<signal>`
+- **Kubernetes version**: [../k8s/examples/otlp_tenant_routing.yaml](../k8s/examples/otlp_tenant_routing.yaml)
+
 #### [`otlp_grpc.json`](otlp_grpc.json)
 **Purpose**: Receive OTLP over gRPC and HTTP in one stream.
 - Receives OTLP/gRPC on port 4317, the default of most OpenTelemetry SDKs, and OTLP/HTTP on port 4329
