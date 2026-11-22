@@ -38,7 +38,7 @@ const (
 )
 
 type options struct {
-	out, input, raw             string
+	out, components, input, raw string
 	count                       int
 	scenarioTime, componentTime string
 }
@@ -46,6 +46,8 @@ type options struct {
 func main() {
 	var opts options
 	flag.StringVar(&opts.out, "out", "BENCHMARK.md", "page to update")
+	flag.StringVar(&opts.components, "components", "COMPONENTS.md",
+		"component documentation whose per-component sections to update")
 	flag.StringVar(&opts.input, "input", "", "use this saved benchmark output instead of running the benchmarks")
 	flag.StringVar(&opts.raw, "raw", "", "save the raw benchmark output to this file")
 	flag.IntVar(&opts.count, "count", 3, "runs per benchmark; the page shows medians")
@@ -91,16 +93,29 @@ func run(ctx context.Context, opts options) error {
 		"components-per-record": renderComponents(results, perRecordComponents(), true),
 		"components-per-event":  renderComponents(results, perEventComponents(), false),
 	}
-	for name, content := range sections {
-		if page, err = replaceSection(page, name, content); err != nil {
-			return err
-		}
-	}
-	//nolint:gosec // BENCHMARK.md is a repository file that everyone may read.
-	if err = os.WriteFile(opts.out, page, pageFilePermissions); err != nil {
+	if err = updatePage(opts.out, page, sections); err != nil {
 		return err
 	}
-	log.Printf("updated %s", opts.out)
+	components, err := os.ReadFile(opts.components)
+	if err != nil {
+		return err
+	}
+	return updatePage(opts.components, components, renderComponentSections(results, env))
+}
+
+// updatePage replaces the sections of page and writes it to path.
+func updatePage(path string, page []byte, sections map[string]string) error {
+	var err error
+	for name, content := range sections {
+		if page, err = replaceSection(page, name, content); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+	}
+	//nolint:gosec // The pages are repository files that everyone may read.
+	if err = os.WriteFile(path, page, pageFilePermissions); err != nil {
+		return err
+	}
+	log.Printf("updated %s", path)
 	return nil
 }
 
@@ -538,7 +553,10 @@ func streamCount(n int) string {
 	return fmt.Sprintf("%d,%03d", n/thousand, n%thousand)
 }
 
-type component struct{ label, pkg, name string }
+// component is a row of the component tables. section names the section
+// of the component documentation the row also goes to, empty for rows that
+// measure no single component, such as serializing OTLP data.
+type component struct{ label, pkg, name, section string }
 
 const (
 	pkgCore         = "internal/core"
@@ -550,63 +568,146 @@ const (
 	pkgBatch        = "internal/adapters/stage/batch"
 	pkgCELFilter    = "internal/adapters/stage/filter/cel"
 	pkgCELValidator = "internal/adapters/stage/validation/cel"
+	pkgValueMap     = "internal/adapters/stage/valuemap"
+	pkgEncryption   = "internal/adapters/stage/encryption"
+	pkgDecryption   = "internal/adapters/stage/decryption"
 )
 
+// The sections of the component documentation, one per component that has
+// benchmarks, in the order of the documentation.
+const (
+	sectionOTLPSource   = "otlp-source"
+	sectionBrokerSource = "broker-source"
+	sectionFilter       = "filter"
+	sectionValidation   = "validation"
+	sectionBatch        = "batch"
+	sectionEncryption   = "encryption"
+	sectionDecryption   = "decryption"
+	sectionNoop         = "noop"
+	sectionValueMap     = "value-map"
+	sectionBrokerSink   = "broker-sink"
+)
+
+func componentSections() []string {
+	return []string{
+		sectionOTLPSource, sectionBrokerSource,
+		sectionFilter, sectionValidation, sectionBatch, sectionEncryption, sectionDecryption,
+		sectionNoop, sectionValueMap,
+		sectionBrokerSink,
+	}
+}
+
 func perRecordComponents() []component {
-	return []component{
+	rows := []component{
 		{
 			"Broker sink (NATS): group and publish, 10 subjects",
 			pkgBrokerSink,
-			"Notify/records=1000/resources=10/teams=10",
+			"Notify/records=1000/resources=10/teams=10", sectionBrokerSink,
 		},
 		{
 			"Broker sink (NATS): group and publish, 1 subject",
 			pkgBrokerSink,
-			"Notify/records=1000/resources=10/teams=1",
+			"Notify/records=1000/resources=10/teams=1", sectionBrokerSink,
 		},
 		{
 			"Serializing OTLP data and back (logs)",
 			pkgDomain,
 			"OTLPDataRoundTrip/logs/records=1000/resources=10/teams=1",
+			"",
 		},
-		{"Broker source (NATS), 1 worker", pkgBrokerSource, "Consume/workers=1/records=1000/resources=10/teams=1"},
-		{"Broker source (NATS), 8 workers", pkgBrokerSource, "Consume/workers=8/records=1000/resources=10/teams=1"},
+		{
+			"Broker source (NATS), 1 worker",
+			pkgBrokerSource,
+			"Consume/workers=1/records=1000/resources=10/teams=1",
+			sectionBrokerSource,
+		},
+		{
+			"Broker source (NATS), 8 workers",
+			pkgBrokerSource,
+			"Consume/workers=8/records=1000/resources=10/teams=1",
+			sectionBrokerSource,
+		},
 		{
 			"OTLP source: decoding a request",
 			pkgOTLPSource,
-			"HandleLogs/records=1000/resources=10/teams=1",
+			"HandleLogs/records=1000/resources=10/teams=1", sectionOTLPSource,
 		},
 		{
 			"filter (CEL), keeping half of the records",
 			pkgCELFilter,
-			"CELFilter/keep-half/records=1000/resources=10/teams=2",
+			"CELFilter/keep-half/records=1000/resources=10/teams=2", sectionFilter,
 		},
 		{
 			"filter (CEL), keeping all records",
 			pkgCELFilter,
-			"CELFilter/keep-all/records=1000/resources=10/teams=2",
+			"CELFilter/keep-all/records=1000/resources=10/teams=2", sectionFilter,
 		},
 		{
 			"validation (CEL), record-level expression",
 			pkgCELValidator,
-			"CELValidator/record-attribute/records=1000/resources=10/teams=1",
+			"CELValidator/record-attribute/records=1000/resources=10/teams=1", sectionValidation,
 		},
 		{
 			"validation (CEL), resource-level expression",
 			pkgCELValidator,
-			"CELValidator/resource-attribute/records=1000/resources=10/teams=1",
+			"CELValidator/resource-attribute/records=1000/resources=10/teams=1", sectionValidation,
 		},
 		{
 			"Record filter helper without CEL",
 			pkgDomain,
 			"Filter/logs/keep-half/records=1000/resources=10/teams=2",
+			"",
 		},
 		{
 			"batch, 8 concurrent callers",
 			pkgBatch,
-			"Batch/parallel-8-events/records=1000/resources=10/teams=1",
+			"Batch/parallel-8-events/records=1000/resources=10/teams=1", sectionBatch,
 		},
-		{"noop stage", pkgCore, "Pipeline/noop/records=1000/resources=10/teams=1"},
+	}
+	return append(rows, perRecordStages()...)
+}
+
+// perRecordStages are the per-record rows of the stages that transform or
+// annotate records, and of the noop stage as the baseline.
+func perRecordStages() []component {
+	return []component{
+		{
+			"value_map, mapping a record attribute",
+			pkgValueMap,
+			"NotifyLogs/hit/records=1000/resources=10/teams=2",
+			sectionValueMap,
+		},
+		{
+			"value_map, mapping a resource attribute",
+			pkgValueMap,
+			"NotifyLogs/resource-level/records=1000/resources=10/teams=2",
+			sectionValueMap,
+		},
+		{
+			"encryption, body only",
+			pkgEncryption,
+			"NotifyLogs/body-only/records=1000/resources=10/teams=2",
+			sectionEncryption,
+		},
+		{
+			"encryption, body and attributes",
+			pkgEncryption,
+			"NotifyLogs/body-plus-attributes/records=1000/resources=10/teams=2",
+			sectionEncryption,
+		},
+		{
+			"decryption, body only",
+			pkgDecryption,
+			"NotifyLogs/body-only/records=1000/resources=10/teams=2",
+			sectionDecryption,
+		},
+		{
+			"decryption, body and attributes",
+			pkgDecryption,
+			"NotifyLogs/body-plus-attributes/records=1000/resources=10/teams=2",
+			sectionDecryption,
+		},
+		{"noop stage", pkgCore, "Pipeline/noop/records=1000/resources=10/teams=1", sectionNoop},
 	}
 }
 
@@ -615,17 +716,17 @@ func perEventComponents() []component {
 		{
 			"Broker sink (NATS): one record (waits for the acknowledgement)",
 			pkgBrokerSink,
-			"Notify/records=1/resources=1/teams=1",
+			"Notify/records=1/resources=1/teams=1", sectionBrokerSink,
 		},
 		{
 			"OTLP source: request with one record",
 			pkgOTLPSource,
-			"HandleLogs/records=1/resources=1/teams=1",
+			"HandleLogs/records=1/resources=1/teams=1", sectionOTLPSource,
 		},
-		{"batch, one caller", pkgBatch, "Batch/flush-per-event/records=1/resources=1/teams=1"},
-		{"Passing an event to 1 child", pkgSourceBase, "NotifySubscribers/children=1"},
-		{"Passing an event to 8 children", pkgSourceBase, "NotifySubscribers/children=8"},
-		{"Each additional noop stage", pkgCore, "Pipeline/noop/records=1/resources=1/teams=1"},
+		{"batch, one caller", pkgBatch, "Batch/flush-per-event/records=1/resources=1/teams=1", sectionBatch},
+		{"Passing an event to 1 child", pkgSourceBase, "NotifySubscribers/children=1", ""},
+		{"Passing an event to 8 children", pkgSourceBase, "NotifySubscribers/children=8", ""},
+		{"Each additional noop stage", pkgCore, "Pipeline/noop/records=1/resources=1/teams=1", sectionNoop},
 	}
 }
 
@@ -663,6 +764,33 @@ func renderComponents(results map[string]result, components []component, perReco
 		}
 	}
 	return b.String()
+}
+
+// renderComponentSections renders, per section of the component
+// documentation, the rows of that component with a pointer to the
+// environment and to the comparison with other components.
+func renderComponentSections(results map[string]result, e env) map[string]string {
+	sections := map[string]string{}
+	for _, section := range componentSections() {
+		var b strings.Builder
+		if rows := inSection(perRecordComponents(), section); len(rows) > 0 {
+			b.WriteString(renderComponents(results, rows, true))
+		}
+		if rows := inSection(perEventComponents(), section); len(rows) > 0 {
+			if b.Len() > 0 {
+				b.WriteString("\n")
+			}
+			b.WriteString(renderComponents(results, rows, false))
+		}
+		fmt.Fprintf(&b, "\nMeasured on %s, commit `%s`, %s; compare with other components under "+
+			"[Where the Time Goes](BENCHMARK.md#where-the-time-goes).\n", or(e.cpu, "unknown CPU"), e.commit, e.date)
+		sections["component:"+section] = b.String()
+	}
+	return sections
+}
+
+func inSection(components []component, section string) []component {
+	return slices.DeleteFunc(slices.Clone(components), func(c component) bool { return c.section != section })
 }
 
 // componentCost returns the time and allocations of a component. The noop

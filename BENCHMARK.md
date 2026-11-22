@@ -177,7 +177,7 @@ How to read it:
 
 ## Where the Time Goes
 
-Costs of single components, measured in isolation. Per-record costs are measured with events of 1,000 records from 10 services.
+Costs of single components, measured in isolation, to compare them with each other. Each component's page in [COMPONENTS.md](COMPONENTS.md) shows its own rows next to its configuration, from the same run. Per-record costs are measured with events of 1,000 records from 10 services.
 
 <!-- BEGIN benchreport:components-per-record -->
 | Component | Per record | Allocs per record | Records/s | Spread |
@@ -194,6 +194,12 @@ Costs of single components, measured in isolation. Per-record costs are measured
 | validation (CEL), resource-level expression | 13.5 ns | 0.1 | 73.86 M | ±14% ⚠️ |
 | Record filter helper without CEL | 8.0 ns | 0.0 | 124.60 M | ±3% |
 | batch, 8 concurrent callers | 0.5 ns | 0.0 | 2.10 G | ±7% |
+| value_map, mapping a record attribute | n/a | n/a | n/a | |
+| value_map, mapping a resource attribute | n/a | n/a | n/a | |
+| encryption, body only | n/a | n/a | n/a | |
+| encryption, body and attributes | n/a | n/a | n/a | |
+| decryption, body only | n/a | n/a | n/a | |
+| decryption, body and attributes | n/a | n/a | n/a | |
 | noop stage | 1.1 ns | 0.0 | 947.87 M | ±8% |
 <!-- END benchreport:components-per-record -->
 

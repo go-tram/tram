@@ -10,12 +10,12 @@ Sources are the entry points of a pipeline that produce or receive data events.
 
 ### Available Sources
 
-| Name | Type | Description |
-|------|------|-------------|
-| `broker` | `broker` | Receives OTLP data from a message broker through a driver (NATS JetStream, Kafka, AMQP 1.0) |
-| `buffer` | `buffer` | Reads a queue on the instance's disk that a Buffer Sink writes, through a driver (SQLite), and delivers it with retries; see [Buffers](#buffers) |
-| `generator` | `generator` | Emits empty events at a fixed interval, for testing pipelines |
-| `otlp` | `otlp` | Receives protobuf-encoded OpenTelemetry Protocol (OTLP) data via HTTP |
+| Type | Description |
+|------|-------------|
+| [`broker`](#broker-source) | Receives OTLP data from a message broker through a driver (NATS JetStream, Kafka, AMQP 1.0) |
+| [`buffer`](#buffer-source) | Reads a queue on the instance's disk that a Buffer Sink writes, through a driver (SQLite), and delivers it with retries; see [Buffers](#buffers) |
+| [`generator`](#generator-source) | Emits empty events at a fixed interval, for testing pipelines |
+| [`otlp`](#otlp-source) | Receives OpenTelemetry Protocol (OTLP) data over HTTP and gRPC, optionally with request headers as resource attributes |
 
 ### Generator Source
 
@@ -110,6 +110,22 @@ The header decides the attribute alone: a value the client put into the attribut
     - Partial success is not used: a request is accepted or refused as a whole, over both protocols
     - Header names in `header_attributes` are matched regardless of case. Two headers may not set the same attribute
 
+#### Performance
+
+Each request costs a fixed amount on top of its records, so small requests are expensive per record: let senders batch, e.g. with the batch processor of an OpenTelemetry SDK or Collector, rather than sending every record on its own.
+
+<!-- BEGIN benchreport:component:otlp-source -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| OTLP source: decoding a request | 1.48 µs | 34.3 | 677 k | ±10% ⚠️ |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| OTLP source: request with one record | 6.47 µs | 85 | ±23% ⚠️ |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:otlp-source -->
+
 ### Broker Source
 
 Receives OTLP data from a message broker chosen by `driver` (driver options under `nats:`, `kafka:`, `amqp:`). Every message is one serialized OTLP `LogsData`, `MetricsData` or `TracesData` — the plain body the [Broker Sink](#broker-sink) writes, so any producer can feed the source. The broker is set up outside TRAM; the source creates or updates only its consumer.
@@ -201,6 +217,19 @@ Receives OTLP data from a message broker chosen by `driver` (driver options unde
     - **AMQP:** the source has credit for twice `workers` messages. AMQP 1.0 has no delayed redelivery: a retried message is held for the delay and then returned as a failed delivery, which counts towards the broker's limit of attempts before it dead-letters the message; it keeps its credit while held. A rejected message is settled as rejected, and the broker's policy decides what happens to it, usually a dead-letter address
     - **AMQP:** a lost connection is opened again with growing delays, up to 5 seconds; messages not settled on the lost connection are delivered again by the broker. An address the broker does not have fails the TRAM stream when it starts, unless the broker creates addresses on demand
 
+#### Performance
+
+Workers process messages in parallel; more `workers` lower the cost per record until the broker or the stages below become the limit.
+
+<!-- BEGIN benchreport:component:broker-source -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| Broker source (NATS), 1 worker | 1.61 µs | 34.2 | 621 k | ±5% |
+| Broker source (NATS), 8 workers | 270.0 ns | 34.2 | 3.70 M | ±1% |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:broker-source -->
+
 ---
 
 ### Buffer Source
@@ -252,16 +281,16 @@ Stages process, transform, or filter data between sources and sinks.
 
 ### Available Stages
 
-| Name | Type | Description |
-|------|------|-------------|
-| `batch` | `batch` | Merges concurrently arriving events into larger batches |
-| `decryption` | `decryption` | Decrypts log record bodies and selected attributes encrypted by the encryption stage |
-| `delay` | `delay` | Holds every event back for a fixed duration |
-| `encryption` | `encryption` | Encrypts log record bodies and selected attributes before the sinks |
-| `filter` | `filter` | Keeps only the records that match the rules of its driver, e.g. CEL |
-| `noop` | `noop` | Pass-through stage that does no processing (useful for testing) |
-| `validation` | `validation` | Accepts, drops or rejects whole events by the rules of its driver, e.g. CEL |
-| `value_map` | `value_map` | Copies an attribute value to another attribute by looking it up in a table |
+| Type | Description |
+|------|-------------|
+| [`batch`](#batch-stage) | Merges concurrently arriving events into larger batches |
+| [`decryption`](#decryption-stage) | Decrypts log record bodies and selected attributes encrypted by the encryption stage |
+| [`delay`](#delay-stage) | Holds every event back for a fixed duration |
+| [`encryption`](#encryption-stage) | Encrypts log record bodies and selected attributes before the sinks |
+| [`filter`](#filter-stage) | Keeps only the records that match the rules of its driver, e.g. CEL |
+| [`noop`](#no-op-stage) | Pass-through stage that does no processing (useful for testing) |
+| [`validation`](#validation-stage) | Accepts, drops or rejects whole events by the rules of its driver, e.g. CEL |
+| [`value_map`](#value-map-stage) | Copies an attribute value to another attribute by looking it up in a table |
 
 ### Filter Stage
 
@@ -348,6 +377,19 @@ Keep only spans of one service:
     - When splitting into branches, write the last branch as the negation of the others, so every record ends up in exactly one branch
     - A rule that fails for a record, e.g. a CEL expression accessing a missing list index, rejects the whole event. The OTLP source answers with HTTP 422, the Broker Source rejects the message instead of redelivering it
     - Place a batch stage before the filters to merge many small requests first; each branch then receives one filtered batch
+
+#### Performance
+
+The expression runs once per log record, data point or span. Put filters early in a stream, so the stages and sinks below handle only what is kept.
+
+<!-- BEGIN benchreport:component:filter -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| filter (CEL), keeping half of the records | 1.77 µs | 16.6 | 565 k | ±9% |
+| filter (CEL), keeping all records | 920.0 ns | 8.0 | 1.09 M | ±24% ⚠️ |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:filter -->
 
 ### Validation Stage
 
@@ -438,6 +480,19 @@ Reject log deliveries that contain a record whose `tenant.id` is not a lowercase
     - A rule that fails for an event, e.g. a CEL expression accessing a missing list index, rejects the whole event regardless of `on_mismatch`. The OTLP source answers with HTTP 422, the Broker Source rejects the message instead of redelivering it
     - Place validation stages with `on_mismatch: reject` before a batch stage, so one invalid delivery does not reject the deliveries batched with it
 
+#### Performance
+
+An expression that only looks at resources is far cheaper than one that walks every record, since there are far fewer resources than records; prefer resource-level rules where they suffice.
+
+<!-- BEGIN benchreport:component:validation -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| validation (CEL), record-level expression | 1.07 µs | 9.1 | 931 k | ±18% ⚠️ |
+| validation (CEL), resource-level expression | 13.5 ns | 0.1 | 73.86 M | ±14% ⚠️ |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:validation -->
+
 ### Batch Stage
 
 Merges events that arrive concurrently into one event, so downstream components handle fewer, larger batches. It batches whatever it receives; use a filter stage before it to batch only some of the data.
@@ -476,6 +531,22 @@ Merges events that arrive concurrently into one event, so downstream components 
     - `max_bytes` keeps batches below a limit downstream, e.g. the NATS server's `max_payload` (1 MB by default) or the request size a destination accepts. It counts the protobuf encoding of the data, which is what the NATS and OTLP sinks send uncompressed. An event that is larger by itself is sent alone, since events are never split, so the limit downstream can still be exceeded by single large requests. Measuring costs a pass over every event, so it is only done with `max_bytes` set
     - Events are merged by concatenating their resource entries. Resources and scopes that appear in several events are kept as separate entries, which OTLP allows
     - On shutdown, the open batch is delivered before downstream stages and sinks stop
+
+#### Performance
+
+Batching costs little per record and lowers the fixed costs per event of everything below it, e.g. one broker message instead of many.
+
+<!-- BEGIN benchreport:component:batch -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| batch, 8 concurrent callers | 0.5 ns | 0.0 | 2.10 G | ±7% |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| batch, one caller | 1.65 µs | 15 | ±7% |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:batch -->
 
 ### Delay Stage
 
@@ -613,6 +684,19 @@ spec:
     - The stage holds no events back and does not count toward the [Hold Times](#hold-times)
     - Metrics and traces pass through unchanged; only logs are encrypted
 
+#### Performance
+
+Every encrypted attribute adds work on top of the body; encrypt only the attributes that need it.
+
+<!-- BEGIN benchreport:component:encryption -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| encryption, body only | n/a | n/a | n/a | |
+| encryption, body and attributes | n/a | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:encryption -->
+
 ### Decryption Stage
 
 Decrypts the body of every encrypted log record and the record attributes listed in `attributes`, and removes the encryption marker attributes the [Encryption Stage](#encryption-stage) sets. Records without a marker attribute pass through unchanged, so the stage is idempotent and can sit in a branch that also receives plaintext. Metrics and traces pass through unchanged. The `driver` and key have to match the records' `tram.encryption.key_id` marker, no matter which stream or producer encrypted them: `local` (the raw AES-256 key, in a Kubernetes `Stream` resource via `secretKeyRef`) or `stackit-kms` (the STACKIT KMS key that wrapped the per-record data key, which the stage unwraps).
@@ -721,6 +805,19 @@ spec:
     - The stage never modifies the incoming event; it forwards a copy, so sibling branches see the ciphertext
     - The stage holds no events back and does not count toward the [Hold Times](#hold-times)
 
+#### Performance
+
+Every decrypted attribute adds work on top of the body; decrypt only what the destination needs.
+
+<!-- BEGIN benchreport:component:decryption -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| decryption, body only | n/a | n/a | n/a | |
+| decryption, body and attributes | n/a | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:decryption -->
+
 ### No-op Stage
 
 A pass-through stage that performs no processing — for testing, debugging, or as a placeholder.
@@ -738,6 +835,22 @@ A pass-through stage that performs no processing — for testing, debugging, or 
   "from": "source"
 }
 ```
+
+#### Performance
+
+The baseline cost of a stage: what passing an event through one more stage costs without any work.
+
+<!-- BEGIN benchreport:component:noop -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| noop stage | 1.1 ns | 0.0 | 947.87 M | ±8% |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| Each additional noop stage | 469.6 ns | 7 | ±5% |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:noop -->
 
 ### Value Map Stage
 
@@ -794,6 +907,19 @@ The node metrics framework counts records and durations only, not lookup outcome
     - The table is fixed while the stream runs. To change it, update the stream with a changed spec, through the API, the config sync or a `Stream` resource, or change the config maps a `Stream` resource selects its table from; the usual stream update applies: an update with an identical spec changes nothing, an update with just a changed spec replaces the stage without touching the source
     - The stage holds no events back and does not count toward the [Hold Times](#hold-times)
 
+#### Performance
+
+Mapping a resource attribute runs once per resource instead of once per record, so it is cheaper where the source attribute lives on the resource.
+
+<!-- BEGIN benchreport:component:value-map -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| value_map, mapping a record attribute | n/a | n/a | n/a | |
+| value_map, mapping a resource attribute | n/a | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:value-map -->
+
 ---
 
 ## 📤 Sinks
@@ -802,12 +928,12 @@ Sinks are the terminal points of a pipeline that consume or export data.
 
 ### Available Sinks
 
-| Name | Type | Description |
-|------|------|-------------|
-| `broker` | `broker` | Sends OTLP data to a message broker through a driver (NATS JetStream, Kafka, AMQP 1.0), with the destination of each record computed by CEL |
-| `buffer` | `buffer` | Stores OTLP data durably in a queue on the instance's disk through a driver (SQLite), for a Buffer Source to deliver; see [Buffers](#buffers) |
-| `debug` | `debug` | Writes events to the log (stderr) for debugging and development |
-| `otlp` | `otlp` | Sends OTLP-encoded events via HTTP to an OpenTelemetry endpoint |
+| Type | Description |
+|------|-------------|
+| [`broker`](#broker-sink) | Sends OTLP data to a message broker through a driver (NATS JetStream, Kafka, AMQP 1.0), with the destination of each record computed by CEL |
+| [`buffer`](#buffer-sink) | Stores OTLP data durably in a queue on the instance's disk through a driver (SQLite), for a Buffer Source to deliver; see [Buffers](#buffers) |
+| [`debug`](#debug-sink) | Writes events to the log (stderr) for debugging and development |
+| [`otlp`](#otlp-sink) | Sends OTLP-encoded events via HTTP to an OpenTelemetry endpoint |
 
 ### Debug Sink
 
@@ -1009,6 +1135,23 @@ With `partition`, the sink computes a partition per record from a key, e.g. the 
 - An expression for the key that fails or does not return a string rejects the event. A missing attribute gives the key `""`, which is a valid key like any other
 - Changing `count` moves keys to other partitions. Data already stored stays where it is, so changing it is a migration
 
+#### Performance
+
+Every message waits for the broker's acknowledgement, which dominates small events; put a batch stage before the sink, so fewer, larger messages are published. The number of subjects changes the cost per record little.
+
+<!-- BEGIN benchreport:component:broker-sink -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| Broker sink (NATS): group and publish, 10 subjects | 3.08 µs | 31.2 | 325 k | ±4% |
+| Broker sink (NATS): group and publish, 1 subject | 3.38 µs | 30.1 | 296 k | ±6% |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| Broker sink (NATS): one record (waits for the acknowledgement) | 38.11 µs | 64 | ±5% |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:broker-sink -->
+
 ### Buffer Sink
 
 Stores every event durably in a queue on the instance's disk, from which a [Buffer Source](#buffer-source) of the same instance delivers it. The sink returns once the event is synced to disk, so an OTLP client gets `200`, and a Broker Source acknowledges its message, when the event is stored, not when it is delivered; see [Buffers](#buffers).
@@ -1053,7 +1196,7 @@ Stores every event durably in a queue on the instance's disk, from which a [Buff
 ---
 
 
-## 📝 Notes
+## 📝 Stream Behavior
 
 - **Component Type vs Name:** The `type` field in configuration refers to the component implementation type (e.g., `generator`, `validation`), while the `name` field is a user-defined identifier for the component instance within a stream.
 - **Connections:** The `from` field in stages and sinks specifies which component they receive data from.
