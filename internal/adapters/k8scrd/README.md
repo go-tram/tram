@@ -110,6 +110,28 @@ spec:
 
 The Helm chart [`charts/tram`](../../../charts/tram/) or the kustomization in [`manifests/`](../../../manifests/) deploys the manager with the CRDs and roles, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
 
+What the manager creates for an Engine, and how its instances find their Streams:
+
+```mermaid
+flowchart LR
+    manager["tram manager"]
+    subgraph ns["Engine's namespace"]
+        engine[/"Engine hub"/]
+        stream[/"Stream<br/>spec.engineRefs: hub"/]
+        refs[/"Secrets and ConfigMaps<br/>the Stream refers to"/]
+        workload["Deployment,<br/>or StatefulSet with storage"]
+        others["Service, ServiceAccount, RoleBinding,<br/>PodDisruptionBudget, HorizontalPodAutoscaler"]
+        instances["TRAM instances<br/>tram server<br/>--engine hub"]
+    end
+    manager -- watches --> engine
+    manager -- creates --> workload
+    manager -- creates --> others
+    manager -- "labels engine.tram.io/hub" --> stream
+    workload -- runs --> instances
+    instances -- "watch Streams labeled for hub, run them" --> stream
+    instances -. read .-> refs
+```
+
 ### The Manager
 
 `tram manager` runs no streams. It runs one Deployment or StatefulSet per `Engine`, and it labels every `Stream` `engine.tram.io/<name>` (with an empty value) for each engine its `spec.engineRefs` name; the instances of an engine select the key, e.g. `kubectl get streams -l engine.tram.io/engine-1`. Run it once per cluster, or as several replicas, of which one at a time works:
@@ -132,6 +154,25 @@ Both `ClusterRole`s have to exist. With another `--engine-cluster-role`, grant t
 The [buffer sink and source](../../../COMPONENTS.md#buffers) keep their queues on the instance's disk. With `spec.storage`, the manager runs the Engine as a StatefulSet in which every instance has a volume of its own (`ReadWriteOnce`, claim `data-tram-engine-<engine>-<ordinal>`) mounted as its data directory. Without it, the Engine runs as a Deployment, and Streams with a buffer sink or source do not run on it. Every such Stream reports per Engine in `status.engines[].conditions` whether it can: `StorageAvailable` is `True`, or `False` with reason `EngineHasNoStorage`, or `StorageMigrating` while the instances move to a StatefulSet.
 
 **Rule: buffered events are never discarded before their `max_age` because of a change in Kubernetes.** The manager keeps every volume either with a running instance or with a drain Job, and deletes a volume only when its drain Job finished, or once everything on it has expired.
+
+The life of a volume:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    state "Used by its instance" as used
+    state "Drained by a Job" as draining
+    state "Kept, drain failed" as failed
+    [*] --> used: instance starts
+    used --> draining: instance goes, by scale-down, removed storage or a deleted Engine
+    draining --> used: scale-up stops the Job
+    draining --> failed: Job fails after its retries
+    failed --> draining: Job deleted by hand
+    draining --> [*]: queues empty or expired, VolumeDrained
+    draining --> [*]: Job older than largest max_age plus 1h, VolumeExpired
+    used --> [*]: instance goes while the Engine has the discard annotation, VolumeDiscarded
+    draining --> [*]: discard annotation set, VolumeDiscarded
+```
 
 | What happens | What the manager does |
 |---|---|

@@ -218,11 +218,30 @@ flowchart LR
 
 ### Data Flow
 
-```
-Source → [Stage] → Sink
+A stream processes events **in memory and synchronously**. The source hands each event to its stages and sinks and answers only once every sink has accepted it. Nothing is written to disk on the way, so a stream adds no storage and little latency:
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as OTLP source
+    participant F as filter stage
+    participant K1 as OTLP sink
+    participant K2 as debug sink
+    C->>S: Export request
+    par to every branch
+        S->>F: event
+        F->>K1: event
+        K1-->>F: accepted by the backend
+        F-->>S: done
+    and
+        S->>K2: event
+        K2-->>S: done
+    end
+    S-->>C: 200 OK
+    Note over C,K2: If a sink fails, or the delivery takes longer than the source's delivery_timeout,<br/>the client gets 503 and sends the data again (at-least-once).
 ```
 
-*Arrows represent the direction of data flow, from source to sinks.*
+Until the source has answered, an event exists only in memory. If the process stops, a client that retries, as OTLP exporters do, sends the events in flight again, since it got no answer. To answer clients before the destination has the data, e.g. to ride out an outage of the destination, write events ahead to disk with **two streams and a buffer between them**; see [Buffers](COMPONENTS.md#buffers).
 
 ---
 

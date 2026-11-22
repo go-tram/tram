@@ -1040,11 +1040,47 @@ Stores every event durably in a queue on the instance's disk, from which a [Buff
 
 ### Buffers
 
-A buffer rides out outages of a destination by storing events on the instance's disk: one stream writes them with a [Buffer Sink](#buffer-sink), another reads them with a [Buffer Source](#buffer-source) and delivers them. The queue name connects the two. Pipelines stay synchronous and in memory; the queue is a broker embedded in the instance, and the Buffer Source handles deliveries like the Broker Source.
+A stream processes events **only in memory**: it answers its source once every sink accepted an event, and keeps nothing on disk. A stream therefore cannot write events ahead by itself. A buffer does that with **two streams**: one writes events to a queue on the instance's disk with a [Buffer Sink](#buffer-sink), the other reads them with a [Buffer Source](#buffer-source) and delivers them. The queue name connects the two. Both streams stay synchronous and in memory; the queue between them is a broker embedded in the instance, and the Buffer Source handles deliveries like the Broker Source.
 
+```mermaid
+flowchart LR
+    clients([OTLP clients]) --> otlp
+    subgraph instance["TRAM instance"]
+        subgraph writer["stream otlp-to-buffer, in memory"]
+            otlp([OTLP source]) --> bufsink([buffer sink])
+        end
+        queue[("queue outbox<br/>in the data directory")]
+        subgraph reader["stream buffer-to-otlp, in memory"]
+            bufsource([buffer source]) --> batch[batch] --> otlpsink([OTLP sink])
+        end
+        bufsink -- "store, sync to disk" --> queue
+        queue -- "deliver, retry until max_age" --> bufsource
+    end
+    otlpsink --> backend([destination])
 ```
-stream otlp-to-buffer:  OTLP Source ──▶ Buffer Sink   (queue: outbox)
-stream buffer-to-otlp:  Buffer Source (queue: outbox) ──▶ batch ──▶ OTLP Sink
+
+This is a write-ahead log for a pipeline: the writing stream answers its clients as soon as an event is on disk, and the reading stream delivers it later, retrying while the destination is down:
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant W as stream otlp-to-buffer
+    participant Q as queue on disk
+    participant R as stream buffer-to-otlp
+    participant D as destination
+    C->>W: Export request
+    W->>Q: store event
+    Q-->>W: synced to disk
+    W-->>C: 200 OK
+    Note over C,W: The client is done, the event is safe on disk.
+    Q->>R: deliver event
+    R->>D: send
+    D-->>R: 503, destination down
+    Note over Q,R: back off and retry, until max_age
+    Q->>R: deliver event again
+    R->>D: send
+    D-->>R: 200 OK
+    R-->>Q: delivered, remove event
 ```
 
 - **The queue is local.** A Buffer Source reads only the queue of its own instance. Run both streams on the same instance, on Kubernetes on the same Engine; every instance then has a queue of its own
