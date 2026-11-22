@@ -13,6 +13,9 @@ vars:
   # all but tools/loadgen, a local tool that is not part of the repository.
   PACKAGES:
     sh: go list ./... | grep -v /tools/loadgen | sed "s#^$(go list -m)#.#" | tr '\n' ' '
+  # The packages whose tests start brokers in containers and take the
+  # longest; CI tests them in a job of their own (ci:containers).
+  CONTAINER_PACKAGES: ./internal/adapters/broker/amqp ./internal/adapters/broker/kafka ./internal/adapters/broker/nats
   # Podman if installed, Docker otherwise; set CONTAINER_TOOL=docker to choose.
   CONTAINER_TOOL:
     sh: command -v podman >/dev/null 2>&1 && echo podman || echo docker
@@ -149,10 +152,11 @@ tasks:
       - task: test:e2e
 
   ci:
-    desc: Run what the CI workflows run, ci:lint, ci:test and ci:chart, one after the other
+    desc: Run what the CI workflows run, ci:lint, ci:test, ci:containers and ci:chart, one after the other
     cmds:
       - task: ci:lint
       - task: ci:test
+      - task: ci:containers
       - task: ci:chart
 
   ci:lint:
@@ -183,10 +187,21 @@ tasks:
       - task: chart:lint
 
   ci:test:
-    desc: Run the CI test job - unit and end-to-end tests
+    desc: Run the CI test job - unit and end-to-end tests, without the broker packages that ci:containers tests
     cmds:
-      - task: test:unit
+      - >-
+        {{.TESTCONTAINERS_ENV}} go test -race {{.CLI_ARGS}}
+        $(echo {{.PACKAGES}} | tr " " "\n" | grep -v /internal/e2e | grep -v -x -F -e {{.CONTAINER_PACKAGES | splitList " " | join " -e "}})
       - task: test:e2e
+
+  ci:containers:
+    desc: Run the CI containers job - the tests of the broker packages and the end-to-end broker tests, against containers
+    preconditions:
+      - sh: '{{.CONTAINER_TOOL}} info >/dev/null 2>&1'
+        msg: '{{.CONTAINER_TOOL}} is not running; start it first (e.g. `podman machine start`)'
+    cmds:
+      - '{{.TESTCONTAINERS_ENV}} go test -race -count=1 {{.CLI_ARGS}} {{.CONTAINER_PACKAGES}}'
+      - task: test:containers
 
   test:all:
     desc: Run every check - lint, unit, end-to-end, container and operator (envtest) tests; fails instead of skipping
