@@ -37,6 +37,8 @@ import (
 	"github.com/go-tram/tram/internal/adapters/stage/filter"
 	celfilter "github.com/go-tram/tram/internal/adapters/stage/filter/cel"
 	"github.com/go-tram/tram/internal/adapters/stage/noop"
+	"github.com/go-tram/tram/internal/adapters/stage/transform"
+	celtransform "github.com/go-tram/tram/internal/adapters/stage/transform/cel"
 	stagevalidation "github.com/go-tram/tram/internal/adapters/stage/validation"
 	celvalidation "github.com/go-tram/tram/internal/adapters/stage/validation/cel"
 	"github.com/go-tram/tram/internal/core"
@@ -185,6 +187,8 @@ func parseStage(typ string, raw map[string]any) error {
 		return parse[delay.Spec](raw)
 	case noop.Type:
 		return parse[noop.Spec](raw)
+	case transform.Type:
+		return parseDriver[transform.Spec, celtransform.Spec](raw, celtransform.Name)
 	default:
 		return unknownType(typ)
 	}

@@ -59,6 +59,13 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - Sends filtered data to customer-specific endpoint
 - **Kubernetes version**: [../k8s/examples/otlp_with_filters.yaml](../k8s/examples/otlp_with_filters.yaml)
 
+#### [`otlp_with_transform.json`](../tests/otlp_with_transform.json)
+**Purpose**: Normalize attributes with the transform stage. Lives in `../tests/` because it carries test cases.
+- Derives `deployment.environment` on the resource from the namespace, once per resource
+- Deletes `password`, renames `user` to `user.name`, truncates `note` and lowercases the severity into `level`
+- Its test cases show a normalized record and one the statements do not apply to, kept as it is (`on_error: skip`); run them with `tram test ../tests/otlp_with_transform.json`
+- **Kubernetes version**: [../k8s/examples/otlp_with_transform.yaml](../k8s/examples/otlp_with_transform.yaml)
+
 #### [`otlp_with_validation.json`](otlp_with_validation.json)
 **Purpose**: OTLP forwarding with CEL validation.
 - Validates that all resources have `service.name` attribute
@@ -246,6 +253,7 @@ All example configurations in this directory have corresponding Kubernetes YAML 
 - `config/otlp_secure.json` ↔ `k8s/examples/otlp_secure.yaml`
 - `config/otlp_batch.json` ↔ `k8s/examples/otlp_batch.yaml`
 - `tests/otlp_with_filters.json` ↔ `k8s/examples/otlp_with_filters.yaml`
+- `tests/otlp_with_transform.json` ↔ `k8s/examples/otlp_with_transform.yaml`
 - `config/otlp_with_validation.json` ↔ `k8s/examples/otlp_with_validation.yaml`
 - `config/otlp_multi_sink.json` ↔ `k8s/examples/otlp_multi_sink.yaml`
 - `config/otlp_nats_bridge.json` ↔ `k8s/examples/otlp_nats_bridge.yaml`

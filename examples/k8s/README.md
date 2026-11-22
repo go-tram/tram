@@ -104,6 +104,12 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - Sends filtered data to customer-specific endpoint
 - **JSON version**: [../config/otlp_with_filters.json](../config/otlp_with_filters.json)
 
+#### [`otlp_with_transform.yaml`](examples/otlp_with_transform.yaml)
+**Purpose**: Normalize attributes with the transform stage
+- Receives OTLP data on port 4330
+- Derives `deployment.environment` on the resource, deletes `password`, renames `user` to `user.name`, truncates `note` and lowercases the severity into `level`
+- **JSON version with test cases**: [../tests/otlp_with_transform.json](../tests/otlp_with_transform.json); `Stream` resources have no `tests` field, so the tests live in the JSON file
+
 #### [`otlp_with_validation.yaml`](examples/otlp_with_validation.yaml)
 **Purpose**: Validated OTLP forwarding with CEL validation
 - Receives OTLP data on port 4323
@@ -477,6 +483,7 @@ All Kubernetes YAML examples in `examples/` have corresponding JSON configuratio
 - `k8s/examples/otlp_secure.yaml` ↔ `config/otlp_secure.json`
 - `k8s/examples/otlp_batch.yaml` ↔ `config/otlp_batch.json`
 - `k8s/examples/otlp_with_filters.yaml` ↔ `config/otlp_with_filters.json`
+- `k8s/examples/otlp_with_transform.yaml` ↔ `tests/otlp_with_transform.json`
 - `k8s/examples/otlp_with_validation.yaml` ↔ `config/otlp_with_validation.json`
 - `k8s/examples/otlp_multi_sink.yaml` ↔ `config/otlp_multi_sink.json`
 - `k8s/examples/otlp_nats_bridge.yaml` ↔ `config/otlp_nats_bridge.json`
