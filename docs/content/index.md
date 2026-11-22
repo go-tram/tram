@@ -109,16 +109,16 @@ curl -X PUT http://localhost:8080/v1/streams/my-pipeline \
 
     Every source, stage and sink with its configuration
 
-- :material-kubernetes: **[Kubernetes Operator](kubernetes.md)**
+- :material-kubernetes: **[Kubernetes Operator](deployment/kubernetes/index.md)**
 
     Run streams described by `Stream` custom resources
 
-- :material-speedometer: **[Benchmarks](benchmarks.md)**
+- :material-speedometer: **[Benchmarks](operations/benchmarks.md)**
 
     What pipelines cost, and how to size deployments
 
-- :material-source-pull: **[Contributing](contributing.md)**
+- :material-transit-connection-variant: **[Sending Data to TRAM](guide/sending-data.md)**
 
-    Development setup, adding components and guidelines
+    From SDKs, agents and brokers, and what to do without OTLP
 
 </div>

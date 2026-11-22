@@ -38,25 +38,33 @@ GETTING_STARTED = "guide/getting-started.md"
 STREAMS = "guide/streams.md"
 API = "guide/api.md"
 COMPONENTS_INDEX = "components/index.md"
-RELEASES = "releases.md"
+KUBERNETES = "deployment/kubernetes/index.md"
+RELEASES = "development/releases.md"
 
 # Title of every generated page, in the order of the navigation.
 TITLES = {
     GETTING_STARTED: "Getting Started",
     STREAMS: "Streams",
+    "guide/testing.md": "Testing Streams",
+    "guide/sending-data.md": "Sending Data to TRAM",
     API: "HTTP API",
-    "guide/configuration.md": "Configuration Sources",
-    "guide/metrics.md": "Metrics",
     "guide/security.md": "Security",
     COMPONENTS_INDEX: "Overview",
     "components/sources.md": "Sources",
     "components/stages.md": "Stages",
     "components/sinks.md": "Sinks",
-    "examples/streams.md": "Streams",
-    "examples/kubernetes.md": "Kubernetes",
-    "kubernetes.md": "Kubernetes Operator",
-    "benchmarks.md": "Benchmarks",
-    "contributing.md": "Contributing",
+    "deployment/container.md": "Container & Binary",
+    KUBERNETES: "Kubernetes Operator",
+    "deployment/kubernetes/helm.md": "Helm Chart",
+    "deployment/kubernetes/engines.md": "Engines",
+    "deployment/kubernetes/storage.md": "Storage for Buffers",
+    "deployment/kubernetes/streams.md": "Stream Resources",
+    "deployment/examples/streams.md": "Stream Examples",
+    "deployment/examples/kubernetes.md": "Kubernetes Examples",
+    "deployment/examples/tests.md": "Test Examples",
+    "operations/metrics.md": "Metrics",
+    "operations/benchmarks.md": "Benchmarks",
+    "development/contributing.md": "Contributing",
 }
 
 # Where the sections of each document go, by heading without its emoji.
@@ -70,13 +78,17 @@ SECTIONS = {
         "Quick Start": (GETTING_STARTED, UNWRAP),
         "API Endpoints": (API, False),
         "Example API Usage": (API, UNWRAP),
-        "Metrics": ("guide/metrics.md", UNWRAP),
+        "Metrics": ("operations/metrics.md", UNWRAP),
         "Core Concepts": (STREAMS, UNWRAP),
         "Available Components": (STREAMS, False),
         "Advanced Configuration": (STREAMS, UNWRAP),
         "Updating a Stream": (STREAMS, False),
-        "Testing a Stream": (STREAMS, False),
-        "Configuration Sources": ("guide/configuration.md", UNWRAP),
+        "Testing a Stream": ("guide/testing.md", UNWRAP),
+        "Sending Data to TRAM": ("guide/sending-data.md", UNWRAP),
+        "Container Image": ("deployment/container.md", False),
+        "Configuration Sources": ("deployment/container.md", False),
+        # The operator has pages of its own.
+        "Kubernetes Operator": None,
         "Security": ("guide/security.md", UNWRAP),
     },
     "COMPONENTS.md": {
@@ -89,20 +101,33 @@ SECTIONS = {
         "Available Sinks": (COMPONENTS_INDEX, False),
         "Notes": (COMPONENTS_INDEX, False),
     },
+    "internal/adapters/k8scrd/README.md": {
+        "Kubernetes Operator": (KUBERNETES, UNWRAP),
+        "Engines": ("deployment/kubernetes/engines.md", UNWRAP),
+        "Storage for buffers": ("deployment/kubernetes/storage.md", UNWRAP),
+        "The Stream Resource": ("deployment/kubernetes/streams.md", UNWRAP),
+        "Secrets": ("deployment/kubernetes/streams.md", False),
+        "Config Maps": ("deployment/kubernetes/streams.md", False),
+        "Behavior": ("deployment/kubernetes/streams.md", False),
+        "Development": (KUBERNETES, False),
+    },
+    "charts/tram/README.md": {
+        "TRAM Helm Chart": ("deployment/kubernetes/helm.md", UNWRAP),
+    },
     "examples/config/README.md": {
-        "TRAM Example Configurations": ("examples/streams.md", UNWRAP),
+        "TRAM Example Configurations": ("deployment/examples/streams.md", UNWRAP),
     },
     "examples/k8s/README.md": {
-        "TRAM Example Configurations for Kubernetes": ("examples/kubernetes.md", UNWRAP),
+        "TRAM Example Configurations for Kubernetes": ("deployment/examples/kubernetes.md", UNWRAP),
     },
-    "internal/adapters/k8scrd/README.md": {
-        "Kubernetes Operator": ("kubernetes.md", UNWRAP),
+    "examples/tests/README.md": {
+        "Examples with Test Cases": ("deployment/examples/tests.md", UNWRAP),
     },
     "BENCHMARK.md": {
-        "Benchmarks": ("benchmarks.md", UNWRAP),
+        "Benchmarks": ("operations/benchmarks.md", UNWRAP),
     },
     "CONTRIBUTING.md": {
-        "Contributing to TRAM": ("contributing.md", UNWRAP),
+        "Contributing to TRAM": ("development/contributing.md", UNWRAP),
         "Table of Contents": None,
     },
 }
