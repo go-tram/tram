@@ -1,6 +1,12 @@
 # Validates pull requests and pushes to main with golangci-lint (`task ci:lint`),
-# unit and end-to-end tests (`task ci:test`) and the Helm chart
-# (`task ci:chart`), as parallel jobs.
+# unit and end-to-end tests (`task ci:test`), the broker tests against
+# containers (`task ci:containers`) and the Helm chart (`task ci:chart`), as
+# parallel jobs.
+#
+# Each job keeps its own cache of Go modules and builds (and, for lint, of
+# golangci-lint's results), so it only restores what it needs. Pushes to main
+# save a new cache per run; pull requests only restore the latest one of
+# main, so they do not crowd the cache storage.
 
 name: CI
 
@@ -23,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [lint, test, chart]
+        target: [lint, test, containers, chart]
     env:
       TASK_VERSION: v3.54.0
     steps:
@@ -36,6 +42,28 @@ jobs:
         uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: go.mod
+          cache: false
+
+      - name: Cache key
+        id: cache
+        env:
+          DEPS: ${{ hashFiles('go.mod', 'go.sum') }}
+          TARGET: ${{ matrix.target }}
+        run: echo "prefix=go-${RUNNER_OS}-${TARGET}-" >> "${GITHUB_OUTPUT}" && echo "deps=${DEPS}" >> "${GITHUB_OUTPUT}"
+
+      # The latest cache of this job on main; with other dependencies, the
+      # latest one of this job at all, as most of the builds still apply.
+      - name: Restore the cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+          key: ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-
+            ${{ steps.cache.outputs.prefix }}
 
       - name: Install Task
         run: go install github.com/go-task/task/v3/cmd/task@${TASK_VERSION}
@@ -45,3 +73,13 @@ jobs:
 
       - name: Check
         run: task ci:${{ matrix.target }}
+
+      - name: Save the cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+          key: ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-${{ github.run_id }}

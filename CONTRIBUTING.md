@@ -63,7 +63,7 @@ task nats:up
 |------|--------------|
 | `task build` / `task run` | Build the binary, or run the server (`task run -- --enable-file-sync`) |
 | `task check` | Lint, unit and end-to-end tests: what a change should pass |
-| `task ci` / `task ci:lint` / `task ci:test` | What the CI workflows run: the pinned golangci-lint (`ci:lint`), then unit and end-to-end tests (`ci:test`) |
+| `task ci` / `task ci:lint` / `task ci:test` / `task ci:containers` | What the CI workflows run: the pinned golangci-lint (`ci:lint`), unit and end-to-end tests without the broker packages (`ci:test`), and the broker tests against containers (`ci:containers`) |
 | `task test:all` | `task check` plus the container and operator (envtest) tests; fails instead of skipping if Podman/Docker or setup-envtest is missing |
 | `task test` | All tests; tests that need containers are skipped without Docker or Podman |
 | `task test:unit` / `task test:e2e` | Unit tests only, or the end-to-end tests that need no containers |
@@ -748,13 +748,15 @@ When adding new components:
 
 ### Checks on Pull Requests
 
-The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as three parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
+The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as four parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests, `task ci:containers` the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
+
+Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests only restore the latest one, so they stay fast without filling the cache storage.
 
 The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.
 
 ### Releases
 
-A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint, test and chart jobs, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`. Then it publishes the Helm chart `charts/tram` to `oci://ghcr.io/go-tram/charts/tram` with that version as chart and app version, renders `manifests/` with the image of that version into `tram.yaml`, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. In the repository the chart keeps the version `0.0.0` and the manifests the image tag `latest`; do not bump them.
+A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint, test, containers and chart jobs, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`. Then it publishes the Helm chart `charts/tram` to `oci://ghcr.io/go-tram/charts/tram` with that version as chart and app version, renders `manifests/` with the image of that version into `tram.yaml`, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. In the repository the chart keeps the version `0.0.0` and the manifests the image tag `latest`; do not bump them.
 
 Tag releases with the release tasks rather than by hand. They use [svu](https://github.com/caarlos0/svu) to compute the version from the existing tags, check that you are on main, that it matches `origin/main` and has no uncommitted changes, run `task check`, and then create and push the annotated tag:
 
