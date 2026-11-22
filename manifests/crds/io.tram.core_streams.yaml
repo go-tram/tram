@@ -18,7 +18,9 @@ spec:
     - jsonPath: .status.mounted
       name: Mounted
       type: boolean
-    - jsonPath: .spec.suspended
+    - description: The source does not run; no ports are opened and no consumers are
+        attached
+      jsonPath: .spec.suspended
       name: Suspended
       type: boolean
     - jsonPath: .metadata.creationTimestamp

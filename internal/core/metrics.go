@@ -15,6 +15,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 
 	"github.com/go-tram/tram/internal/core/domain"
+	metricnames "github.com/go-tram/tram/internal/metrics"
 )
 
 const meterName = "github.com/go-tram/tram/internal/core"
@@ -36,11 +37,11 @@ type metrics struct {
 func newMetrics(provider metric.MeterProvider) (*metrics, error) {
 	meter := provider.Meter(meterName)
 
-	records, recordsErr := meter.Int64Counter("tram.node.records",
+	records, recordsErr := meter.Int64Counter(metricnames.Name("node", "records"),
 		metric.WithDescription("Records a node received: log records, metric data points and spans"),
 		metric.WithUnit("{record}"),
 	)
-	recordsOut, recordsOutErr := meter.Int64Counter("tram.node.records.out",
+	recordsOut, recordsOutErr := meter.Int64Counter(metricnames.Name("node", "records", "out"),
 		metric.WithDescription(
 			"Records a source or stage passed on: log records, metric data points and spans, "+
 				"each counted once however many children it has",
@@ -48,13 +49,13 @@ func newMetrics(provider metric.MeterProvider) (*metrics, error) {
 		metric.WithUnit("{record}"),
 	)
 	duration, durationErr := meter.Float64Histogram(
-		"tram.node.duration",
+		metricnames.Name("node", "duration"),
 		metric.WithDescription("Time a node took to handle an event, including the nodes below it"),
 		metric.WithUnit("s"),
 		metric.WithExplicitBucketBoundaries(durationBuckets()...),
 	)
 	requestSize, requestSizeErr := meter.Int64Histogram(
-		"tram.source.request.size",
+		metricnames.Name("source", "request", "size"),
 		metric.WithDescription(
 			"Size of the requests a source received, as received and after decoding the content encoding",
 		),
@@ -86,9 +87,9 @@ func durationBuckets() []float64 {
 
 func nodeAttributes(stream string, node *domain.Node) func(key, value string) metric.MeasurementOption {
 	base := []attribute.KeyValue{
-		attribute.String("stream", stream),
-		attribute.String("node", node.Name),
-		attribute.String("kind", string(node.Kind)),
+		attribute.String(metricnames.LabelStream, stream),
+		attribute.String(metricnames.LabelNode, node.Name),
+		attribute.String(metricnames.LabelKind, string(node.Kind)),
 	}
 	return func(key, value string) metric.MeasurementOption {
 		return metric.WithAttributeSet(attribute.NewSet(append(base, attribute.String(key, value))...))
@@ -105,7 +106,7 @@ func newRecordCounter(
 	with func(key, value string) metric.MeasurementOption,
 ) recordCounter {
 	add := func(signal domain.Signal) []metric.AddOption {
-		return []metric.AddOption{with("signal", string(signal))}
+		return []metric.AddOption{with(metricnames.LabelSignal, string(signal))}
 	}
 	return recordCounter{
 		counter:    counter,
@@ -161,7 +162,7 @@ func (m *metrics) instrument(
 	}
 	if duration {
 		record := func(outcome string) []metric.RecordOption {
-			return []metric.RecordOption{with("outcome", outcome)}
+			return []metric.RecordOption{with(metricnames.LabelOutcome, outcome)}
 		}
 		s.duration = m.duration
 		s.ok = record(outcomeOK)
@@ -189,9 +190,9 @@ type sizeOptions struct {
 
 func newRequestSizes(histogram metric.Int64Histogram, stream string, node *domain.Node) *requestSizes {
 	r := &requestSizes{histogram: histogram, base: []attribute.KeyValue{
-		attribute.String("stream", stream),
-		attribute.String("node", node.Name),
-		attribute.String("kind", string(node.Kind)),
+		attribute.String(metricnames.LabelStream, stream),
+		attribute.String(metricnames.LabelNode, node.Name),
+		attribute.String(metricnames.LabelKind, string(node.Kind)),
 	}}
 	r.byEncoding = map[string]sizeOptions{"identity": r.options("identity"), "gzip": r.options("gzip")}
 	return r
@@ -200,7 +201,8 @@ func newRequestSizes(histogram metric.Int64Histogram, stream string, node *domai
 func (r *requestSizes) options(encoding string) sizeOptions {
 	with := func(body string) metric.RecordOption {
 		return metric.WithAttributeSet(attribute.NewSet(append(slices.Clone(r.base),
-			attribute.String("encoding", encoding), attribute.String("body", body))...))
+			attribute.String(metricnames.LabelEncoding, encoding),
+			attribute.String(metricnames.LabelBody, body))...))
 	}
 	return sizeOptions{received: with("received"), decoded: with("decoded")}
 }

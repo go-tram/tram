@@ -130,18 +130,24 @@ type pipeline struct {
 
 func newPipeline(t *testing.T, stages []domain.StageSpec, sinks []domain.SinkSpec) *pipeline {
 	t.Helper()
-	port := freePort(t)
-	p := newStream(
-		t,
-		domain.SourceSpec{Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)}},
-		stages,
-		sinks,
-	)
+	p := newEmptyPipeline(t, domain.SourceSpec{})
+	port := onFreePort(t, 0, func(port int) error {
+		p.in = domain.SourceSpec{Name: "in", Type: "otlp", Spec: map[string]any{"http_port": float64(port)}}
+		return p.tryUpdate(stages, sinks)
+	})
 	p.baseURL = fmt.Sprintf("http://127.0.0.1:%d", port)
 	return p
 }
 
 func newStream(t *testing.T, in domain.SourceSpec, stages []domain.StageSpec, sinks []domain.SinkSpec) *pipeline {
+	t.Helper()
+	p := newEmptyPipeline(t, in)
+	p.update(t, stages, sinks)
+	return p
+}
+
+// newEmptyPipeline is a core with capture sinks and no stream yet.
+func newEmptyPipeline(t *testing.T, in domain.SourceSpec) *pipeline {
 	t.Helper()
 	p := &pipeline{
 		sinks: &captureFactory{
@@ -158,17 +164,20 @@ func newStream(t *testing.T, in domain.SourceSpec, stages []domain.StageSpec, si
 		p.sinks,
 	)
 	t.Cleanup(func() { _ = p.core.Close() })
-	p.update(t, stages, sinks)
 	return p
 }
 
 func (p *pipeline) update(t *testing.T, stages []domain.StageSpec, sinks []domain.SinkSpec) {
 	t.Helper()
+	require.NoError(t, p.tryUpdate(stages, sinks))
+}
+
+func (p *pipeline) tryUpdate(stages []domain.StageSpec, sinks []domain.SinkSpec) error {
 	_, err := p.core.UpsertStream(
 		context.Background(),
 		domain.StreamSpec{Name: "e2e", Source: p.in, Stages: stages, Sinks: sinks},
 	)
-	require.NoError(t, err)
+	return err
 }
 
 func (p *pipeline) post(t *testing.T, logs *logspb.LogsData, timeout time.Duration) int {
@@ -201,6 +210,33 @@ func (p *pipeline) postConcurrently(t *testing.T, requests ...*logspb.LogsData) 
 	return codes
 }
 
+// portAttempts bounds how often onFreePort tries new ports.
+const portAttempts = 5
+
+// onFreePort runs create, which opens a port, e.g. by creating a stream with
+// an OTLP source, and returns the port it used. freePort finds a port that is
+// free only for now: a parallel test may take it before create listens on
+// it, and then create runs again on a new port. preferred, if not 0, is
+// tried first.
+func onFreePort(t *testing.T, preferred int, create func(port int) error) int {
+	t.Helper()
+	port := preferred
+	for attempt := 1; ; attempt++ {
+		if port == 0 {
+			port = freePort(t)
+		}
+		err := create(port)
+		if err == nil {
+			return port
+		}
+		if !errors.Is(err, domain.ErrPortUnavailable) || attempt == portAttempts {
+			require.NoError(t, err, "port %d, attempt %d", port, attempt)
+		}
+		port = 0
+	}
+}
+
+// freePort returns a port that is free now; see onFreePort to listen on it.
 func freePort(t *testing.T) int {
 	t.Helper()
 	l, err := net.Listen("tcp", "127.0.0.1:0")

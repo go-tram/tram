@@ -9,10 +9,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
+	"syscall"
 	"testing"
 	"time"
 
@@ -25,6 +27,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/stage"
 	"github.com/go-tram/tram/internal/core"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/ports"
 )
 
 const anyLocalAddr = "127.0.0.1:0"
@@ -53,6 +56,8 @@ func TestRunFailsWhenPortIsInUse(t *testing.T) {
 	select {
 	case err = <-done:
 		require.ErrorContains(t, err, "HTTP gateway failed to listen")
+		// serveAPI retries on exactly this error.
+		require.ErrorIs(t, err, syscall.EADDRINUSE)
 	case <-time.After(5 * time.Second):
 		cancel()
 		<-done
@@ -93,17 +98,7 @@ func TestListStreams(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	// The gateway dials the gRPC endpoint by its address, so it needs a port
-	// known in advance.
-	httpAddr, grpcAddr := freeAddr(t), freeAddr(t)
-	a, err := api.New(c, grpcAddr, httpAddr, nil, logger)
-	require.NoError(t, err)
-	ctx, cancel := context.WithCancel(t.Context())
-	done := run(ctx, a)
-	t.Cleanup(func() {
-		cancel()
-		require.NoError(t, <-done)
-	})
+	httpAddr := serveAPI(t, c, nil, logger)
 
 	var body struct {
 		Streams []struct {
@@ -132,15 +127,7 @@ func TestMetricsEndpoint(t *testing.T) {
 	metrics := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte("tram_metric 1\n"))
 	})
-	httpAddr, grpcAddr := freeAddr(t), freeAddr(t)
-	a, err := api.New(nil, grpcAddr, httpAddr, metrics, slog.New(slog.DiscardHandler))
-	require.NoError(t, err)
-	ctx, cancel := context.WithCancel(t.Context())
-	done := run(ctx, a)
-	t.Cleanup(func() {
-		cancel()
-		require.NoError(t, <-done)
-	})
+	httpAddr := serveAPI(t, nil, metrics, slog.New(slog.DiscardHandler))
 
 	var body []byte
 	require.Eventually(t, func() bool {
@@ -200,7 +187,7 @@ func TestPutStreamDryRun(t *testing.T) {
 		"source": map[string]any{"name": "in", "type": "generator", "spec": map[string]any{"interval": "1h"}},
 		"sinks":  []any{map[string]any{"name": "out", "type": "debug", "from": "in"}},
 	}
-	httpAddr := startAPI(t, c, logger)
+	httpAddr := serveAPI(t, c, nil, logger)
 	created, _ := putStream(t, httpAddr, "s", map[string]any{"stream": stream})
 	require.Equal(t, http.StatusOK, created)
 
@@ -252,28 +239,61 @@ func TestPutStreamDryRun(t *testing.T) {
 	})
 }
 
-func startAPI(t *testing.T, c *core.Core, logger *slog.Logger) string {
+// serveAPI starts the API on free ports and returns its HTTP address once the
+// gateway serves; the API stops when the test ends. The gateway dials the
+// gRPC endpoint by its address, so the ports are chosen before the API
+// listens, and a parallel test may take one meanwhile: then it tries again
+// with new ports.
+func serveAPI(t *testing.T, c ports.Core, metrics http.Handler, logger *slog.Logger) string {
 	t.Helper()
-	httpAddr, grpcAddr := freeAddr(t), freeAddr(t)
-	a, err := api.New(c, grpcAddr, httpAddr, nil, logger)
-	require.NoError(t, err)
-	ctx, cancel := context.WithCancel(t.Context())
-	done := run(ctx, a)
-	t.Cleanup(func() {
+	const attempts = 5
+	for range attempts {
+		httpAddr, grpcAddr := freeAddr(t), freeAddr(t)
+		a, err := api.New(c, grpcAddr, httpAddr, metrics, logger)
+		require.NoError(t, err)
+		ctx, cancel := context.WithCancel(t.Context())
+		done := run(ctx, a)
+
+		serving, runErr := waitServing(t, httpAddr, done)
+		if serving {
+			t.Cleanup(func() {
+				cancel()
+				require.NoError(t, <-done)
+			})
+			return httpAddr
+		}
 		cancel()
-		require.NoError(t, <-done)
-	})
-	require.Eventually(t, func() bool {
-		req, reqErr := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://"+httpAddr+"/v1/streams", nil)
-		if reqErr != nil {
-			return false
+		if !errors.Is(runErr, syscall.EADDRINUSE) {
+			require.NoError(t, runErr, "the API stopped before it served")
+			t.Fatal("the API did not serve in time")
 		}
-		resp, getErr := http.DefaultClient.Do(req)
-		if getErr != nil {
-			return false
+	}
+	t.Fatalf("the API found no free ports in %d attempts", attempts)
+	return ""
+}
+
+// waitServing waits until the HTTP gateway at httpAddr answers, with any
+// status, or Run returns, and then reports whether it serves, or Run's error.
+func waitServing(t *testing.T, httpAddr string, done <-chan error) (bool, error) {
+	t.Helper()
+	deadline := time.After(5 * time.Second)
+	ticker := time.NewTicker(20 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		select {
+		case err := <-done:
+			return false, err
+		case <-deadline:
+			return false, nil
+		case <-ticker.C:
 		}
-		defer resp.Body.Close()
-		return resp.StatusCode == http.StatusOK
-	}, 5*time.Second, 20*time.Millisecond)
-	return httpAddr
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://"+httpAddr+"/", nil)
+		require.NoError(t, err)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			continue
+		}
+		_ = resp.Body.Close()
+		return true, nil
+	}
 }

@@ -47,11 +47,9 @@ Tram is a cloud-native, in-memory data pipeline framework that:
 
 ### Follow-ups (do in separate PRs, after the branch that introduced them merges)
 
-- **Metric naming contract:** core (`tram.node.*`, `tram.source.*`) and component meters (`tram.stage.value_map.*`) share only an implicit naming convention `tram.<kind>[.<component type>].<metric>` and duplicate label keys (`stream`, `node`, `signal`, ...) as string literals. Agreed follow-up:
-  1. Central prefix and label-key constants in a package both layers import (core/domain or a new internal/metrics); refactor `internal/core/metrics.go` and `internal/adapters/stage/valuemap/valuemap.go` to build names and labels only from them.
-  2. Document the schema and label taxonomy in COMPONENTS.md and docs/content/guide/metrics.md.
-  3. Add a conformance test that collects all instruments via an otel ManualReader (pattern exists in internal/core/metrics_test.go and the valuemap stream-label test) and asserts name grammar, label taxonomy, and unit and description being set.
+- **Metric naming contract:** done on `feature/metric_validation`. `internal/metrics` holds the prefix, attribute keys and kind values; `internal/core/metrics.go` and `internal/adapters/stage/valuemap/valuemap.go` build their names and labels from it; docs/content/guide/metrics.md documents the schema; `TestMetricsFollowTheNamingContract` in `internal/e2e/` collects every instrument of a running pipeline and asserts name grammar, label keys, the stream label, and description and unit, so a component that ignores the contract fails a test.
   Context: introduced with the stream-labeled value_map metrics on the buffer-stage branch.
+- Declarative on/off for the metrics of components (like the lookup outcomes of `value_map`) would need a proto/API/CRD change; do it once a second component records its own.
 
 ### Review Focus Areas
 

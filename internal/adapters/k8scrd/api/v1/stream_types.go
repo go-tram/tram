@@ -144,7 +144,7 @@ type StreamEngineStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Mounted",type=boolean,JSONPath=`.status.mounted`
-// +kubebuilder:printcolumn:name="Suspended",type=boolean,JSONPath=`.spec.suspended`
+// +kubebuilder:printcolumn:name="Suspended",type=boolean,JSONPath=`.spec.suspended`,description="The source does not run; no ports are opened and no consumers are attached"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 type Stream struct {

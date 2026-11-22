@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/stage/base"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/metrics"
 )
 
 const Type = "value_map"
@@ -488,7 +489,7 @@ func newLookupMetrics(stream, node string, provider metric.MeterProvider) lookup
 	var m lookupMetrics
 	for outcome := range outcomeCount {
 		counter, err := meter.Int64Counter(
-			"tram.stage.value_map."+lookupNames[outcome],
+			metrics.Name("stage", Type, lookupNames[outcome]),
 			metric.WithUnit("{record}"),
 			metric.WithDescription(lookupDescriptions[outcome]),
 		)
@@ -498,9 +499,9 @@ func newLookupMetrics(stream, node string, provider metric.MeterProvider) lookup
 		m.counters[outcome] = counter
 		for signal, sig := range [signalCount]domain.Signal{domain.SignalLogs, domain.SignalMetrics, domain.SignalTraces} {
 			m.options[outcome][signal] = []metric.AddOption{metric.WithAttributeSet(attribute.NewSet(
-				attribute.String("stream", stream),
-				attribute.String("node", node),
-				attribute.String("signal", string(sig)),
+				attribute.String(metrics.LabelStream, stream),
+				attribute.String(metrics.LabelNode, node),
+				attribute.String(metrics.LabelSignal, string(sig)),
 			))}
 		}
 	}
