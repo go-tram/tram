@@ -34,8 +34,16 @@ spec:
       port: 4327
     - name: otlp-buffer
       port: 4328
+    - name: otlp-grpc
+      port: 4317
+    - name: otlp-grpc-http
+      port: 4329
     - name: otlp-transform
       port: 4330
+    - name: tenant-http
+      port: 4331
+    - name: tenant-grpc
+      port: 4332
   runtime:
     logLevel: info
   # Uncomment to give every instance a volume for buffer queues, so

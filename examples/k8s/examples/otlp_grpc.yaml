@@ -1,0 +1,21 @@
+# otlp_grpc.yaml - OTLP over gRPC and HTTP into one stream
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: otlp-grpc
+spec:
+  engineRefs:
+    - name: demo
+  source:
+    type: otlp
+    name: otlp_source
+    spec:
+      grpc_port: 4317   # OTLP/gRPC, the default of most OpenTelemetry SDKs
+      http_port: 4329   # OTLP/HTTP into the same stream
+  stages: []
+  sinks:
+    - type: otlp
+      name: otlp_sink
+      from: otlp_source
+      spec:
+        url: "http://central-otel-collector:4318"
