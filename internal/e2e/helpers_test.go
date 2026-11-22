@@ -236,10 +236,11 @@ func onFreePort(t *testing.T, preferred int, create func(port int) error) int {
 	}
 }
 
-// freePort returns a port that is free now; see onFreePort to listen on it.
+// freePort returns a port that is free now on all interfaces, where sources
+// listen; see onFreePort to listen on it.
 func freePort(t *testing.T) int {
 	t.Helper()
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	l, err := net.Listen("tcp", ":0")
 	require.NoError(t, err)
 	defer l.Close()
 	return l.Addr().(*net.TCPAddr).Port
