@@ -1,0 +1,2992 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, extensible pipeline framework for logs, metrics and traces">
+      
+      
+      
+        <link rel="canonical" href="https://gotram.dev/benchmarks/">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/TRAM.svg">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Benchmarks - TRAM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TRAM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Benchmarks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/getting-started/" class="md-tabs__link">
+          
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../components/" class="md-tabs__link">
+          
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../deployment/container/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operations/metrics/" class="md-tabs__link">
+          
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/contributing/" class="md-tabs__link">
+          
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    TRAM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Security
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Components
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Components
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/stages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stages
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sinks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Examples
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-read-the-numbers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How to Read the Numbers
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Environment
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Pipeline Scenarios
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pipeline Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#otlp-nats-otlp-nats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp-nats</code>: OTLP → NATS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#otlp-batch-nats-otlp-batch-nats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp-batch-nats</code>: OTLP → batch → NATS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#otlp-split-nats-otlp-2-filter-2-nats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp-split-nats</code>: OTLP → 2 × filter → 2 × NATS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nats-filter-nats-nats-filter-nats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>nats-filter-nats</code>: NATS → filter → NATS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sizing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#streams-per-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Streams per Instance
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-time-goes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Where the Time Goes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-test-on-kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Load Test on Kubernetes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Known Limits
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regenerating" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Regenerating
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h1>
+<p>This page shows what TRAM's pipelines and components cost, to help with sizing deployments and choosing configurations. The tables are generated by <code>tools/benchreport</code> from the benchmarks in the repository; see <a href="#regenerating">Regenerating</a>.</p>
+<p>Absolute numbers depend on the machine, its load and the network to NATS, so treat them as an indication for the environment below. Costs per record and the ratios between configurations carry over much better than throughput figures.</p>
+<h2 id="how-to-read-the-numbers">How to Read the Numbers<a class="headerlink" href="#how-to-read-the-numbers" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Record:</strong> a log record, metric data point or span. <strong>Event:</strong> one OTLP request or one broker message, carrying one or more records.</li>
+<li><strong>CPU per record:</strong> CPU time (user and system) of the whole process, divided by the records processed. It includes garbage collection. For the OTLP scenarios it also includes the HTTP client that generates the load in the same process, so it is an upper bound. NATS runs in a container, and its CPU time is not included.</li>
+<li><strong>Small events overstate CPU.</strong> With 1 record per event, the process mostly waits for HTTP and NATS round trips, and the Go runtime uses CPU between those short requests as well. These rows therefore show far more CPU per record than the work itself costs (compare the per-event costs under <a href="#where-the-time-goes">Where the Time Goes</a>). Use the rows with 100 or 1,000 records for sizing; treat single-record rows as a pessimistic bound</li>
+<li><strong>Records/s per core:</strong> how many records one fully used CPU core can process, derived from the CPU per record. This is the figure for sizing, as TRAM is stateless and scales horizontally.</li>
+<li><strong>Records/s:</strong> the throughput actually measured on this machine. It is also limited by the number of callers and by NATS.</li>
+<li><strong>Latency:</strong> time from sending an OTLP request until TRAM answered it. TRAM answers once all sinks accepted the data, so it includes publishing to NATS.</li>
+<li><strong>Spread:</strong> range of the runs relative to the median. Values above 10% are flagged with ⚠️ and are less reliable.</li>
+</ul>
+<h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
+<!-- BEGIN benchreport:environment -->
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Commit</td>
+<td><code>d060ee2</code></td>
+</tr>
+<tr>
+<td>Date</td>
+<td>2026-11-18</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>13th Gen Intel(R) Core(TM) i7-13700K</td>
+</tr>
+<tr>
+<td>Go</td>
+<td>go1.27.4</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td><code>nats:2.11</code> in a local container</td>
+</tr>
+<tr>
+<td>Runs</td>
+<td>3 per benchmark, medians shown; scenarios <code>-benchtime=1s</code>, streams <code>-benchtime=1x</code>, components <code>-benchtime=300ms</code></td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:environment -->
+
+<h2 id="pipeline-scenarios">Pipeline Scenarios<a class="headerlink" href="#pipeline-scenarios" title="Permanent link">&para;</a></h2>
+<p>Complete streams, built by the core from the real components, as <code>tram server</code> does. OTLP data is sent over HTTP; NATS runs in a local container. Each scenario runs with 1, 4 and 8 concurrent callers (for the broker source: workers) and with events of 1, 100 and 1,000 records.</p>
+<p>Configuration used in all scenarios:</p>
+<ul>
+<li><strong>Broker sink (NATS driver):</strong> one subject per service (<code>'&lt;stream&gt;.' + ...get_attr('service.name')</code>), so events with 10 services are published as 10 messages</li>
+<li><strong>batch:</strong> <code>max_records: 1000</code>, <code>timeout: "10ms"</code></li>
+<li><strong>Split:</strong> two <code>filter</code> stages with the CEL driver, <code>team == 'team-0'</code> and its negation, each with its own broker sink; the payload alternates between two teams</li>
+<li><strong>Broker source (NATS driver):</strong> durable consumer, <code>workers</code> equal to the number of callers; the messages are in the stream before the measurement starts</li>
+</ul>
+<!-- BEGIN benchreport:scenarios -->
+<h4 id="otlp-nats-otlp-nats"><code>otlp-nats</code>: OTLP → NATS<a class="headerlink" href="#otlp-nats-otlp-nats" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Callers</th>
+<th>Records per event</th>
+<th>Records/s</th>
+<th>Events/s</th>
+<th>CPU per record</th>
+<th>Records/s per core</th>
+<th>p50 latency</th>
+<th>p99 latency</th>
+<th>Allocs per record</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1 (1 service)</td>
+<td>12 k</td>
+<td>12 k</td>
+<td>85.95 µs</td>
+<td>12 k</td>
+<td>0.08 ms</td>
+<td>0.18 ms</td>
+<td>202</td>
+<td>±6%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>100 (1 service)</td>
+<td>191 k</td>
+<td>1.9 k</td>
+<td>7.55 µs</td>
+<td>132 k</td>
+<td>0.45 ms</td>
+<td>0.96 ms</td>
+<td>54</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1000 (10 services)</td>
+<td>251 k</td>
+<td>251</td>
+<td>6.04 µs</td>
+<td>166 k</td>
+<td>3.56 ms</td>
+<td>5.74 ms</td>
+<td>53</td>
+<td>±3%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1 (1 service)</td>
+<td>35 k</td>
+<td>35 k</td>
+<td>86.39 µs</td>
+<td>12 k</td>
+<td>0.11 ms</td>
+<td>0.30 ms</td>
+<td>202</td>
+<td>±3%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100 (1 service)</td>
+<td>609 k</td>
+<td>6.1 k</td>
+<td>7.85 µs</td>
+<td>127 k</td>
+<td>0.65 ms</td>
+<td>1.12 ms</td>
+<td>54</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1000 (10 services)</td>
+<td>871 k</td>
+<td>871</td>
+<td>5.96 µs</td>
+<td>168 k</td>
+<td>4.31 ms</td>
+<td>6.33 ms</td>
+<td>53</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1 (1 service)</td>
+<td>53 k</td>
+<td>53 k</td>
+<td>95.20 µs</td>
+<td>11 k</td>
+<td>0.14 ms</td>
+<td>0.38 ms</td>
+<td>202</td>
+<td>±3%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>100 (1 service)</td>
+<td>917 k</td>
+<td>9.2 k</td>
+<td>8.37 µs</td>
+<td>119 k</td>
+<td>0.88 ms</td>
+<td>1.37 ms</td>
+<td>54</td>
+<td>±0%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1000 (10 services)</td>
+<td>1.49 M</td>
+<td>1.5 k</td>
+<td>6.09 µs</td>
+<td>164 k</td>
+<td>5.25 ms</td>
+<td>7.27 ms</td>
+<td>53</td>
+<td>±0%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="otlp-batch-nats-otlp-batch-nats"><code>otlp-batch-nats</code>: OTLP → batch → NATS<a class="headerlink" href="#otlp-batch-nats-otlp-batch-nats" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Callers</th>
+<th>Records per event</th>
+<th>Records/s</th>
+<th>Events/s</th>
+<th>CPU per record</th>
+<th>Records/s per core</th>
+<th>p50 latency</th>
+<th>p99 latency</th>
+<th>Allocs per record</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1 (1 service)</td>
+<td>96</td>
+<td>96</td>
+<td>300.25 µs</td>
+<td>3.3 k</td>
+<td>10.38 ms</td>
+<td>10.68 ms</td>
+<td>217</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>100 (1 service)</td>
+<td>9.1 k</td>
+<td>91</td>
+<td>11.67 µs</td>
+<td>86 k</td>
+<td>10.95 ms</td>
+<td>11.66 ms</td>
+<td>54</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1000 (10 services)</td>
+<td>247 k</td>
+<td>247</td>
+<td>6.24 µs</td>
+<td>160 k</td>
+<td>3.64 ms</td>
+<td>5.71 ms</td>
+<td>53</td>
+<td>±4%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1 (1 service)</td>
+<td>383</td>
+<td>383</td>
+<td>163.43 µs</td>
+<td>6.1 k</td>
+<td>10.39 ms</td>
+<td>10.82 ms</td>
+<td>187</td>
+<td>±0%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100 (1 service)</td>
+<td>35 k</td>
+<td>347</td>
+<td>8.62 µs</td>
+<td>116 k</td>
+<td>11.38 ms</td>
+<td>12.29 ms</td>
+<td>54</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1000 (10 services)</td>
+<td>860 k</td>
+<td>860</td>
+<td>6.05 µs</td>
+<td>165 k</td>
+<td>4.39 ms</td>
+<td>6.39 ms</td>
+<td>53</td>
+<td>±0%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1 (1 service)</td>
+<td>761</td>
+<td>761</td>
+<td>148.95 µs</td>
+<td>6.7 k</td>
+<td>10.48 ms</td>
+<td>10.76 ms</td>
+<td>182</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>100 (1 service)</td>
+<td>62 k</td>
+<td>620</td>
+<td>9.59 µs</td>
+<td>104 k</td>
+<td>13.09 ms</td>
+<td>13.92 ms</td>
+<td>54</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1000 (10 services)</td>
+<td>1.49 M</td>
+<td>1.5 k</td>
+<td>6.12 µs</td>
+<td>164 k</td>
+<td>5.23 ms</td>
+<td>7.31 ms</td>
+<td>53</td>
+<td>±0%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="otlp-split-nats-otlp-2-filter-2-nats"><code>otlp-split-nats</code>: OTLP → 2 × filter → 2 × NATS<a class="headerlink" href="#otlp-split-nats-otlp-2-filter-2-nats" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Callers</th>
+<th>Records per event</th>
+<th>Records/s</th>
+<th>Events/s</th>
+<th>CPU per record</th>
+<th>Records/s per core</th>
+<th>p50 latency</th>
+<th>p99 latency</th>
+<th>Allocs per record</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1 (1 service)</td>
+<td>8.9 k</td>
+<td>8.9 k</td>
+<td>124.16 µs</td>
+<td>8.1 k</td>
+<td>0.11 ms</td>
+<td>0.23 ms</td>
+<td>247</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>100 (1 service)</td>
+<td>140 k</td>
+<td>1.4 k</td>
+<td>13.56 µs</td>
+<td>74 k</td>
+<td>0.70 ms</td>
+<td>1.17 ms</td>
+<td>88</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1000 (10 services)</td>
+<td>175 k</td>
+<td>175</td>
+<td>11.53 µs</td>
+<td>87 k</td>
+<td>6.03 ms</td>
+<td>6.93 ms</td>
+<td>86</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1 (1 service)</td>
+<td>29 k</td>
+<td>29 k</td>
+<td>116.28 µs</td>
+<td>8.6 k</td>
+<td>0.13 ms</td>
+<td>0.35 ms</td>
+<td>248</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100 (1 service)</td>
+<td>446 k</td>
+<td>4.5 k</td>
+<td>14.52 µs</td>
+<td>69 k</td>
+<td>0.93 ms</td>
+<td>1.35 ms</td>
+<td>88</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1000 (10 services)</td>
+<td>645 k</td>
+<td>645</td>
+<td>11.26 µs</td>
+<td>89 k</td>
+<td>6.15 ms</td>
+<td>7.92 ms</td>
+<td>86</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1 (1 service)</td>
+<td>44 k</td>
+<td>44 k</td>
+<td>126.26 µs</td>
+<td>7.9 k</td>
+<td>0.16 ms</td>
+<td>0.46 ms</td>
+<td>248</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>100 (1 service)</td>
+<td>655 k</td>
+<td>6.5 k</td>
+<td>16.23 µs</td>
+<td>62 k</td>
+<td>1.24 ms</td>
+<td>1.81 ms</td>
+<td>88</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1000 (10 services)</td>
+<td>1.04 M</td>
+<td>1.0 k</td>
+<td>12.59 µs</td>
+<td>79 k</td>
+<td>7.66 ms</td>
+<td>9.55 ms</td>
+<td>86</td>
+<td>±0%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="nats-filter-nats-nats-filter-nats"><code>nats-filter-nats</code>: NATS → filter → NATS<a class="headerlink" href="#nats-filter-nats-nats-filter-nats" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Callers</th>
+<th>Records per event</th>
+<th>Records/s</th>
+<th>Events/s</th>
+<th>CPU per record</th>
+<th>Records/s per core</th>
+<th>p50 latency</th>
+<th>p99 latency</th>
+<th>Allocs per record</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1 (1 service)</td>
+<td>7.8 k</td>
+<td>7.8 k</td>
+<td>105.71 µs</td>
+<td>9.5 k</td>
+<td>–</td>
+<td>–</td>
+<td>148</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>100 (1 service)</td>
+<td>166 k</td>
+<td>1.7 k</td>
+<td>7.80 µs</td>
+<td>128 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1000 (10 services)</td>
+<td>198 k</td>
+<td>198</td>
+<td>7.20 µs</td>
+<td>139 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±4%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1 (1 service)</td>
+<td>29 k</td>
+<td>29 k</td>
+<td>75.76 µs</td>
+<td>13 k</td>
+<td>–</td>
+<td>–</td>
+<td>144</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100 (1 service)</td>
+<td>590 k</td>
+<td>5.9 k</td>
+<td>7.83 µs</td>
+<td>128 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1000 (10 services)</td>
+<td>764 k</td>
+<td>764</td>
+<td>6.63 µs</td>
+<td>151 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1 (1 service)</td>
+<td>48 k</td>
+<td>48 k</td>
+<td>67.01 µs</td>
+<td>15 k</td>
+<td>–</td>
+<td>–</td>
+<td>143</td>
+<td>±3%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>100 (1 service)</td>
+<td>981 k</td>
+<td>9.8 k</td>
+<td>8.22 µs</td>
+<td>122 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±2%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1000 (10 services)</td>
+<td>1.35 M</td>
+<td>1.3 k</td>
+<td>6.80 µs</td>
+<td>147 k</td>
+<td>–</td>
+<td>–</td>
+<td>61</td>
+<td>±1%</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:scenarios -->
+
+<h2 id="sizing">Sizing<a class="headerlink" href="#sizing" title="Permanent link">&para;</a></h2>
+<p>CPU needed for pure processing, from the CPU per record of the scenarios above. The unbatched row is a pessimistic bound, see <a href="#how-to-read-the-numbers">How to Read the Numbers</a>; the point it makes holds regardless: unbatched single-record events cost many times more than batched ones. Plan headroom on top, for load peaks, garbage collection and the network. Allocation rates are high (see Allocs per record), so pods also need memory headroom; set <code>GOMEMLIMIT</code> and resource requests accordingly.</p>
+<!-- BEGIN benchreport:sizing -->
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>CPU per record</th>
+<th>Cores for 100 k records/s</th>
+<th>Cores for 1 M records/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Batched: OTLP → batch → NATS, 1,000 records per request, 8 callers</td>
+<td>6.12 µs</td>
+<td>0.6</td>
+<td>6.1</td>
+</tr>
+<tr>
+<td>Split: OTLP → 2 × filter → 2 × NATS, 1,000 records per request, 8 callers</td>
+<td>12.59 µs</td>
+<td>1.3</td>
+<td>12.6</td>
+</tr>
+<tr>
+<td>Forwarding: NATS → filter → NATS, 1,000 records per message, 8 workers</td>
+<td>6.80 µs</td>
+<td>0.7</td>
+<td>6.8</td>
+</tr>
+<tr>
+<td>Unbatched: OTLP → NATS, 1 record per request, 8 callers</td>
+<td>95.20 µs</td>
+<td>9.5</td>
+<td>95.2</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:sizing -->
+
+<p>Scaling out works because TRAM keeps no state between events, with two conditions:</p>
+<ul>
+<li><strong>Broker source:</strong> set <code>durable</code>, so the pods share one consumer and split the messages. Without it, every pod receives every message</li>
+<li><strong>NATS server:</strong> all pods publish to the same JetStream streams. A stream is written by one NATS node, so at very high load NATS, not TRAM, becomes the limit; spread the data over several streams</li>
+</ul>
+<h2 id="streams-per-instance">Streams per Instance<a class="headerlink" href="#streams-per-instance" title="Permanent link">&para;</a></h2>
+<p>The cost of processing data is shared by the replicas, but the cost of a stream itself is not: every replica that runs a stream holds its connections, goroutines and memory, and its broker sources keep asking the NATS server for messages even when there are none. This section measures that cost, so you can tell when to shard streams over several deployments with <code>--watch-namespace</code> or <code>--engine</code> (see <a href="../kubernetes/#selecting-streams">the operator documentation</a>) instead of running every stream on every replica.</p>
+<p><code>BenchmarkStreams</code> builds 10, 100 and 1,000 streams of one shape in one TRAM core and observes them for 10 seconds without data. Values are per stream, measured against the process before the streams were built:</p>
+<ul>
+<li><strong>Build:</strong> time to create the stream through the core, including connecting to NATS</li>
+<li><strong>Heap:</strong> live heap after a garbage collection. RSS is higher; see <a href="#sizing">Sizing</a></li>
+<li><strong>NATS connections:</strong> client connections the NATS server sees. Every broker source and sink has its own</li>
+<li><strong>NATS messages/s, idle:</strong> messages the NATS server receives from the idle stream, mostly the pull requests of the broker source, which renews its request every 5 seconds</li>
+<li><strong>Idle CPU:</strong> CPU the process uses for the idle stream, as a share of one core</li>
+</ul>
+<p>Idle CPU is shown for 1,000 streams only; for fewer streams it is below the noise of the process.</p>
+<!-- BEGIN benchreport:streams -->
+<table>
+<thead>
+<tr>
+<th>Stream</th>
+<th>Streams</th>
+<th>Build</th>
+<th>Heap</th>
+<th>Goroutines</th>
+<th>NATS connections</th>
+<th>NATS messages/s, idle</th>
+<th>Idle CPU of a core</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>10</td>
+<td>1.3 ms</td>
+<td>336 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>100</td>
+<td>1.2 ms</td>
+<td>332 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>1,000</td>
+<td>1.1 ms</td>
+<td>330 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>0.0027 %</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>10</td>
+<td>1.1 ms</td>
+<td>333 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>100</td>
+<td>1.1 ms</td>
+<td>330 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>1,000</td>
+<td>1.1 ms</td>
+<td>330 KiB</td>
+<td>10.0</td>
+<td>2.0</td>
+<td>0.00</td>
+<td>0.0027 %</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>10</td>
+<td>628.40 µs</td>
+<td>205 KiB</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>100</td>
+<td>610.90 µs</td>
+<td>201 KiB</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>0.00</td>
+<td>–</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>1,000</td>
+<td>617.70 µs</td>
+<td>200 KiB</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>0.00</td>
+<td>0.0014 %</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:streams -->
+
+<p>What a number of streams costs when every replica runs all of them, projected from the 1,000-stream rows. Heap and CPU are per replica; connections and messages add up on the NATS server over all replicas:</p>
+<!-- BEGIN benchreport:streams-fleet -->
+<table>
+<thead>
+<tr>
+<th>Stream</th>
+<th>Streams</th>
+<th>Replicas</th>
+<th>Heap per replica</th>
+<th>Idle CPU per replica, of a core</th>
+<th>NATS connections</th>
+<th>NATS messages/s, idle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>100</td>
+<td>1</td>
+<td>32 MiB</td>
+<td>0.27 %</td>
+<td>200</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>100</td>
+<td>10</td>
+<td>32 MiB</td>
+<td>0.27 %</td>
+<td>2.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>1,000</td>
+<td>1</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>2.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>1,000</td>
+<td>3</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>6.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (1 worker) → filter → NATS</td>
+<td>1,000</td>
+<td>10</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>20 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>100</td>
+<td>1</td>
+<td>32 MiB</td>
+<td>0.27 %</td>
+<td>200</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>100</td>
+<td>10</td>
+<td>32 MiB</td>
+<td>0.27 %</td>
+<td>2.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>1,000</td>
+<td>1</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>2.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>1,000</td>
+<td>3</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>6.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NATS (4 workers) → filter → NATS</td>
+<td>1,000</td>
+<td>10</td>
+<td>322 MiB</td>
+<td>2.7 %</td>
+<td>20 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>100</td>
+<td>1</td>
+<td>20 MiB</td>
+<td>0.14 %</td>
+<td>100</td>
+<td>0</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>100</td>
+<td>10</td>
+<td>20 MiB</td>
+<td>0.14 %</td>
+<td>1.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>1,000</td>
+<td>1</td>
+<td>196 MiB</td>
+<td>1.4 %</td>
+<td>1.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>1,000</td>
+<td>3</td>
+<td>196 MiB</td>
+<td>1.4 %</td>
+<td>3.0 k</td>
+<td>0</td>
+</tr>
+<tr>
+<td>OTLP → batch → NATS</td>
+<td>1,000</td>
+<td>10</td>
+<td>196 MiB</td>
+<td>1.4 %</td>
+<td>10 k</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:streams-fleet -->
+
+<p>How to read it:</p>
+<ul>
+<li><strong>Memory limits the streams per replica first.</strong> Most of a stream's heap are the buffers of its NATS connections. Plan the memory request of a replica from the streams it runs, not only from its data rate</li>
+<li><strong>Replicas multiply the load on NATS.</strong> Doubling the replicas of a deployment that runs every stream doubles the connections and idle requests the NATS server handles, while each replica still holds all streams. Shard the streams when the per-replica heap or the NATS totals get too high, and scale replicas within a shard for the data rate</li>
+<li><strong>Workers cost only while messages are in flight.</strong> A broker source has one pending pull request however many workers it has, and runs a goroutine per message being processed</li>
+</ul>
+<h2 id="where-the-time-goes">Where the Time Goes<a class="headerlink" href="#where-the-time-goes" title="Permanent link">&para;</a></h2>
+<p>Costs of single components, measured in isolation. Per-record costs are measured with events of 1,000 records from 10 services.</p>
+<!-- BEGIN benchreport:components-per-record -->
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Per record</th>
+<th>Allocs per record</th>
+<th>Records/s</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Broker sink (NATS): group and publish, 10 subjects</td>
+<td>3.08 µs</td>
+<td>31.2</td>
+<td>325 k</td>
+<td>±4%</td>
+</tr>
+<tr>
+<td>Broker sink (NATS): group and publish, 1 subject</td>
+<td>3.38 µs</td>
+<td>30.1</td>
+<td>296 k</td>
+<td>±6%</td>
+</tr>
+<tr>
+<td>Serializing OTLP data and back (logs)</td>
+<td>2.38 µs</td>
+<td>34.2</td>
+<td>421 k</td>
+<td>±23% ⚠️</td>
+</tr>
+<tr>
+<td>Broker source (NATS), 1 worker</td>
+<td>1.61 µs</td>
+<td>34.2</td>
+<td>621 k</td>
+<td>±5%</td>
+</tr>
+<tr>
+<td>Broker source (NATS), 8 workers</td>
+<td>270.0 ns</td>
+<td>34.2</td>
+<td>3.70 M</td>
+<td>±1%</td>
+</tr>
+<tr>
+<td>OTLP source: decoding a request</td>
+<td>1.48 µs</td>
+<td>34.3</td>
+<td>677 k</td>
+<td>±10% ⚠️</td>
+</tr>
+<tr>
+<td>filter (CEL), keeping half of the records</td>
+<td>1.77 µs</td>
+<td>16.6</td>
+<td>565 k</td>
+<td>±9%</td>
+</tr>
+<tr>
+<td>filter (CEL), keeping all records</td>
+<td>920.0 ns</td>
+<td>8.0</td>
+<td>1.09 M</td>
+<td>±24% ⚠️</td>
+</tr>
+<tr>
+<td>validation (CEL), record-level expression</td>
+<td>1.07 µs</td>
+<td>9.1</td>
+<td>931 k</td>
+<td>±18% ⚠️</td>
+</tr>
+<tr>
+<td>validation (CEL), resource-level expression</td>
+<td>13.5 ns</td>
+<td>0.1</td>
+<td>73.86 M</td>
+<td>±14% ⚠️</td>
+</tr>
+<tr>
+<td>Record filter helper without CEL</td>
+<td>8.0 ns</td>
+<td>0.0</td>
+<td>124.60 M</td>
+<td>±3%</td>
+</tr>
+<tr>
+<td>batch, 8 concurrent callers</td>
+<td>0.5 ns</td>
+<td>0.0</td>
+<td>2.10 G</td>
+<td>±7%</td>
+</tr>
+<tr>
+<td>noop stage</td>
+<td>1.1 ns</td>
+<td>0.0</td>
+<td>947.87 M</td>
+<td>±8%</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:components-per-record -->
+
+<p>Fixed costs per event, independent of its size. They dominate when events are small:</p>
+<!-- BEGIN benchreport:components-per-event -->
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Per event</th>
+<th>Allocs per event</th>
+<th>Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Broker sink (NATS): one record (waits for the acknowledgement)</td>
+<td>38.11 µs</td>
+<td>64</td>
+<td>±5%</td>
+</tr>
+<tr>
+<td>OTLP source: request with one record</td>
+<td>6.47 µs</td>
+<td>85</td>
+<td>±23% ⚠️</td>
+</tr>
+<tr>
+<td>batch, one caller</td>
+<td>1.65 µs</td>
+<td>15</td>
+<td>±7%</td>
+</tr>
+<tr>
+<td>Passing an event to 1 child</td>
+<td>381.0 ns</td>
+<td>6</td>
+<td>±4%</td>
+</tr>
+<tr>
+<td>Passing an event to 8 children</td>
+<td>1.59 µs</td>
+<td>20</td>
+<td>±7%</td>
+</tr>
+<tr>
+<td>Each additional noop stage</td>
+<td>469.6 ns</td>
+<td>7</td>
+<td>±5%</td>
+</tr>
+</tbody>
+</table>
+<!-- END benchreport:components-per-event -->
+
+<h2 id="tuning">Tuning<a class="headerlink" href="#tuning" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Batch before the broker sink.</strong> The sink waits for JetStream to acknowledge the messages of an event. With small events that round trip dominates; batching spreads it over many records. Compare <code>otlp-nats</code> with 1 and with 1,000 records per event</li>
+<li><strong>Batching needs concurrent callers.</strong> Each caller of a <code>batch</code> stage waits for its batch to be delivered. With a single caller, batches never fill and every event waits for <code>timeout</code>; see <code>otlp-batch-nats</code> with 1 caller</li>
+<li><strong>Keep the number of subjects per event low.</strong> The broker sink publishes one message per subject. It sends them all at once and waits for their acknowledgements together, so many subjects cost little time, but every message still costs CPU on TRAM and the NATS server</li>
+<li><strong>Give a broker source enough workers.</strong> <code>workers</code> is the number of messages processed at the same time, so a <code>batch</code> stage after the source holds at most that many messages. The source acknowledges a message once its batch is delivered, so a source with a <code>batch</code> stage handles at most <code>workers / timeout</code> messages per second: 20 workers and a timeout of 1 s cap it at 20 messages/s per replica, however fast the sink is</li>
+<li><strong>Prefer resource-level CEL expressions.</strong> They are evaluated once per resource instead of once per record when used in a <code>validation</code> stage; per record, CEL costs about as much as decoding the record</li>
+<li><strong>Many consumers filtering one stream make NATS the limit.</strong> Each filtered consumer searches the stream for its next matching message. With hundreds of them on one stream, NATS spends its CPU on that search and, on slow storage, on reading blocks from disk; see <a href="#load-test-on-kubernetes">Load Test on Kubernetes</a></li>
+<li><strong>Prefer <code>retention: interest</code> for streams that only pass data on.</strong> NATS removes a message once every consumer acknowledged it, so the stream stays small while consumers keep up and still holds the backlog of one that falls behind, up to <code>max_age</code></li>
+</ul>
+<h2 id="load-test-on-kubernetes">Load Test on Kubernetes<a class="headerlink" href="#load-test-on-kubernetes" title="Permanent link">&para;</a></h2>
+<p>Unlike the tables above, this is a manual end-to-end test of one topology, not generated by <code>tools/benchreport</code>. It ran the tenant routing topology with production-shaped traffic on a managed Kubernetes cluster to see what one TRAM pod handles and where a complete system hits its limit.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Date</td>
+<td>2026-10-11</td>
+</tr>
+<tr>
+<td>Cluster</td>
+<td>STACKIT SKE, Kubernetes 1.35, nodes with 16 vCPUs</td>
+</tr>
+<tr>
+<td>TRAM</td>
+<td>operator mode, 553 streams on every replica, 1 replica, CPU request 1 core without limit, <code>GOMEMLIMIT=1600MiB</code></td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>2.15, one server with 4 cores, JetStream on block storage <code>premium-perf29</code> (60,000 IOPS)</td>
+</tr>
+<tr>
+<td>Topology</td>
+<td>OTLP → batch → NATS stream <code>telemetry</code>; 500 links, one per tenant, each a consumer filtering <code>telemetry</code> and publishing to the stream <code>router</code>; 50 routers delivering to OpenObserve; 2 consumers delivering audit logs and metrics. All batch stages 200 ms; both streams <code>retention: interest</code></td>
+</tr>
+<tr>
+<td>Load</td>
+<td>gzip OTLP requests of ~27 KB (~115 KB decoded), 5 records and 3 of 500 tenants each; 55% logs, 30% traces, 15% metrics; sent through the ingress (Traefik, TLS) by a generator in the same cluster</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Requests/s</th>
+<th>TRAM CPU</th>
+<th>TRAM RSS</th>
+<th>Client p95</th>
+<th>NATS CPU</th>
+<th>NATS publish, mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>207</td>
+<td>0.73</td>
+<td>850 MiB</td>
+<td>–</td>
+<td>0.57</td>
+<td>36 ms</td>
+</tr>
+<tr>
+<td>311</td>
+<td>1.04</td>
+<td>900 MiB</td>
+<td>–</td>
+<td>0.89</td>
+<td>63 ms</td>
+</tr>
+<tr>
+<td>414</td>
+<td>1.37</td>
+<td>870 MiB</td>
+<td>259 ms</td>
+<td>1.0</td>
+<td>65 ms</td>
+</tr>
+<tr>
+<td>517</td>
+<td>1.66</td>
+<td>900 MiB</td>
+<td>291 ms</td>
+<td>1.3</td>
+<td>96 ms</td>
+</tr>
+<tr>
+<td>620</td>
+<td>1.92</td>
+<td>950 MiB</td>
+<td>364 ms</td>
+<td>1.63</td>
+<td>140 ms</td>
+</tr>
+<tr>
+<td>713 (800 sent)</td>
+<td>2.2</td>
+<td>1.5 GiB</td>
+<td>2.5 s</td>
+<td>2.05</td>
+<td>1.7 s</td>
+</tr>
+</tbody>
+</table>
+<p>What it shows:</p>
+<ul>
+<li><strong>TRAM needs about 0.32 cores per 100 requests/s, and its memory hardly grows with load.</strong> About 450 MB of the heap are the 553 streams alone (see <a href="#streams-per-instance">Streams per Instance</a>); load adds a few hundred MB. Scale TRAM on CPU</li>
+<li><strong>NATS sets the limit of the system, at about 650 to 700 requests/s.</strong> NATS used only 2 of its 4 cores: half of its CPU went to the 500 link consumers searching <code>telemetry</code> for their next message, 15% to writing consumer state on acknowledgements. Publishes compete with that, so their latency jumps from 140 ms to 1.7 s. More TRAM replicas do not move this limit, as they share the same consumers</li>
+<li><strong>NATS needs fast storage when many consumers filter one stream.</strong> On block storage with 500 IOPS, the same setup collapsed at 100 requests/s: NATS kept re-reading blocks from disk for the filtered consumers, publishes took up to 7 s, and NATS grew to its 8 GB memory limit. With 60,000 IOPS, 100 requests/s took 47 ms per publish</li>
+<li><strong><code>retention: interest</code> made NATS' work lighter.</strong> At 100 requests/s, the streams stayed at a few MB instead of 2.6 GB with <code>limits</code> and 5 minutes of retention; NATS publishes took 7 to 9 ms instead of 47 ms</li>
+<li><strong>The batch timeout limited the routers.</strong> With 20 workers and a timeout of 1 s, each router handled at most 20 messages/s per replica, and a backlog built up at 400 requests/s; with 200 ms it did not</li>
+</ul>
+<h2 id="known-limits">Known Limits<a class="headerlink" href="#known-limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>NATS ran in a container on the same machine. Over a real network, every acknowledgement takes longer, which affects small events and many subjects most</li>
+<li>The OTLP scenarios generate load from the same process and machine, which competes with TRAM for CPU</li>
+<li>The generated benchmarks measure one TRAM instance; they do not cover several pods sharing a NATS server. The fleet table under <a href="#streams-per-instance">Streams per Instance</a> multiplies the per-stream costs instead, assuming the NATS server's cost grows linearly with connections and requests. <a href="#load-test-on-kubernetes">Load Test on Kubernetes</a> measured one replica against a shared NATS server; scaling out to several replicas under load is not measured yet</li>
+<li><code>BenchmarkStreams</code> measures idle streams. It does not measure how idle streams slow down a busy one, beyond the idle CPU they use</li>
+</ul>
+<h2 id="regenerating">Regenerating<a class="headerlink" href="#regenerating" title="Permanent link">&para;</a></h2>
+<p>The scenario and NATS benchmarks need Docker or Podman; without them they are skipped and their rows show <code>n/a</code>. With Podman on macOS, point Testcontainers to the socket inside the Podman VM first:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE</span><span class="o">=</span>/run/podman/podman.sock
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TESTCONTAINERS_RYUK_CONTAINER_PRIVILEGED</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<p>Then run all benchmarks and update this page (takes about 25 minutes, of which the streams benchmarks take about 9):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>run<span class="w"> </span>./tools/benchreport<span class="w"> </span>-raw<span class="w"> </span>bench.txt
+</code></pre></div>
+<p>The benchmarks run one package at a time, as parallel packages would distort each other. Keep the machine otherwise idle. To change only the text around the tables, regenerate from the saved output without measuring again:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>go<span class="w"> </span>run<span class="w"> </span>./tools/benchreport<span class="w"> </span>-input<span class="w"> </span>bench.txt
+</code></pre></div>
+<p>Flags: <code>-count</code> (runs per benchmark, default 3), <code>-scenario-benchtime</code> (default <code>1s</code>), <code>-component-benchtime</code> (default <code>300ms</code>), <code>-out</code> (default <code>BENCHMARK.md</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/GO-TRAM/TRAM" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3085 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, extensible pipeline framework for logs, metrics and traces">
+      
+      
+      
+        <link rel="canonical" href="https://gotram.dev/contributing/">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/TRAM.svg">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Contributing - TRAM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TRAM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contributing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/getting-started/" class="md-tabs__link">
+          
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../components/" class="md-tabs__link">
+          
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../deployment/container/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operations/metrics/" class="md-tabs__link">
+          
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/contributing/" class="md-tabs__link">
+          
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    TRAM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Security
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Components
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Components
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/stages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stages
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sinks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Examples
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Getting Started
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prerequisites
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Install Dependencies
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Development Environment
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tasks
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Build the Project
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-the-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run the Service
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Generate Code
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-api-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Update API Definitions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Project Structure
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-new-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Adding New Components
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding New Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Common Patterns
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Adding a New Source
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding a New Source">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-the-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Create the Spec
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-implement-the-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Implement the Source
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-register-in-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Register in Factory
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Adding a New Stage
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding a New Stage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-the-spec_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Create the Spec
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-implement-the-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Implement the Stage
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-register-in-factory_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Register in Factory
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-sink" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Adding a New Sink
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding a New Sink">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-the-spec_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Create the Spec
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-implement-the-sink" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Implement the Sink
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-register-in-factory_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Register in Factory
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-and-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tests and Benchmarks
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull-request-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Pull Request Guidelines
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull Request Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-submitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Before Submitting
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull-request-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Pull Request Requirements
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commit-message-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Commit Message Format
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-style-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Code Style Guidelines
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Style Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        General Principles
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Naming Conventions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Formatting
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Structure
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Error Handling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Testing
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Unit Tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#end-to-end-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-End Tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broker-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Broker Drivers
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Stage Drivers
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kubernetes-operator-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kubernetes Operator Tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Integration Tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Benchmarks
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Documentation
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Code Documentation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        API Documentation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Component Documentation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#continuous-integration-and-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Continuous Integration and Releases
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Continuous Integration and Releases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checks-on-pull-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Checks on Pull Requests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Releases
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Getting Help
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        License
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="License">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licensing-your-contributions-inbound-outbound" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Licensing your contributions (inbound = outbound)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File headers
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h1>
+<p>Thank you for your interest in contributing to TRAM! This document provides guidelines for contributing to the project.</p>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Go 1.26+</li>
+<li><a href="https://taskfile.dev">Task</a>, recommended, to run the common commands (see <a href="#tasks">Tasks</a>)</li>
+<li>Docker or Podman, optional, for the container image, a local NATS server and the tests and benchmarks that use Testcontainers</li>
+</ul>
+<p>Only needed to regenerate code (<code>task generate</code>), installed with <code>task tools</code>:</p>
+<ul>
+<li><a href="https://buf.build/">buf</a> and the protoc plugins used in <code>buf.gen.yaml</code></li>
+<li><a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> for the Kubernetes CRD and deepcopy code</li>
+</ul>
+<p>Only needed to check the Helm chart (<code>task chart:lint</code>): <a href="https://helm.sh/docs/intro/install/">Helm</a>, and <a href="https://github.com/yannh/kubeconform">kubeconform</a>, installed with <code>task tools</code>.</p>
+<h3 id="install-dependencies">Install Dependencies<a class="headerlink" href="#install-dependencies" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Clone the repository</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/GO-TRAM/TRAM.git<span class="w"> </span>tram
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>tram
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Install Go dependencies</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>go<span class="w"> </span>mod<span class="w"> </span>download
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Code generators, golangci-lint and benchstat, in the versions the</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># generated code was made with (see the versions in Taskfile.yml)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>task<span class="w"> </span>tools
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Optional: NATS with JetStream for the broker source and sink</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>task<span class="w"> </span>nats:up
+</code></pre></div>
+<h2 id="development-environment">Development Environment<a class="headerlink" href="#development-environment" title="Permanent link">&para;</a></h2>
+<h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h3>
+<p><code>Taskfile.yml</code> holds the common commands. <code>task</code> lists them, <code>task --summary &lt;name&gt;</code> explains one, and arguments after <code>--</code> are passed on, e.g. <code>task test:unit -- -run TestBatch -v</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task build</code> / <code>task run</code></td>
+<td>Build the binary, or run the server (<code>task run -- --enable-file-sync</code>)</td>
+</tr>
+<tr>
+<td><code>task check</code></td>
+<td>Lint, unit and end-to-end tests: what a change should pass</td>
+</tr>
+<tr>
+<td><code>task ci</code> / <code>task ci:lint</code> / <code>task ci:test</code> / <code>task ci:containers</code></td>
+<td>What the CI workflows run: the pinned golangci-lint (<code>ci:lint</code>), unit and end-to-end tests without the broker packages (<code>ci:test</code>), and the broker tests against containers (<code>ci:containers</code>)</td>
+</tr>
+<tr>
+<td><code>task test:all</code></td>
+<td><code>task check</code> plus the container and operator (envtest) tests; fails instead of skipping if Podman/Docker or setup-envtest is missing</td>
+</tr>
+<tr>
+<td><code>task test</code></td>
+<td>All tests; tests that need containers are skipped without Docker or Podman</td>
+</tr>
+<tr>
+<td><code>task test:unit</code> / <code>task test:e2e</code></td>
+<td>Unit tests only, or the end-to-end tests that need no containers</td>
+</tr>
+<tr>
+<td><code>task test:containers</code></td>
+<td>End-to-end tests against NATS, Kafka and Artemis (AMQP) in containers; fails if no container runtime runs</td>
+</tr>
+<tr>
+<td><code>task test:envtest</code></td>
+<td>Kubernetes operator tests against a real API server and etcd; downloads them on first use</td>
+</tr>
+<tr>
+<td><code>task test:cover</code></td>
+<td>All tests with coverage, written to <code>coverage.out</code></td>
+</tr>
+<tr>
+<td><code>task lint</code> / <code>task fmt</code></td>
+<td>golangci-lint (including go vet), or format with its configured formatters</td>
+</tr>
+<tr>
+<td><code>task generate</code></td>
+<td>Regenerate protobuf, gateway and swagger code and the Kubernetes CRD</td>
+</tr>
+<tr>
+<td><code>task bench</code></td>
+<td>Benchmarks, e.g. <code>task bench BENCH=Batch PKG=./internal/adapters/stage/batch/</code></td>
+</tr>
+<tr>
+<td><code>task bench:compare</code></td>
+<td>Compare two benchmark outputs with benchstat</td>
+</tr>
+<tr>
+<td><code>task bench:report</code></td>
+<td>Run all benchmarks and regenerate <a href="../benchmarks/">BENCHMARK.md</a></td>
+</tr>
+<tr>
+<td><code>task image:build</code> / <code>task image:run</code></td>
+<td>Build the container image <code>tram:dev</code>, or run it with the APIs on localhost</td>
+</tr>
+<tr>
+<td><code>task nats:up</code> / <code>task nats:down</code></td>
+<td>Start or stop a local NATS server with JetStream</td>
+</tr>
+<tr>
+<td><code>task k8s:crd</code></td>
+<td>Install the Stream CRD into the current Kubernetes context</td>
+</tr>
+<tr>
+<td><code>task tools</code></td>
+<td>Install the code generators, golangci-lint, benchstat and setup-envtest</td>
+</tr>
+<tr>
+<td><code>task release:next</code> / <code>release:patch</code> / <code>release:minor</code> / <code>release:major</code></td>
+<td>Tag the next version on main and push it, which publishes the image (see <a href="#releases">Releases</a>)</td>
+</tr>
+</tbody>
+</table>
+<p>Container tasks use Podman if it is installed and Docker otherwise; set <code>CONTAINER_TOOL=docker</code> to choose. With Podman, the test and benchmark tasks also set up Testcontainers for the Podman machine (see <a href="#benchmarks">Benchmarks</a>).</p>
+<p>The sections below show the underlying commands.</p>
+<h3 id="build-the-project">Build the Project<a class="headerlink" href="#build-the-project" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Build the main application</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>tram<span class="w"> </span>./cmd/tram
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Build all packages</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>go<span class="w"> </span>build<span class="w"> </span>./...
+</code></pre></div>
+<h3 id="run-the-service">Run the Service<a class="headerlink" href="#run-the-service" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Start the service</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./tram<span class="w"> </span>server
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Or with file-based config sync</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>./tram<span class="w"> </span>server<span class="w"> </span>--enable-file-sync<span class="w"> </span>-c<span class="w"> </span>config
+</code></pre></div>
+<h3 id="generate-code">Generate Code<a class="headerlink" href="#generate-code" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Generate all code: protobuf and swagger (buf), Kubernetes CRD and deepcopy (controller-gen)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>go<span class="w"> </span>generate<span class="w"> </span>./...
+</code></pre></div>
+<h3 id="update-api-definitions">Update API Definitions<a class="headerlink" href="#update-api-definitions" title="Permanent link">&para;</a></h3>
+<p>When updating the API:</p>
+<ol>
+<li>Modify the <code>.proto</code> files in <code>api/proto/stream/v1/</code></li>
+<li>Regenerate code:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>go<span class="w"> </span>generate<span class="w"> </span>./...
+</code></pre></div></li>
+<li>The swagger file in <code>api/swagger/</code> is updated automatically</li>
+</ol>
+<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tram/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── api/
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── proto/stream/v1/stream.proto  # API definition
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│   └── swagger/                      # Generated OpenAPI description
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── cmd/tram/                         # CLI entry point and `tram server`
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>├── internal/                         # Private application code
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│   ├── adapters/
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│   │   ├── api/                      # gRPC API and HTTP gateway
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│   │   ├── broker/                   # Broker driver contract, drivers (nats/, kafka/, amqp/), conformance tests
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│   │   ├── configsync/               # File sync (--enable-file-sync)
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│   │   ├── driver/                   # Resolves the `driver` of a component spec and splits off its options
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│   │   ├── k8scrd/                   # Kubernetes operator (--enable-k8s-operator)
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│   │   ├── source/                   # Sources, base/ and factory.go
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│   │   ├── stage/                    # Stages, base/ and factory.go; filter/ and validation/ with their drivers (cel/)
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│   │   └── sink/                     # Sinks, base/ and factory.go
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│   ├── core/                         # Builds, runs and stops streams
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│   │   └── domain/                   # Events, specs, the stream tree, record filtering
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│   ├── ports/                        # Interfaces between core and adapters
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│   ├── e2e/                          # End-to-end pipeline tests
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│   ├── scenario/                     # End-to-end pipeline benchmarks
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│   └── testutil/                     # Test helpers: OTLP payloads (otlpgen), broker containers (natstest, kafkatest, amqptest), tcpproxy
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>├── pkg/gen/go/api/proto/stream/v1/   # Generated protobuf, gRPC and gateway code
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>├── examples/                            # Example configurations: config/, k8s/, nats/
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>├── tools/benchreport/                # Generates BENCHMARK.md
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>├── docs/assets/                      # Images used in the documentation
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>├── buf.yaml, buf.gen.yaml, buf.lock  # Protobuf generation
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>├── generate.go                       # Entry point for go generate
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>└── README.md
+</code></pre></div>
+<h2 id="adding-new-components">Adding New Components<a class="headerlink" href="#adding-new-components" title="Permanent link">&para;</a></h2>
+<p>TRAM is designed to be easily extensible. Each component is a package in <code>internal/adapters/{source|stage|sink}/&lt;name&gt;/</code> that embeds the matching base type and is registered in the factory next to it.</p>
+<h3 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Define a <code>Spec</code> type</strong> for the configuration. <code>base.New</code> decodes the stream's <code>spec</code> into it and checks its <code>validate</code> tags (<a href="https://github.com/go-playground/validator">go-playground/validator</a>); there is no <code>Validate()</code> method</li>
+<li><strong>Implement the component</strong> by embedding <code>base.Source[Spec]</code>, <code>base.Stage[Spec]</code> or <code>base.Sink[Spec]</code>. Checks the tags cannot express, like parsing durations, belong into <code>New</code>, so an invalid spec fails when the stream is created</li>
+<li><strong>Register it</strong> in the <code>switch</code> of <code>factory.go</code> in a new branch</li>
+<li><strong>Document it</strong> in <a href="../components/">COMPONENTS.md</a></li>
+</ol>
+<p>Rules all components follow:</p>
+<ul>
+<li><strong>Events are read-only.</strong> One event is passed to all branches concurrently. To change data, build a new event, e.g. with <code>domain.FilterLogs</code>, <code>FilterMetrics</code> and <code>FilterSpans</code>, which share unchanged records instead of copying them</li>
+<li><strong><code>Notify</code> returns the delivery result.</strong> Return an error wrapping <code>domain.ErrEventRejected</code> when retrying the same data cannot succeed; sources then reject it (OTLP: HTTP 422, broker: reject the message). Any other error is treated as temporary (OTLP: HTTP 503, broker: redelivery)</li>
+<li><strong><code>Notify</code> may block</strong> while it delivers the event downstream, or when waiting is its documented purpose (<code>batch</code>, <code>delay</code>). It has to return when <code>ctx</code> is done</li>
+<li><strong>Lifecycle:</strong> <code>New</code> may acquire resources such as connections. <code>Stop</code> is called exactly once and must release them; it may be called without <code>Run</code>, e.g. when building the stream failed. The core stops the source first, waits for its <code>Run</code> to return, and then stops stages and sinks from the root down</li>
+<li><strong>Updates:</strong> when an update changes only stages or sinks, the source keeps running. The core builds the new stages and sinks, switches the source over with <code>SetSubscribers</code>, which waits until no event is delivered to the old ones anymore, and then stops the old stages and sinks. Stages and sinks therefore have to be independent of a particular source instance</li>
+</ul>
+<h3 id="adding-a-new-source">Adding a New Source<a class="headerlink" href="#adding-a-new-source" title="Permanent link">&para;</a></h3>
+<p>Sources have no <code>Notify</code>; they implement <code>Run</code> and <code>Stop</code>. The base type provides <code>Name</code>, <code>Spec</code>, <code>Subscribe</code>, <code>SetSubscribers</code> and <code>NotifySubscribers</code>.</p>
+<h4 id="1-create-the-spec">1. Create the Spec<a class="headerlink" href="#1-create-the-spec" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// internal/adapters/source/heartbeat/spec.go</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">heartbeat</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Spec</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nx">Interval</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"interval" validate:"required"`</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nx">Message</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"message" validate:"required"`</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="2-implement-the-source">2. Implement the Source<a class="headerlink" href="#2-implement-the-source" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// internal/adapters/source/heartbeat/heartbeat.go</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">heartbeat</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="s">"context"</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="s">"fmt"</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="s">"log/slog"</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="s">"sync"</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="s">"time"</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/adapters/source/base"</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/core/domain"</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="s">"github.com/go-playground/validator/v10"</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="nx">commonpb</span><span class="w"> </span><span class="s">"go.opentelemetry.io/proto/otlp/common/v1"</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="nx">logspb</span><span class="w"> </span><span class="s">"go.opentelemetry.io/proto/otlp/logs/v1"</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="p">)</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="kd">const</span><span class="w"> </span><span class="nx">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"heartbeat"</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Heartbeat</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">    </span><span class="o">*</span><span class="nx">base</span><span class="p">.</span><span class="nx">Source</span><span class="p">[</span><span class="nx">Spec</span><span class="p">]</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">    </span><span class="nx">logger</span><span class="w">   </span><span class="o">*</span><span class="nx">slog</span><span class="p">.</span><span class="nx">Logger</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="w">    </span><span class="nx">interval</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="w">    </span><span class="nx">shutdown</span><span class="w"> </span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="w">    </span><span class="nx">stopOnce</span><span class="w"> </span><span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a><span class="p">}</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="c1">// New takes a logger because Run logs; components that do not log leave it out.</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="kd">func</span><span class="w"> </span><span class="nx">New</span><span class="p">(</span><span class="nx">source</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">SourceSpec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="w"> </span><span class="o">*</span><span class="nx">validator</span><span class="p">.</span><span class="nx">Validate</span><span class="p">,</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">*</span><span class="nx">slog</span><span class="p">.</span><span class="nx">Logger</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Heartbeat</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="w">    </span><span class="c1">// Decodes the spec and checks its validate tags.</span>
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="w">    </span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">base</span><span class="p">.</span><span class="nx">New</span><span class="p">[</span><span class="nx">Spec</span><span class="p">](</span><span class="nx">source</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">source</span><span class="p">.</span><span class="nx">Spec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="p">)</span>
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>
+<a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a><span class="w">    </span><span class="c1">// Checks the tags cannot express belong here too, so an invalid spec</span>
+<a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="w">    </span><span class="c1">// fails when the stream is created.</span>
+<a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a><span class="w">    </span><span class="nx">interval</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">ParseDuration</span><span class="p">(</span><span class="nx">base</span><span class="p">.</span><span class="nx">Spec</span><span class="p">().</span><span class="nx">Interval</span><span class="p">)</span>
+<a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"invalid interval: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a>
+<a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Heartbeat</span><span class="p">{</span>
+<a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a><span class="w">        </span><span class="nx">Source</span><span class="p">:</span><span class="w">   </span><span class="nx">base</span><span class="p">,</span>
+<a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a><span class="w">        </span><span class="nx">logger</span><span class="p">:</span><span class="w">   </span><span class="nx">logger</span><span class="p">,</span>
+<a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a><span class="w">        </span><span class="nx">interval</span><span class="p">:</span><span class="w"> </span><span class="nx">interval</span><span class="p">,</span>
+<a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a><span class="w">        </span><span class="nx">shutdown</span><span class="p">:</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}),</span>
+<a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a><span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a><span class="p">}</span>
+<a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a>
+<a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a><span class="c1">// Run produces events until Stop is called or ctx is cancelled.</span>
+<a id="__codelineno-7-52" name="__codelineno-7-52" href="#__codelineno-7-52"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">Heartbeat</span><span class="p">)</span><span class="w"> </span><span class="nx">Run</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-53" name="__codelineno-7-53" href="#__codelineno-7-53"></a><span class="w">    </span><span class="nx">ticker</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">NewTicker</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">interval</span><span class="p">)</span>
+<a id="__codelineno-7-54" name="__codelineno-7-54" href="#__codelineno-7-54"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">ticker</span><span class="p">.</span><span class="nx">Stop</span><span class="p">()</span>
+<a id="__codelineno-7-55" name="__codelineno-7-55" href="#__codelineno-7-55"></a>
+<a id="__codelineno-7-56" name="__codelineno-7-56" href="#__codelineno-7-56"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-57" name="__codelineno-7-57" href="#__codelineno-7-57"></a><span class="w">        </span><span class="k">select</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-58" name="__codelineno-7-58" href="#__codelineno-7-58"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">h</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">:</span>
+<a id="__codelineno-7-59" name="__codelineno-7-59" href="#__codelineno-7-59"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-7-60" name="__codelineno-7-60" href="#__codelineno-7-60"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">():</span>
+<a id="__codelineno-7-61" name="__codelineno-7-61" href="#__codelineno-7-61"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Err</span><span class="p">()</span>
+<a id="__codelineno-7-62" name="__codelineno-7-62" href="#__codelineno-7-62"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
+<a id="__codelineno-7-63" name="__codelineno-7-63" href="#__codelineno-7-63"></a><span class="w">            </span><span class="nx">event</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">domain</span><span class="p">.</span><span class="nx">Event</span><span class="p">{</span><span class="nx">Logs</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">logspb</span><span class="p">.</span><span class="nx">LogsData</span><span class="p">{</span><span class="nx">ResourceLogs</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">logspb</span><span class="p">.</span><span class="nx">ResourceLogs</span><span class="p">{{</span>
+<a id="__codelineno-7-64" name="__codelineno-7-64" href="#__codelineno-7-64"></a><span class="w">                </span><span class="nx">ScopeLogs</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">logspb</span><span class="p">.</span><span class="nx">ScopeLogs</span><span class="p">{{</span><span class="nx">LogRecords</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">logspb</span><span class="p">.</span><span class="nx">LogRecord</span><span class="p">{{</span>
+<a id="__codelineno-7-65" name="__codelineno-7-65" href="#__codelineno-7-65"></a><span class="w">                    </span><span class="nx">TimeUnixNano</span><span class="p">:</span><span class="w"> </span><span class="kt">uint64</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">UnixNano</span><span class="p">()),</span>
+<a id="__codelineno-7-66" name="__codelineno-7-66" href="#__codelineno-7-66"></a><span class="w">                    </span><span class="nx">Body</span><span class="p">:</span><span class="w">         </span><span class="o">&amp;</span><span class="nx">commonpb</span><span class="p">.</span><span class="nx">AnyValue</span><span class="p">{</span><span class="nx">Value</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">commonpb</span><span class="p">.</span><span class="nx">AnyValue_StringValue</span><span class="p">{</span><span class="nx">StringValue</span><span class="p">:</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">Spec</span><span class="p">().</span><span class="nx">Message</span><span class="p">}},</span>
+<a id="__codelineno-7-67" name="__codelineno-7-67" href="#__codelineno-7-67"></a><span class="w">                </span><span class="p">}}}},</span>
+<a id="__codelineno-7-68" name="__codelineno-7-68" href="#__codelineno-7-68"></a><span class="w">            </span><span class="p">}}}}</span>
+<a id="__codelineno-7-69" name="__codelineno-7-69" href="#__codelineno-7-69"></a>
+<a id="__codelineno-7-70" name="__codelineno-7-70" href="#__codelineno-7-70"></a><span class="w">            </span><span class="c1">// Returns once all children have processed the event.</span>
+<a id="__codelineno-7-71" name="__codelineno-7-71" href="#__codelineno-7-71"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">NotifySubscribers</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-72" name="__codelineno-7-72" href="#__codelineno-7-72"></a><span class="w">                </span><span class="nx">h</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">ErrorContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"Could not deliver event"</span><span class="p">,</span>
+<a id="__codelineno-7-73" name="__codelineno-7-73" href="#__codelineno-7-73"></a><span class="w">                    </span><span class="nx">slog</span><span class="p">.</span><span class="nx">String</span><span class="p">(</span><span class="s">"source"</span><span class="p">,</span><span class="w"> </span><span class="nx">h</span><span class="p">.</span><span class="nx">Name</span><span class="p">()),</span><span class="w"> </span><span class="nx">slog</span><span class="p">.</span><span class="nx">Any</span><span class="p">(</span><span class="s">"error"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">))</span>
+<a id="__codelineno-7-74" name="__codelineno-7-74" href="#__codelineno-7-74"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-7-75" name="__codelineno-7-75" href="#__codelineno-7-75"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-7-76" name="__codelineno-7-76" href="#__codelineno-7-76"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-7-77" name="__codelineno-7-77" href="#__codelineno-7-77"></a><span class="p">}</span>
+<a id="__codelineno-7-78" name="__codelineno-7-78" href="#__codelineno-7-78"></a>
+<a id="__codelineno-7-79" name="__codelineno-7-79" href="#__codelineno-7-79"></a><span class="c1">// Stop makes Run return. It may be called without Run, e.g. when building</span>
+<a id="__codelineno-7-80" name="__codelineno-7-80" href="#__codelineno-7-80"></a><span class="c1">// the stream failed, and must release everything New acquired.</span>
+<a id="__codelineno-7-81" name="__codelineno-7-81" href="#__codelineno-7-81"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">Heartbeat</span><span class="p">)</span><span class="w"> </span><span class="nx">Stop</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-82" name="__codelineno-7-82" href="#__codelineno-7-82"></a><span class="w">    </span><span class="nx">h</span><span class="p">.</span><span class="nx">stopOnce</span><span class="p">.</span><span class="nx">Do</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">)</span><span class="w"> </span><span class="p">})</span>
+<a id="__codelineno-7-83" name="__codelineno-7-83" href="#__codelineno-7-83"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-7-84" name="__codelineno-7-84" href="#__codelineno-7-84"></a><span class="p">}</span>
+<a id="__codelineno-7-85" name="__codelineno-7-85" href="#__codelineno-7-85"></a>
+<a id="__codelineno-7-86" name="__codelineno-7-86" href="#__codelineno-7-86"></a><span class="kd">var</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">Source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Heartbeat</span><span class="p">)(</span><span class="kc">nil</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="3-register-in-factory">3. Register in Factory<a class="headerlink" href="#3-register-in-factory" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// internal/adapters/source/factory.go</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="o">*</span><span class="nx">Factory</span><span class="p">)</span><span class="w"> </span><span class="nx">New</span><span class="p">(</span><span class="nx">spec</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">SourceSpec</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">domain</span><span class="p">.</span><span class="nx">Source</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="nx">spec</span><span class="p">.</span><span class="nx">Type</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="c1">// ... existing sources</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">heartbeat</span><span class="p">.</span><span class="nx">Type</span><span class="p">:</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">heartbeat</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">spec</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="p">.</span><span class="nx">validator</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="p">.</span><span class="nx">logger</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="k">default</span><span class="p">:</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"%w: %q"</span><span class="p">,</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">ErrInvalidSourceType</span><span class="p">,</span><span class="w"> </span><span class="nx">spec</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="adding-a-new-stage">Adding a New Stage<a class="headerlink" href="#adding-a-new-stage" title="Permanent link">&para;</a></h3>
+<p>Stages implement <code>Notify</code> and pass events on with <code>NotifySubscribers</code>. The base type provides <code>Name</code>, <code>From</code>, <code>Spec</code>, <code>Subscribe</code> and a <code>Stop</code> that does nothing.</p>
+<h4 id="1-create-the-spec_1">1. Create the Spec<a class="headerlink" href="#1-create-the-spec_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// internal/adapters/stage/severity/spec.go</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">severity</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Spec</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nx">Min</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="s">`json:"min" validate:"min=0,max=24"`</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="2-implement-the-stage">2. Implement the Stage<a class="headerlink" href="#2-implement-the-stage" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// internal/adapters/stage/severity/severity.go</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">severity</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="s">"context"</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/adapters/stage/base"</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/core/domain"</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="s">"github.com/go-playground/validator/v10"</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nx">commonpb</span><span class="w"> </span><span class="s">"go.opentelemetry.io/proto/otlp/common/v1"</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nx">logspb</span><span class="w"> </span><span class="s">"go.opentelemetry.io/proto/otlp/logs/v1"</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nx">resourcepb</span><span class="w"> </span><span class="s">"go.opentelemetry.io/proto/otlp/resource/v1"</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="p">)</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="kd">const</span><span class="w"> </span><span class="nx">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"severity"</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Severity</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="o">*</span><span class="nx">base</span><span class="p">.</span><span class="nx">Stage</span><span class="p">[</span><span class="nx">Spec</span><span class="p">]</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="p">}</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="kd">func</span><span class="w"> </span><span class="nx">New</span><span class="p">(</span><span class="nx">stage</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">StageSpec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="w"> </span><span class="o">*</span><span class="nx">validator</span><span class="p">.</span><span class="nx">Validate</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Severity</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">    </span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">base</span><span class="p">.</span><span class="nx">New</span><span class="p">[</span><span class="nx">Spec</span><span class="p">](</span><span class="nx">stage</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">stage</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span><span class="w"> </span><span class="nx">stage</span><span class="p">.</span><span class="nx">Spec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="p">)</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Severity</span><span class="p">{</span><span class="nx">Stage</span><span class="p">:</span><span class="w"> </span><span class="nx">base</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="p">}</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="c1">// Notify keeps the log records with at least the configured severity. The</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="c1">// event is shared with sibling branches, so it is never modified; FilterLogs</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="c1">// builds a new payload and shares the kept records.</span>
+<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Severity</span><span class="p">)</span><span class="w"> </span><span class="nx">Notify</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="w"> </span><span class="o">*</span><span class="nx">domain</span><span class="p">.</span><span class="nx">Event</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">    </span><span class="nx">logs</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">FilterLogs</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">Logs</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">resourcepb</span><span class="p">.</span><span class="nx">Resource</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">commonpb</span><span class="p">.</span><span class="nx">InstrumentationScope</span><span class="p">,</span><span class="w"> </span><span class="nx">record</span><span class="w"> </span><span class="o">*</span><span class="nx">logspb</span><span class="p">.</span><span class="nx">LogRecord</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kt">int</span><span class="p">(</span><span class="nx">record</span><span class="p">.</span><span class="nx">SeverityNumber</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">Spec</span><span class="p">().</span><span class="nx">Min</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="w">    </span><span class="p">})</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a>
+<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">    </span><span class="nx">filtered</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">*</span><span class="nx">event</span>
+<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a><span class="w">    </span><span class="nx">filtered</span><span class="p">.</span><span class="nx">Logs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">logs</span>
+<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">filtered</span><span class="p">.</span><span class="nx">RecordCount</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-45" name="__codelineno-10-45" href="#__codelineno-10-45"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">NotifySubscribers</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">filtered</span><span class="p">)</span>
+<a id="__codelineno-10-46" name="__codelineno-10-46" href="#__codelineno-10-46"></a><span class="p">}</span>
+<a id="__codelineno-10-47" name="__codelineno-10-47" href="#__codelineno-10-47"></a>
+<a id="__codelineno-10-48" name="__codelineno-10-48" href="#__codelineno-10-48"></a><span class="kd">var</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">Stage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Severity</span><span class="p">)(</span><span class="kc">nil</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="3-register-in-factory_1">3. Register in Factory<a class="headerlink" href="#3-register-in-factory_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// internal/adapters/stage/factory.go</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">severity</span><span class="p">.</span><span class="nx">Type</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">severity</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">spec</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="p">.</span><span class="nx">validator</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="adding-a-new-sink">Adding a New Sink<a class="headerlink" href="#adding-a-new-sink" title="Permanent link">&para;</a></h3>
+<p>Sinks implement <code>Notify</code>. The base type provides <code>Name</code>, <code>From</code>, <code>Spec</code> and a <code>Stop</code> that does nothing.</p>
+<h4 id="1-create-the-spec_2">1. Create the Spec<a class="headerlink" href="#1-create-the-spec_2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// internal/adapters/sink/webhook/spec.go</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">webhook</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Spec</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nx">URL</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"url" validate:"required,url"`</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="2-implement-the-sink">2. Implement the Sink<a class="headerlink" href="#2-implement-the-sink" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">// internal/adapters/sink/webhook/webhook.go</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">webhook</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="s">"bytes"</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="s">"context"</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="s">"fmt"</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="s">"net/http"</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="s">"time"</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/adapters/sink/base"</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="s">"github.com/go-tram/tram/internal/core/domain"</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">    </span><span class="s">"github.com/go-playground/validator/v10"</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">    </span><span class="s">"google.golang.org/protobuf/proto"</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="p">)</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="kd">const</span><span class="w"> </span><span class="nx">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"webhook"</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Webhook</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">    </span><span class="o">*</span><span class="nx">base</span><span class="p">.</span><span class="nx">Sink</span><span class="p">[</span><span class="nx">Spec</span><span class="p">]</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span>
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="p">}</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="kd">func</span><span class="w"> </span><span class="nx">New</span><span class="p">(</span><span class="nx">sink</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">SinkSpec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="w"> </span><span class="o">*</span><span class="nx">validator</span><span class="p">.</span><span class="nx">Validate</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Webhook</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="w">    </span><span class="nx">base</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">base</span><span class="p">.</span><span class="nx">New</span><span class="p">[</span><span class="nx">Spec</span><span class="p">](</span><span class="nx">sink</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">sink</span><span class="p">.</span><span class="nx">From</span><span class="p">,</span><span class="w"> </span><span class="nx">sink</span><span class="p">.</span><span class="nx">Spec</span><span class="p">,</span><span class="w"> </span><span class="nx">validator</span><span class="p">)</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Webhook</span><span class="p">{</span>
+<a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="w">        </span><span class="nx">Sink</span><span class="p">:</span><span class="w">   </span><span class="nx">base</span><span class="p">,</span>
+<a id="__codelineno-13-31" name="__codelineno-13-31" href="#__codelineno-13-31"></a><span class="w">        </span><span class="nx">client</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span><span class="p">{</span><span class="nx">Timeout</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">},</span>
+<a id="__codelineno-13-32" name="__codelineno-13-32" href="#__codelineno-13-32"></a><span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-13-33" name="__codelineno-13-33" href="#__codelineno-13-33"></a><span class="p">}</span>
+<a id="__codelineno-13-34" name="__codelineno-13-34" href="#__codelineno-13-34"></a>
+<a id="__codelineno-13-35" name="__codelineno-13-35" href="#__codelineno-13-35"></a><span class="c1">// Notify posts the logs of an event as OTLP/HTTP protobuf. The returned</span>
+<a id="__codelineno-13-36" name="__codelineno-13-36" href="#__codelineno-13-36"></a><span class="c1">// error tells the source whether retrying can help.</span>
+<a id="__codelineno-13-37" name="__codelineno-13-37" href="#__codelineno-13-37"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="o">*</span><span class="nx">Webhook</span><span class="p">)</span><span class="w"> </span><span class="nx">Notify</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="w"> </span><span class="o">*</span><span class="nx">domain</span><span class="p">.</span><span class="nx">Event</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-38" name="__codelineno-13-38" href="#__codelineno-13-38"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">Logs</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-39" name="__codelineno-13-39" href="#__codelineno-13-39"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-13-40" name="__codelineno-13-40" href="#__codelineno-13-40"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-41" name="__codelineno-13-41" href="#__codelineno-13-41"></a><span class="w">    </span><span class="nx">body</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">proto</span><span class="p">.</span><span class="nx">Marshal</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">Logs</span><span class="p">)</span>
+<a id="__codelineno-13-42" name="__codelineno-13-42" href="#__codelineno-13-42"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-43" name="__codelineno-13-43" href="#__codelineno-13-43"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"marshal logs: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-13-44" name="__codelineno-13-44" href="#__codelineno-13-44"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-45" name="__codelineno-13-45" href="#__codelineno-13-45"></a>
+<a id="__codelineno-13-46" name="__codelineno-13-46" href="#__codelineno-13-46"></a><span class="w">    </span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">NewRequestWithContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="p">,</span><span class="w"> </span><span class="nx">w</span><span class="p">.</span><span class="nx">Spec</span><span class="p">().</span><span class="nx">URL</span><span class="p">,</span><span class="w"> </span><span class="nx">bytes</span><span class="p">.</span><span class="nx">NewReader</span><span class="p">(</span><span class="nx">body</span><span class="p">))</span>
+<a id="__codelineno-13-47" name="__codelineno-13-47" href="#__codelineno-13-47"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-48" name="__codelineno-13-48" href="#__codelineno-13-48"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"create request: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-13-49" name="__codelineno-13-49" href="#__codelineno-13-49"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-50" name="__codelineno-13-50" href="#__codelineno-13-50"></a><span class="w">    </span><span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Set</span><span class="p">(</span><span class="s">"Content-Type"</span><span class="p">,</span><span class="w"> </span><span class="s">"application/x-protobuf"</span><span class="p">)</span>
+<a id="__codelineno-13-51" name="__codelineno-13-51" href="#__codelineno-13-51"></a>
+<a id="__codelineno-13-52" name="__codelineno-13-52" href="#__codelineno-13-52"></a><span class="w">    </span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">w</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">Do</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+<a id="__codelineno-13-53" name="__codelineno-13-53" href="#__codelineno-13-53"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-54" name="__codelineno-13-54" href="#__codelineno-13-54"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"send logs: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-13-55" name="__codelineno-13-55" href="#__codelineno-13-55"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-56" name="__codelineno-13-56" href="#__codelineno-13-56"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+<a id="__codelineno-13-57" name="__codelineno-13-57" href="#__codelineno-13-57"></a>
+<a id="__codelineno-13-58" name="__codelineno-13-58" href="#__codelineno-13-58"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-59" name="__codelineno-13-59" href="#__codelineno-13-59"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">StatusCode</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">500</span><span class="p">:</span>
+<a id="__codelineno-13-60" name="__codelineno-13-60" href="#__codelineno-13-60"></a><span class="w">        </span><span class="c1">// Temporary: the source may retry, e.g. the broker source has the message redelivered.</span>
+<a id="__codelineno-13-61" name="__codelineno-13-61" href="#__codelineno-13-61"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"send logs: %s"</span><span class="p">,</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Status</span><span class="p">)</span>
+<a id="__codelineno-13-62" name="__codelineno-13-62" href="#__codelineno-13-62"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">StatusCode</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">400</span><span class="p">:</span>
+<a id="__codelineno-13-63" name="__codelineno-13-63" href="#__codelineno-13-63"></a><span class="w">        </span><span class="c1">// Permanent: retrying the same data cannot succeed.</span>
+<a id="__codelineno-13-64" name="__codelineno-13-64" href="#__codelineno-13-64"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"%w: %s"</span><span class="p">,</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">ErrEventRejected</span><span class="p">,</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Status</span><span class="p">)</span>
+<a id="__codelineno-13-65" name="__codelineno-13-65" href="#__codelineno-13-65"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-66" name="__codelineno-13-66" href="#__codelineno-13-66"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-13-67" name="__codelineno-13-67" href="#__codelineno-13-67"></a><span class="p">}</span>
+<a id="__codelineno-13-68" name="__codelineno-13-68" href="#__codelineno-13-68"></a>
+<a id="__codelineno-13-69" name="__codelineno-13-69" href="#__codelineno-13-69"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="o">*</span><span class="nx">Webhook</span><span class="p">)</span><span class="w"> </span><span class="nx">Stop</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-70" name="__codelineno-13-70" href="#__codelineno-13-70"></a><span class="w">    </span><span class="nx">w</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">CloseIdleConnections</span><span class="p">()</span>
+<a id="__codelineno-13-71" name="__codelineno-13-71" href="#__codelineno-13-71"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<a id="__codelineno-13-72" name="__codelineno-13-72" href="#__codelineno-13-72"></a><span class="p">}</span>
+<a id="__codelineno-13-73" name="__codelineno-13-73" href="#__codelineno-13-73"></a>
+<a id="__codelineno-13-74" name="__codelineno-13-74" href="#__codelineno-13-74"></a><span class="kd">var</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="nx">domain</span><span class="p">.</span><span class="nx">Sink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Webhook</span><span class="p">)(</span><span class="kc">nil</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="3-register-in-factory_2">3. Register in Factory<a class="headerlink" href="#3-register-in-factory_2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// internal/adapters/sink/factory.go</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">webhook</span><span class="p">.</span><span class="nx">Type</span><span class="p">:</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">webhook</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">spec</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="p">.</span><span class="nx">validator</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="tests-and-benchmarks">Tests and Benchmarks<a class="headerlink" href="#tests-and-benchmarks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Test valid and invalid specs, and <code>Notify</code> with payloads from <code>internal/testutil/otlpgen</code></li>
+<li>Check that <code>Notify</code> leaves the incoming event unchanged</li>
+<li>Add a benchmark for the per-event path (see <a href="#benchmarks">Benchmarks</a>)</li>
+</ul>
+<h2 id="pull-request-guidelines">Pull Request Guidelines<a class="headerlink" href="#pull-request-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="before-submitting">Before Submitting<a class="headerlink" href="#before-submitting" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Generate code</strong>: Make sure all code is generated
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>task<span class="w"> </span>generate
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Format code</strong>: Use the formatters configured for golangci-lint
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>task<span class="w"> </span>fmt
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Lint and test</strong>: Ensure linting and all tests pass
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>task<span class="w"> </span>check
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Test against NATS</strong>: If you changed the broker source or sink or a driver, also run the container tests
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>task<span class="w"> </span>test:containers
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Test the operator</strong>: If you changed the Kubernetes operator, also run the envtest tests
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>task<span class="w"> </span>test:envtest
+</code></pre></div></p>
+</li>
+</ol>
+<p><code>task test:all</code> runs steps 3 to 5 in one go.</p>
+<h3 id="pull-request-requirements">Pull Request Requirements<a class="headerlink" href="#pull-request-requirements" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Conventional title</strong>: The title follows <a href="https://www.conventionalcommits.org/">Conventional Commits</a>, e.g. <code>feat(k8s): drain buffers on scale-down</code>, with one of the types <code>feat</code>, <code>fix</code>, <code>perf</code>, <code>refactor</code>, <code>docs</code>, <code>test</code>, <code>build</code>, <code>ci</code>, <code>chore</code> or <code>revert</code>. Pull requests are squash-merged with their title as the commit message, so a check blocks the merge until the title conforms</li>
+<li><strong>Detailed description</strong>: Explain the changes and why they're needed</li>
+<li><strong>Small, focused changes</strong>: One logical change per PR</li>
+<li><strong>Proper commit messages</strong>: Follow <a href="https://www.conventionalcommits.org/">Conventional Commits</a></li>
+<li><strong>Updated documentation</strong>: Update relevant docs for any API changes</li>
+<li><strong>Tests</strong>: Add tests for new functionality</li>
+<li><strong>Signed-off commits</strong>: Sign off your commits (<code>git commit --signoff</code>) to accept the <a href="https://github.com/GO-TRAM/TRAM/blob/main/CLA.md">Contributor License Agreement</a></li>
+</ol>
+<h3 id="commit-message-format">Commit Message Format<a class="headerlink" href="#commit-message-format" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>feat: add new my-source component
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>- Add MySource implementation with base.Source
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>- Register in factory
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>- Add unit tests for spec validation
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>Closes #123
+</code></pre></div>
+<h2 id="code-style-guidelines">Code Style Guidelines<a class="headerlink" href="#code-style-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="general-principles">General Principles<a class="headerlink" href="#general-principles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Follow <a href="https://go.dev/doc/effective_go">Effective Go</a></li>
+<li>Use idiomatic Go patterns</li>
+<li>Keep code simple and readable</li>
+<li>Comment only what's not obvious</li>
+</ul>
+<h3 id="naming-conventions">Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <strong>camelCase</strong> for variables and functions</li>
+<li>Use <strong>PascalCase</strong> for types and exported identifiers</li>
+<li>Use <strong>snake_case</strong> for JSON tags</li>
+<li>Type names should be nouns: <code>UserService</code>, not <code>GetUser</code></li>
+<li>Interface names should end with <code>er</code>: <code>Logger</code>, <code>Writer</code></li>
+</ul>
+<h3 id="formatting">Formatting<a class="headerlink" href="#formatting" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <code>gofmt</code> for formatting</li>
+<li>Line length: aim for 80-100 characters</li>
+<li>Indent with tabs, not spaces</li>
+<li>Group related imports and separate with blank lines</li>
+</ul>
+<h3 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Keep functions short (aim for &lt; 50 lines)</li>
+<li>Group related functions together</li>
+<li>Use receiver methods appropriately</li>
+</ul>
+<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Always check errors</li>
+<li>Provide context in error messages</li>
+<li>Use <code>fmt.Errorf</code> with <code>%w</code> for error wrapping</li>
+<li>Return errors, don't panic (except in truly exceptional cases)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">// Good</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"failed to do something: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">}</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="c1">// Bad</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">doSomething</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Place test files next to the code they test (<code>*_test.go</code>)</li>
+<li>Use table-driven tests for similar cases</li>
+<li>Test both happy paths and error cases</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">TestMyFunction</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="nx">tests</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">        </span><span class="nx">name</span><span class="w">     </span><span class="kt">string</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">        </span><span class="nx">input</span><span class="w">    </span><span class="kt">string</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">        </span><span class="nx">expected</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">        </span><span class="nx">err</span><span class="w">      </span><span class="kt">bool</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="p">}{</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">        </span><span class="p">{</span><span class="s">"success"</span><span class="p">,</span><span class="w"> </span><span class="s">"valid"</span><span class="p">,</span><span class="w"> </span><span class="s">"result"</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">        </span><span class="p">{</span><span class="s">"error"</span><span class="p">,</span><span class="w"> </span><span class="s">"invalid"</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">tt</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">        </span><span class="nx">t</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">tt</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">            </span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">myFunction</span><span class="p">(</span><span class="nx">tt</span><span class="p">.</span><span class="nx">input</span><span class="p">)</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">tt</span><span class="p">.</span><span class="nx">err</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="w">                </span><span class="nx">t</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"expected error: %v, got: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">tt</span><span class="p">.</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">!</span><span class="nx">tt</span><span class="p">.</span><span class="nx">err</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">tt</span><span class="p">.</span><span class="nx">expected</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="w">                </span><span class="nx">t</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"expected %q, got %q"</span><span class="p">,</span><span class="w"> </span><span class="nx">tt</span><span class="p">.</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span>
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a><span class="w">        </span><span class="p">})</span>
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="end-to-end-tests">End-to-End Tests<a class="headerlink" href="#end-to-end-tests" title="Permanent link">&para;</a></h3>
+<p><code>internal/e2e</code> tests complete pipelines without external dependencies: streams are built by the core from the real source and stage factories, OTLP data is sent over HTTP, and capturing sinks record exactly which records arrive where. They cover batching, splitting, cancelled requests, the status codes clients receive, and updates under load, and run with <code>go test ./...</code>.</p>
+<p><code>TestBrokerNATS</code> in the same package runs pipelines against a NATS server in a container (see <code>internal/testutil/natstest</code>) and checks what actually ends up in JetStream: subjects, plain OTLP bodies without headers, and records with their resource and scope. It also sends data from the broker sink through the broker source, reads plain OTLP that another producer published, and checks partitioning, buffering and the answers clients get. <code>TestBrokerKafka</code> and <code>TestBrokerAMQP</code> do the same against Kafka and against ActiveMQ Artemis over AMQP 1.0 (see <code>internal/testutil/kafkatest</code> and <code>amqptest</code>). They are skipped without Docker or Podman; with Podman on macOS, set the variables described under <a href="#benchmarks">Benchmarks</a>.</p>
+<p>When adding a stage or changing how events flow, add a case there that checks which records arrive in which sink.</p>
+<h3 id="broker-drivers">Broker Drivers<a class="headerlink" href="#broker-drivers" title="Permanent link">&para;</a></h3>
+<p>A broker driver implements the contract in <code>internal/adapters/broker</code> and has to pass the conformance suite in <code>broker/brokertest</code> (<code>brokertest.Run</code>): publish and receive, acknowledge, retry after a delay, reject, a durable position across subscribers, cancellation, invalid destinations and the maximum message size. Run it against the broker in a container, as <code>broker/nats</code> does. Register the driver in <code>broker/drivers</code>, the only package that knows the concrete drivers; its options sit under its name in the component spec, which <code>driver.Split</code> takes apart. The broker sink only sees a driver's <code>PublisherDriver</code> side and the broker source its <code>SubscriberDriver</code> side, so neither can do the other's job. Unit tests of the broker source and sink inject the in-memory driver of <code>brokertest</code> through <code>NewWithDrivers</code> (see their <code>export_test.go</code>) and need no container.</p>
+<h3 id="stage-drivers">Stage Drivers<a class="headerlink" href="#stage-drivers" title="Permanent link">&para;</a></h3>
+<p>The <code>filter</code> and <code>validation</code> stages are concepts whose rules come from a driver, as the broker components' messaging does: the spec names it in <code>driver</code> and holds its options under its name, e.g. <code>driver: cel</code> and <code>cel: {...}</code>. <code>driver.Split</code> takes the spec apart, so the stage parses only its own fields (<code>on_mismatch</code> for validation) and the driver only its options.</p>
+<p>The stage owns what every driver shares: walking the records and pruning what becomes empty (filter), dropping or rejecting (validation), and turning a failing rule into a rejection. A driver only compiles its options into rules:</p>
+<ul>
+<li><strong>filter:</strong> <code>filter.Driver</code> returns <code>filter.Rules</code>, whose <code>Predicates</code> give a predicate per signal for one event. A nil predicate keeps all records of its signal</li>
+<li><strong>validation:</strong> <code>validation.Driver</code> returns <code>validation.Rules</code>, which decide per signal whether the whole signal matches. A signal without a rule matches</li>
+</ul>
+<p>Each stage is laid out like the broker components: the contract package (<code>rules</code>, <code>persist</code>), one package per driver (<code>cel</code>, <code>sqlite</code>) that knows only the contract, and a <code>drivers</code> package, the only one that knows the concrete drivers. The stage creates its <code>drivers</code> factory itself in <code>New</code>; <code>stage/factory.go</code> knows no drivers. To add a driver, e.g. OTTL, create <code>stage/filter/ottl</code> next to <code>stage/filter/cel</code> with a <code>Name</code> and a <code>Driver</code> and register it in <code>stage/filter/drivers</code>. Test it through the stage as <code>filter/cel</code> does, so the rules are checked with the stage's pruning and rejection. The depguard rules in <code>.golangci.yml</code> enforce the layout: factories import no drivers, and only a <code>drivers</code> package imports concrete drivers (tests excepted).</p>
+<h3 id="kubernetes-operator-tests">Kubernetes Operator Tests<a class="headerlink" href="#kubernetes-operator-tests" title="Permanent link">&para;</a></h3>
+<p>The <code>TestOperator*</code> tests in <code>internal/adapters/k8scrd</code> run the operator against a real kube-apiserver and etcd from <a href="https://book.kubebuilder.io/reference/envtest">envtest</a>, one per test. They check which <code>Stream</code> resources an instance runs with <code>--watch-namespace</code> and <code>--engine</code>, and that the generated RBAC role works with a namespaced <code>RoleBinding</code>. They are skipped unless <code>KUBEBUILDER_ASSETS</code> is set; <code>task test:envtest</code> downloads the binaries with <code>setup-envtest</code> and sets it.</p>
+<h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use test containers for external dependencies (NATS, etc.), see <code>internal/testutil/natstest</code></li>
+<li>Clean up resources after tests</li>
+</ul>
+<h3 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h3>
+<p>Benchmarks cover the per-event hot path:</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Package</th>
+<th>Measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkNotifySubscribers</code></td>
+<td><code>source/base</code>, <code>stage/base</code></td>
+<td>Fan-out cost per event and child</td>
+</tr>
+<tr>
+<td><code>BenchmarkPipeline</code></td>
+<td><code>core</code></td>
+<td>A full stream with real stages, in records/s</td>
+</tr>
+<tr>
+<td><code>BenchmarkCELValidator</code></td>
+<td><code>stage/validation/cel</code></td>
+<td>Expression evaluation per payload size</td>
+</tr>
+<tr>
+<td><code>BenchmarkCELFilter</code></td>
+<td><code>stage/filter/cel</code></td>
+<td>Per-record filtering for different keep ratios</td>
+</tr>
+<tr>
+<td><code>BenchmarkFilter</code></td>
+<td><code>core/domain</code></td>
+<td>The record filtering helpers without CEL</td>
+</tr>
+<tr>
+<td><code>BenchmarkNotify</code></td>
+<td><code>sink/broker</code></td>
+<td>Grouping and publishing to NATS through the NATS driver (container)</td>
+</tr>
+<tr>
+<td><code>BenchmarkConsume</code></td>
+<td><code>source/broker</code></td>
+<td>Receiving, decoding and acknowledging from NATS through the NATS driver (container)</td>
+</tr>
+<tr>
+<td><code>BenchmarkBatch</code></td>
+<td><code>stage/batch</code></td>
+<td>Batch overhead and merging with concurrent callers</td>
+</tr>
+<tr>
+<td><code>BenchmarkHandleLogs</code></td>
+<td><code>source/otlp</code></td>
+<td>Reading and decoding OTLP requests</td>
+</tr>
+<tr>
+<td><code>BenchmarkOTLPDataRoundTrip</code></td>
+<td><code>core/domain</code></td>
+<td>Serializing events as OTLP data, as the broker sink and source do</td>
+</tr>
+<tr>
+<td><code>BenchmarkScenario</code></td>
+<td><code>scenario</code></td>
+<td>Complete pipelines end to end: throughput, CPU per record, latency (container)</td>
+</tr>
+<tr>
+<td><code>BenchmarkStreams</code></td>
+<td><code>scenario</code></td>
+<td>Cost of idle streams for 10 to 1,000 streams per instance: build time, heap, goroutines, NATS connections and requests of the broker sources and sinks, idle CPU (container; each case takes about 20 seconds, run it with <code>-benchtime 1x</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><a href="../benchmarks/">BENCHMARK.md</a> presents these results. After performance-relevant changes, regenerate it with <code>task bench:report</code> (see the page for details); add new scenarios to <code>internal/scenario</code> and new components to the lists in <code>tools/benchreport</code>.</p>
+<p>Benchmarks marked "container" start a NATS server with <a href="https://golang.testcontainers.org/">Testcontainers</a> via <code>internal/testutil/natstest</code>. They need Docker or Podman and are skipped if neither is running. With Podman, Testcontainers needs the socket of the Podman service; the tasks set it up from <code>podman info</code> when Podman is installed. To run <code>go test</code> directly, set the same:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE</span><span class="o">=</span><span class="k">$(</span>podman<span class="w"> </span>info<span class="w"> </span>--format<span class="w"> </span><span class="s1">'{{.Host.RemoteSocket.Path}}'</span><span class="k">)</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TESTCONTAINERS_RYUK_CONTAINER_PRIVILEGED</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1"># Podman on Linux only, not in a Podman machine on macOS or Windows:</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">DOCKER_HOST</span><span class="o">=</span>unix://<span class="nv">$TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE</span>
+</code></pre></div>
+<p>Build payloads with <code>internal/testutil/otlpgen</code> and use <code>otlpgen.Shapes</code> so results are comparable across benchmarks. Use <code>b.Loop()</code>, call <code>b.ReportAllocs()</code>, and report <code>records/s</code> for payload-dependent benchmarks.</p>
+<p>Compare a change against <code>main</code> with <a href="https://pkg.go.dev/golang.org/x/perf/cmd/benchstat">benchstat</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>git<span class="w"> </span>switch<span class="w"> </span>main<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>task<span class="w"> </span>bench<span class="w"> </span><span class="nv">COUNT</span><span class="o">=</span><span class="m">10</span><span class="w"> </span>&gt;<span class="w"> </span>old.txt
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>git<span class="w"> </span>switch<span class="w"> </span>my-branch<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>task<span class="w"> </span>bench<span class="w"> </span><span class="nv">COUNT</span><span class="o">=</span><span class="m">10</span><span class="w"> </span>&gt;<span class="w"> </span>new.txt
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>task<span class="w"> </span>bench:compare<span class="w"> </span><span class="nv">OLD</span><span class="o">=</span>old.txt<span class="w"> </span><span class="nv">NEW</span><span class="o">=</span>new.txt
+</code></pre></div>
+<p><code>-p 1</code> runs one package at a time. Without it, <code>go test</code> benchmarks several packages in parallel, which then compete for CPU and distort each other's results. Other load on the machine, like a container VM that is just starting, has the same effect; check the spread between runs before trusting a result.</p>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<h3 id="code-documentation">Code Documentation<a class="headerlink" href="#code-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Document exported types, functions, and methods</li>
+<li>Use complete sentences for doc comments</li>
+<li>Include examples where helpful</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">// User represents a system user.</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="c1">// It contains basic user information and access permissions.</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="kd">type</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="nx">Age</span><span class="w">  </span><span class="kt">int</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="p">}</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="c1">// Validate checks if the user data is valid.</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="c1">// Returns an error if any field is invalid.</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">u</span><span class="w"> </span><span class="o">*</span><span class="nx">User</span><span class="p">)</span><span class="w"> </span><span class="nx">Validate</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">    </span><span class="c1">// implementation</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The swagger file is automatically generated from protobuf definitions</li>
+<li>No manual updates needed when changing API endpoints</li>
+</ul>
+<h3 id="component-documentation">Component Documentation<a class="headerlink" href="#component-documentation" title="Permanent link">&para;</a></h3>
+<p>When adding new components:</p>
+<ol>
+<li>Add to <a href="../components/">COMPONENTS.md</a></li>
+<li>Include:</li>
+<li>Configuration options</li>
+<li>Usage examples</li>
+<li>Behavior description</li>
+<li>Error cases</li>
+</ol>
+<h2 id="continuous-integration-and-releases">Continuous Integration and Releases<a class="headerlink" href="#continuous-integration-and-releases" title="Permanent link">&para;</a></h2>
+<h3 id="checks-on-pull-requests">Checks on Pull Requests<a class="headerlink" href="#checks-on-pull-requests" title="Permanent link">&para;</a></h3>
+<p>The CI workflow (<code>.github/workflows/ci.yml</code>) runs on GitHub-hosted runners (<code>ubuntu-latest</code>) for every pull request and every push to main, as four parallel jobs: <code>task ci:lint</code> runs golangci-lint in the version pinned in <code>Taskfile.yml</code>, <code>task ci:test</code> the unit and end-to-end tests, <code>task ci:containers</code> the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, and <code>task ci:chart</code> checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in <code>manifests/</code> and <code>charts/tram</code>, then runs <code>task chart:lint</code>: <code>helm lint --strict</code>, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.</p>
+<p>Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests and the release workflow only restore the latest one, so they stay fast without filling the cache storage.</p>
+<p>The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.</p>
+<h3 id="releases">Releases<a class="headerlink" href="#releases" title="Permanent link">&para;</a></h3>
+<p>A release is a version tag on main. The release workflow (<code>.github/workflows/release.yml</code>) refuses tags that are not on main, runs the same lint, test, containers and chart jobs, and then builds the image with Docker Buildx for <code>linux/amd64</code> and <code>linux/arm64</code> and pushes it to <code>ghcr.io/go-tram/tram</code> as the version without the leading <code>v</code> (e.g. <code>0.1.0</code>) and as <code>latest</code>. Then it publishes the Helm chart <code>charts/tram</code> to <code>oci://ghcr.io/go-tram/charts/tram</code> with that version as chart and app version, renders <code>manifests/</code> with the image of that version into <code>tram.yaml</code>, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. In the repository the chart keeps the version <code>0.0.0</code> and the manifests the image tag <code>latest</code>; do not bump them.</p>
+<p>Tag releases with the release tasks rather than by hand. They use <a href="https://github.com/caarlos0/svu">svu</a> to compute the version from the existing tags, check that you are on main, that it matches <code>origin/main</code> and has no uncommitted changes, run <code>task check</code>, and then create and push the annotated tag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>task<span class="w"> </span>release:next<span class="w">    </span><span class="c1"># from the Conventional Commits since the last tag: feat → minor, fix → patch, at least a patch</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>task<span class="w"> </span>release:patch<span class="w">   </span><span class="c1"># v0.0.14 → v0.0.15</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>task<span class="w"> </span>release:minor<span class="w">   </span><span class="c1"># v0.0.14 → v0.1.0</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>task<span class="w"> </span>release:major<span class="w">   </span><span class="c1"># v0.0.14 → v1.0.0</span>
+</code></pre></div>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<p>If you have questions or need help:</p>
+<ol>
+<li>Check existing issues and discussions</li>
+<li>Open a new discussion for general questions</li>
+<li>Open an issue for bugs or feature requests</li>
+</ol>
+<p>We're happy to help you get started with contributing!</p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>TRAM is licensed under the <a href="https://github.com/GO-TRAM/TRAM/blob/main/LICENSE">Mozilla Public License 2.0</a> (MPL-2.0). In short:</p>
+<ul>
+<li>You may use, modify, and distribute TRAM, including in commercial and proprietary products.</li>
+<li>If you distribute a modified version of TRAM's source files, your modifications to those files must be made available under the MPL-2.0.</li>
+<li>You may combine TRAM with your own code — including proprietary code — in a larger work without having to open your own code (MPL-2.0, Section 3.3 "Larger Work").</li>
+</ul>
+<h3 id="licensing-your-contributions-inbound-outbound">Licensing your contributions (inbound = outbound)<a class="headerlink" href="#licensing-your-contributions-inbound-outbound" title="Permanent link">&para;</a></h3>
+<p>By contributing to TRAM, you agree that:</p>
+<ol>
+<li>Your contributions are licensed to everyone under the same <a href="https://github.com/GO-TRAM/TRAM/blob/main/LICENSE">MPL-2.0</a> as the project.</li>
+<li>You accept the <a href="https://github.com/GO-TRAM/TRAM/blob/main/CLA.md">Contributor License Agreement (CLA)</a>, which additionally grants the maintainer the right to relicense your contributions — for example for commercial licenses and premium features built on TRAM. You accept the CLA by signing off your commits (<code>git commit --signoff</code>) or by stating "I have read and agree to the TRAM CLA" in your pull request.</li>
+<li>Submitting a contribution does not oblige the maintainer to accept or merge it.</li>
+</ol>
+<h3 id="file-headers">File headers<a class="headerlink" href="#file-headers" title="Permanent link">&para;</a></h3>
+<p>New source files must carry the MPL-2.0 header:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1">// This Source Code Form is subject to the terms of the Mozilla Public</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="c1">// License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="c1">// file, You can obtain one at https://mozilla.org/MPL/2.0/.</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c1">// SPDX-License-Identifier: MPL-2.0</span>
+</code></pre></div>
+<p>The header is enforced by the <code>goheader</code> linter (<code>task lint</code>). Generated files (marked <code>Code generated ... DO NOT EDIT</code>) are exempt.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/GO-TRAM/TRAM" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2141 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, extensible pipeline framework for logs, metrics and traces">
+      
+      
+      
+        <link rel="canonical" href="https://gotram.dev/kubernetes/">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/TRAM.svg">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Kubernetes Operator - TRAM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TRAM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kubernetes Operator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/getting-started/" class="md-tabs__link">
+          
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../components/" class="md-tabs__link">
+          
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../deployment/container/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operations/metrics/" class="md-tabs__link">
+          
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/contributing/" class="md-tabs__link">
+          
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    TRAM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GO-TRAM/TRAM
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Security
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Components
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Components
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/stages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stages
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sinks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sinks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Examples
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Running
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-streams" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Selecting Streams
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#engines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Engines
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Engines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The Manager
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rbac" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        RBAC
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storage-for-buffers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Storage for buffers
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage for buffers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removing-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Removing storage
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-stream-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The Stream Resource
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Secrets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-maps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Config Maps
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Behavior
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Development
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="kubernetes-operator">Kubernetes Operator<a class="headerlink" href="#kubernetes-operator" title="Permanent link">&para;</a></h1>
+<p>Lets TRAM run streams described by <code>Stream</code> custom resources (<code>io.tram.core/v1</code>). The operator is part of the TRAM binary and starts together with the server; it is not deployed separately.</p>
+<h2 id="running">Running<a class="headerlink" href="#running" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Install the custom resource definition:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>manifests/crds/io.tram.core_streams.yaml
+</code></pre></div>
+<ol>
+<li>Start TRAM with the operator enabled:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./tram<span class="w"> </span>server<span class="w"> </span>--enable-k8s-operator
+</code></pre></div>
+<p>TRAM connects with the in-cluster configuration when it runs in a pod, otherwise with the <code>KUBECONFIG</code> environment variable or <code>~/.kube/config</code>. <code>--kubeconfig &lt;file&gt;</code> selects a specific file.</p>
+<ol>
+<li>Create a <code>Stream</code>, e.g. the example in <code>examples/k8s/</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/k8s/examples/otlp_basic.yaml
+</code></pre></div>
+<p>When TRAM runs in a cluster, its service account needs the permissions in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests/tram-manager/rbac/engine/role.yaml"><code>manifests/tram-manager/rbac/engine/role.yaml</code></a> (a <code>ClusterRole</code> named <code>manager-role</code>), bound with a <code>ClusterRoleBinding</code>. With <code>--watch-namespace</code>, a <code>RoleBinding</code> to that <code>ClusterRole</code> in each watched namespace is enough. The role includes reading <code>Secret</code> and <code>ConfigMap</code> resources, for <a href="#secrets">references to secrets</a> and <a href="#config-maps">config maps</a>.</p>
+<h2 id="selecting-streams">Selecting Streams<a class="headerlink" href="#selecting-streams" title="Permanent link">&para;</a></h2>
+<p>By default every TRAM instance with the operator enabled runs every <code>Stream</code> resource in the cluster. Two flags limit an instance to some of them; when both are set, a resource has to match both:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--watch-namespace</code></td>
+<td>Comma-separated namespaces whose <code>Stream</code> resources the instance runs, e.g. <code>tram-validation,tram-bridge</code></td>
+</tr>
+<tr>
+<td><code>--engine</code></td>
+<td><a href="#engines">Engine</a> whose <code>Stream</code> resources the instance runs: those whose <code>spec.engineRefs</code> name it. <code>tram manager</code> sets it on the instances of each Engine</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>A resource that no instance selects runs nowhere, and its <code>status.mounted</code> is not set</li>
+<li>With <code>--engine</code>, the instance watches only the resources labeled <code>engine.tram.io/&lt;engine&gt;</code>, which <code>tram manager</code> derives from <code>spec.engineRefs</code>, and runs only those whose <code>spec.engineRefs</code> still name the engine. Removing the reference stops the stream on the engine's instances; adding it starts the stream</li>
+<li><code>--engine</code> only assigns streams to instances, it is no access control. Anyone who can create a <code>Stream</code> in a watched namespace can name any engine. Use <code>--watch-namespace</code> and RBAC to restrict who can run streams on an instance</li>
+</ul>
+<h2 id="engines">Engines<a class="headerlink" href="#engines" title="Permanent link">&para;</a></h2>
+<p>An <code>Engine</code> (<code>io.tram.core/v1alpha1</code>) is a group of TRAM instances that <code>tram manager</code> runs as a Deployment, or as a StatefulSet if it has <a href="#storage-for-buffers">storage for buffers</a>. A <code>Stream</code> names the engines that run it in <code>spec.engineRefs</code>, and every instance of each of them runs it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.tram.core/v1alpha1</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Engine</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-hub-mapper</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tram-nats-13</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">                       </span><span class="c1"># used while autoscaling is disabled</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry.example.com/tram:1.14.0</span><span class="w">   </span><span class="c1"># optional, defaults to the manager's --engine-image</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"4"</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">8Gi</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="nt">limits</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">12Gi</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="nt">autoscaling</span><span class="p">:</span><span class="w">                      </span><span class="c1"># optional</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                   </span><span class="c1"># default false</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">                  </span><span class="c1"># required while enabled</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span><span class="w">                 </span><span class="c1"># required while enabled, &gt;= minReplicas</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">    </span><span class="nt">targetCPUUtilizationPercentage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span><span class="w">   </span><span class="c1"># default 80</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="nt">disruptionBudget</span><span class="p">:</span><span class="w">                 </span><span class="c1"># optional, one of minAvailable and maxUnavailable</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">    </span><span class="nt">maxUnavailable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">                            </span><span class="c1"># ports the HTTP sources of its Streams may listen on</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp-http</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4318</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="nt">service</span><span class="p">:</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span><span class="w">                 </span><span class="c1"># default</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="nt">runtime</span><span class="p">:</span><span class="w">                          </span><span class="c1"># maps to flags of tram server</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">    </span><span class="nt">logLevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span><span class="w">                  </span><span class="c1"># --log-level, default info</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">    </span><span class="nt">api</span><span class="p">:</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">      </span><span class="nt">httpPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span><span class="w">                </span><span class="c1"># --http-endpoint, also serves /metrics; default 8080</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">      </span><span class="nt">grpcPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50051</span><span class="w">               </span><span class="c1"># --grpc-endpoint; default 50051</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">    </span><span class="nt">pprof</span><span class="p">:</span><span class="w">                          </span><span class="c1"># optional, --pprof-endpoint on the pod's localhost</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6060</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">  </span><span class="nt">podTemplate</span><span class="p">:</span><span class="w">                      </span><span class="c1"># pod-level settings only</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> team</span><span class="p">:</span><span class="w"> </span><span class="nv">telemetry</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">      </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> prometheus.io/scrape</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span><span class="p p-Indicator">,</span><span class="nt"> prometheus.io/port</span><span class="p">:</span><span class="w"> </span><span class="s">"8080"</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="w">      </span><span class="nt">terminationGracePeriodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="w">      </span><span class="nt">priorityClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-high</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="w">      </span><span class="nt">nodeSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> node-pool</span><span class="p">:</span><span class="w"> </span><span class="nv">telemetry</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="w">      </span><span class="nt">affinity</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="w">      </span><span class="nt">topologySpreadConstraints</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a><span class="w">      </span><span class="nt">securityContext</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a><span class="w">      </span><span class="nt">imagePullSecrets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a><span class="w">  </span><span class="nt">storage</span><span class="p">:</span><span class="w">                          </span><span class="c1"># optional, see Storage for buffers</span>
+<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a><span class="w">    </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20Gi</span><span class="w">                      </span><span class="c1"># cannot be changed</span>
+<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a><span class="w">    </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fast-ssd</span><span class="w">      </span><span class="c1"># optional, cannot be changed</span>
+<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a><span class="w">    </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/lib/tram</span><span class="w">        </span><span class="c1"># default</span>
+<a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a><span class="w">    </span><span class="nt">drainResources</span><span class="p">:</span><span class="w">                 </span><span class="c1"># default: requests 50m CPU, 128Mi; the instances' limits</span>
+<a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a><span class="w">      </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="nv">50m</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">128Mi</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.tram.core/v1</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stream</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resource-to-router-audit</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tram-nats-13</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">engineRefs</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-hub-mapper</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>The Helm chart <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram"><code>charts/tram</code></a> or the kustomization in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a> deploys the manager with the CRDs and roles, and <code>examples/k8s/examples/</code> holds an Engine and Streams that run on it.</p>
+<p>What the manager creates for an Engine, and how its instances find their Streams:</p>
+<pre class="mermaid"><code>flowchart LR
+    manager["tram manager"]
+    subgraph ns["Engine's namespace"]
+        engine[/"Engine hub"/]
+        stream[/"Stream&lt;br/&gt;spec.engineRefs: hub"/]
+        refs[/"Secrets and ConfigMaps&lt;br/&gt;the Stream refers to"/]
+        workload["Deployment,&lt;br/&gt;or StatefulSet with storage"]
+        others["Service, ServiceAccount, RoleBinding,&lt;br/&gt;PodDisruptionBudget, HorizontalPodAutoscaler"]
+        instances["TRAM instances&lt;br/&gt;tram server&lt;br/&gt;--engine hub"]
+    end
+    manager -- watches --&gt; engine
+    manager -- creates --&gt; workload
+    manager -- creates --&gt; others
+    manager -- "labels engine.tram.io/hub" --&gt; stream
+    workload -- runs --&gt; instances
+    instances -- "watch Streams labeled for hub, run them" --&gt; stream
+    instances -. read .-&gt; refs</code></pre>
+<h3 id="the-manager">The Manager<a class="headerlink" href="#the-manager" title="Permanent link">&para;</a></h3>
+<p><code>tram manager</code> runs no streams. It runs one Deployment or StatefulSet per <code>Engine</code>, and it labels every <code>Stream</code> <code>engine.tram.io/&lt;name&gt;</code> (with an empty value) for each engine its <code>spec.engineRefs</code> name; the instances of an engine select the key, e.g. <code>kubectl get streams -l engine.tram.io/engine-1</code>. Run it once per cluster, or as several replicas, of which one at a time works:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./tram<span class="w"> </span>manager<span class="w"> </span>--engine-image<span class="w"> </span>registry.example.com/tram:1.14.0
+</code></pre></div>
+<h3 id="rbac">RBAC<a class="headerlink" href="#rbac" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>File</th>
+<th>Bound to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tram-manager</code></td>
+<td><code>manifests/tram-manager/rbac/manager/role.yaml</code></td>
+<td>The manager's service account, with a <code>ClusterRoleBinding</code> (a <code>RoleBinding</code> per namespace with <code>--watch-namespace</code>). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and <code>bind</code> on <code>manager-role</code></td>
+</tr>
+<tr>
+<td><code>manager-role</code></td>
+<td><code>manifests/tram-manager/rbac/engine/role.yaml</code></td>
+<td>Each Engine's service account, by the manager, in the Engine's namespace</td>
+</tr>
+</tbody>
+</table>
+<p>Both <code>ClusterRole</code>s have to exist. With another <code>--engine-cluster-role</code>, grant the manager <code>bind</code> on that role instead.</p>
+<h3 id="storage-for-buffers">Storage for buffers<a class="headerlink" href="#storage-for-buffers" title="Permanent link">&para;</a></h3>
+<p>The <a href="../components/#buffers">buffer sink and source</a> keep their queues on the instance's disk. With <code>spec.storage</code>, the manager runs the Engine as a StatefulSet in which every instance has a volume of its own (<code>ReadWriteOnce</code>, claim <code>data-tram-engine-&lt;engine&gt;-&lt;ordinal&gt;</code>) mounted as its data directory. Without it, the Engine runs as a Deployment, and Streams with a buffer sink or source do not run on it. Every such Stream reports per Engine in <code>status.engines[].conditions</code> whether it can: <code>StorageAvailable</code> is <code>True</code>, or <code>False</code> with reason <code>EngineHasNoStorage</code>, or <code>StorageMigrating</code> while the instances move to a StatefulSet.</p>
+<p><strong>Rule: buffered events are never discarded before their <code>max_age</code> because of a change in Kubernetes.</strong> The manager keeps every volume either with a running instance or with a drain Job, and deletes a volume only when its drain Job finished, or once everything on it has expired.</p>
+<p>The life of a volume:</p>
+<pre class="mermaid"><code>stateDiagram-v2
+    direction LR
+    state "Used by its instance" as used
+    state "Drained by a Job" as draining
+    state "Kept, drain failed" as failed
+    [*] --&gt; used: instance starts
+    used --&gt; draining: instance goes, by scale-down, removed storage or a deleted Engine
+    draining --&gt; used: scale-up stops the Job
+    draining --&gt; failed: Job fails after its retries
+    failed --&gt; draining: Job deleted by hand
+    draining --&gt; [*]: queues empty or expired, VolumeDrained
+    draining --&gt; [*]: Job older than largest max_age plus 1h, VolumeExpired
+    used --&gt; [*]: instance goes while the Engine has the discard annotation, VolumeDiscarded
+    draining --&gt; [*]: discard annotation set, VolumeDiscarded</code></pre>
+<table>
+<thead>
+<tr>
+<th>What happens</th>
+<th>What the manager does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>storage</code> is added</td>
+<td>Starts a StatefulSet with as many instances as the Deployment, next to it; both serve meanwhile. Once the StatefulSet is ready, the Service selects only its instances (label <code>tram.io/storage: "true"</code>), then the Deployment is deleted, so no request reaches an instance without storage. <code>Migrating</code> is <code>True</code> meanwhile</td>
+</tr>
+<tr>
+<td><code>storage</code> is removed</td>
+<td>Waits while Streams still write to buffers on the Engine, i.e. have a buffer sink and are not suspended: <code>Reconciled</code> is <code>False</code> with reason <code>StorageInUse</code>, naming them. Once none writes any more, starts a Deployment, and when it is ready, deletes the StatefulSet; its volumes stay and are drained through the reading Streams, see <a href="#removing-storage">Removing storage</a></td>
+</tr>
+<tr>
+<td>Scaling down, also by the autoscaler</td>
+<td>The volume of an instance that goes stays and is drained</td>
+</tr>
+<tr>
+<td>Scaling up while a volume is drained</td>
+<td>Stops the drain Job; the instance continues with its volume</td>
+</tr>
+<tr>
+<td>The Engine is deleted</td>
+<td>Keeps it (finalizer <code>tram.io/drain-buffers</code>) until all its volumes are drained, after stopping its instances</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>drain Job</strong> (<code>tram-drain-&lt;random&gt;</code>, labels <code>tram.io/drain=&lt;engine&gt;</code> and <code>tram.io/ordinal=&lt;n&gt;</code>) runs <code>tram drain</code> with the volume mounted: it loads the Engine's Streams and runs only those that read from a buffer, also suspended ones, and treats all others as suspended, so nothing writes to the volume any more. It ends once every queue is empty or holds only expired events, also queues no Stream reads any more, so it takes at most about the largest <code>max_age</code> after the instance stopped. Its pod is not selected by the Engine's Service or disruption budget and uses <code>storage.drainResources</code>. When it is done, the volume is deleted, and the Job stays for an hour, so its logs show what it delivered (<code>kubectl logs -l tram.io/drain=&lt;engine&gt;</code>). Its finished pod still uses the volume, so the claim stays <code>Terminating</code> until the Job goes; if an instance needs a volume of the same name before, because storage was added back or the Engine scaled up, the manager deletes the Job, and with it its logs, right away. If a drain Job fails after its retries, the volume is kept and the Engine's <code>Draining</code> condition says so; delete the Job to try again. If a drain Job never finishes, e.g. because its volume cannot be attached, the volume is deleted once the Job is older than the largest <code>max_age</code> of the Engine's buffer sinks (at least 24 hours) plus one hour, since everything on it has expired by then.</p>
+<p>Deleting or suspending a Stream discards nothing: what its buffer sink wrote waits in the queue until a reading Stream delivers it or it expires, like messages of a broker without a consumer.</p>
+<h4 id="removing-storage">Removing storage<a class="headerlink" href="#removing-storage" title="Permanent link">&para;</a></h4>
+<p>Removing storage ends the buffers on the Engine, so the manager asks the Streams' authors to stop writing first, and delivers what the volumes still hold through the reading Streams:</p>
+<ol>
+<li>Suspend the Streams that write to buffers (<code>spec.suspended: true</code>), or remove their buffer sinks. Their sources stop, so their clients can no longer send to them. Keep the Streams that read from the buffers</li>
+<li>Remove <code>spec.storage</code> from the Engine. The manager starts a Deployment; once it is ready, it deletes the StatefulSet</li>
+<li>A drain Job per volume runs the reading Streams against it and delivers through their sinks. A volume is deleted once its queues are empty, or their events expired because the destination stayed down</li>
+<li>Delete the reading Streams, or keep them for when the Engine gets storage again</li>
+</ol>
+<p>On instances without storage, Streams with a buffer sink or source do not run: they are not mounted (<code>status.mounted</code> is <code>false</code>), and report <code>StorageAvailable=False</code> per Engine.</p>
+<p>The manager records events on the Engine (<code>kubectl describe engine &lt;name&gt;</code>): <code>VolumeDraining</code> when a drain Job starts, <code>VolumeDrained</code> when it is done, <code>VolumeExpired</code> when a volume was deleted after the drain deadline, and <code>VolumeDiscarded</code> when the discard annotation deleted it, and <code>VolumeReleased</code> when it deleted a kept drain Job early so an instance gets its volume.</p>
+<p>The Engine's status shows the workload (<code>status.workload</code>), the number of volumes (<code>status.volumes</code>) and of volumes being drained (<code>status.drainingVolumes</code>), and the conditions <code>Migrating</code> and <code>Draining</code>.</p>
+<p>To give up buffered events on purpose, annotate the Engine with <code>tram.io/discard-buffers: "true"</code> before or while deleting it; its volumes are deleted at once.</p>
+<p>Limits:</p>
+<ul>
+<li><strong>Deleting a namespace discards buffered events.</strong> Kubernetes deletes everything in it, and nothing can be created in it any more, so no drain Job can run. Delete the Streams and Engines first and wait until they are gone</li>
+<li><code>size</code> and <code>storageClassName</code> cannot be changed; resize the volumes by hand if the storage class allows it</li>
+<li>When a node fails, the StatefulSet does not start its instance elsewhere until the pod is gone; the volume is delivered once the instance runs again</li>
+<li>PVCs need Kubernetes 1.32 or later for <code>persistentVolumeClaimRetentionPolicy</code>; older clusters ignore it, and the manager's drains still delete volumes only when they are done</li>
+</ul>
+<h2 id="the-stream-resource">The Stream Resource<a class="headerlink" href="#the-stream-resource" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">io.tram.core/v1</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stream</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-stream</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generator</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generator</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="nt">stages</span><span class="p">:</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">delay</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">delay</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">      </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generator</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">        </span><span class="nt">delay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1s</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span><span class="nt">sinks</span><span class="p">:</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debug</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debug</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">      </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">delay</span>
+</code></pre></div>
+<p><code>spec</code> has the same structure as the <code>stream</code> object of the HTTP API, without <code>name</code>. Each component's <code>spec</code> is passed to the component as it is, so numbers, booleans and nested objects keep their types; see <a href="../components/">COMPONENTS.md</a> for the options of each component.</p>
+<h2 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h2>
+<p>Any value in a component's <code>spec</code> can come from a <code>Secret</code> in the namespace of the <code>Stream</code>, like environment variables of a pod:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="w">  </span><span class="nt">sinks</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">in</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://collector.example.com:4318</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="nt">headers</span><span class="p">:</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">          </span><span class="nt">Authorization</span><span class="p">:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">            </span><span class="nt">valueFrom</span><span class="p">:</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">              </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp-auth</span><span class="w">   </span><span class="c1"># Secret in the namespace of the Stream</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">                </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span><span class="w">        </span><span class="c1"># e.g. "Bearer ..."</span>
+</code></pre></div>
+<ul>
+<li>The value replaces the whole object as a string, so a header needs its complete value in the secret, e.g. <code>Bearer ...</code></li>
+<li>The stream runs with the values, but TRAM shows only the references: the API and the files of the file sync never contain a secret's value. A component may still name a value in an error it logs, e.g. an invalid URL, so keep secrets out of values that components check, like URLs</li>
+<li>Changing a secret restarts the streams that refer to it with the new value. TRAM watches only the metadata of secrets and reads a value when it applies a stream, so values are not kept in its cache</li>
+<li>A missing secret or key keeps the stream from starting and sets <code>status.mounted</code> to <code>false</code>; the stream starts once the secret is there. A malformed reference, e.g. without <code>key</code>, fails for good until the resource is fixed</li>
+<li>References work only in <code>Stream</code> resources. Streams from the API or the file sync are passed on unchanged, so they cannot read secrets or config maps</li>
+</ul>
+<h2 id="config-maps">Config Maps<a class="headerlink" href="#config-maps" title="Permanent link">&para;</a></h2>
+<p>A value in a component's <code>spec</code> can also be the merged <code>data</code> of all <code>ConfigMap</code> resources in the namespace of the <code>Stream</code> that a label selector matches. This keeps large tables, e.g. the table of a <a href="../components/stages/#value-map-stage"><code>value_map</code></a> stage, out of the <code>Stream</code> resource and lets them grow beyond the size limit of a single Kubernetes object:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="w">  </span><span class="nt">stages</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value_map</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="nt">from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">in</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="nt">source_attr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tenant.id</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="nt">target_attr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router.id</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unassigned</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="nt">table</span><span class="p">:</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">          </span><span class="nt">valueFrom</span><span class="p">:</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">            </span><span class="nt">configMapSelector</span><span class="p">:</span><span class="w">        </span><span class="c1"># like the selector of a Deployment</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">              </span><span class="nt">matchLabels</span><span class="p">:</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">                </span><span class="nt">tram.io/table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tenant-routing</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tenant-routing-router-1</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="nt">tram.io/table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tenant-routing</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="nt">data</span><span class="p">:</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">  </span><span class="nt">tenant-a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router-1</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">  </span><span class="nt">tenant-b</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">router-1</span>
+</code></pre></div>
+<ul>
+<li>The selector takes <code>matchLabels</code> and <code>matchExpressions</code>, at least one of them. The value is an object with the keys and values of <code>data</code> of every matching config map; <code>binaryData</code> is ignored</li>
+<li>Split a table over as many config maps as needed, e.g. one per router. A key may be in several of them only with the same value. Different values are a conflict: the error names the key and both config maps</li>
+<li>Creating, changing or deleting a matching config map, or changing labels so that it starts or stops matching, applies the new table. Like with a changed spec, only stages and sinks are replaced; the source keeps running. As with secrets, TRAM watches only the metadata of config maps and reads their data when it applies a stream</li>
+<li>No matching config map, or a conflict, keeps the stream from starting and sets <code>status.mounted</code> to <code>false</code>. A stream that already runs keeps running with its last table until the config maps are fixed. A malformed selector, e.g. an empty one, which would match every config map of the namespace, fails for good until the resource is fixed</li>
+<li>The merged table exists only in TRAM's memory: it is never written to a Kubernetes object, so only each config map on its own is bound by the size limit. The API and the file sync show the selector, not the table</li>
+<li>Every TRAM instance that runs the stream holds the whole table, and every reconcile reads all matching config maps. Keep tables of hundreds of thousands of entries in mind when sizing memory</li>
+</ul>
+<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Names:</strong> a resource runs as the TRAM stream <code>&lt;namespace&gt;.&lt;name&gt;</code>, e.g. <code>default.test-stream</code>, so resources with the same name in different namespaces do not collide. The stream can be read through the API under that name</li>
+<li><strong>Changes:</strong> the stream is created or updated when the resource's <code>spec</code>, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it</li>
+<li><strong>Status:</strong> <code>status.mounted</code> is <code>true</code> once an instance loaded the stream, also while it is suspended (<code>spec.suspended</code>, which defaults to <code>false</code>), and <code>false</code> if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; <code>status.mounted</code> stays <code>true</code> meanwhile. <code>kubectl get streams</code> shows both as the columns <code>Mounted</code> and <code>Suspended</code>. Until version 0.0.19 the field was called <code>status.active</code></li>
+<li><strong>Deletion:</strong> deleting the resource deletes the stream</li>
+<li><strong>Scope:</strong> the operator watches <code>Stream</code> resources in all namespaces, or in the namespaces from <code>--watch-namespace</code>, and with <code>--engine</code> only those whose <code>spec.engineRefs</code> name the engine; see <a href="#selecting-streams">Selecting Streams</a>. There is no leader election, so every TRAM instance with the operator enabled runs every <code>Stream</code> resource it selects</li>
+<li><strong>Access:</strong> creating a <code>Stream</code> lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the <code>Stream</code>'s namespace and send the value along, e.g. as a header to their own URL. Grant <code>create</code> on <code>streams.io.tram.core</code> only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see <a href="../guide/security/">Security</a></li>
+<li><strong>File sync:</strong> with <code>--enable-file-sync</code>, streams created by the operator are also written to the configuration directory</li>
+</ul>
+<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api/v1/stream_types.go</code></td>
+<td>The <code>Stream</code> type and its kubebuilder markers</td>
+</tr>
+<tr>
+<td><code>api/v1/zz_generated.deepcopy.go</code></td>
+<td>Generated</td>
+</tr>
+<tr>
+<td><code>api/v1/engine_labels.go</code></td>
+<td>The engine labels derived from <code>spec.engineRefs</code></td>
+</tr>
+<tr>
+<td><code>internal/controller/stream_controller.go</code></td>
+<td>Reconciliation and the RBAC markers</td>
+</tr>
+<tr>
+<td><code>api/v1alpha1/engine_types.go</code></td>
+<td>The <code>Engine</code> type and its kubebuilder markers</td>
+</tr>
+<tr>
+<td><code>internal/engines/</code></td>
+<td>The controllers of <code>tram manager</code>: <code>engine_controller.go</code> runs Engines, <code>resources.go</code> builds their resources, <code>stream_controller.go</code> derives engine labels and <code>status.engines</code>; with their RBAC markers</td>
+</tr>
+<tr>
+<td><code>operator.go</code></td>
+<td>Starts the controller manager inside TRAM</td>
+</tr>
+<tr>
+<td><code>manager.go</code></td>
+<td>Starts the controller manager of <code>tram manager</code>, with leader election; caches only the resources it generates</td>
+</tr>
+</tbody>
+</table>
+<p>After changing types or markers, regenerate the deepcopy code and the manifests with <a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> v0.22.0. They write the CRDs to <code>manifests/crds/</code> and the roles to <code>manifests/tram-manager/rbac/</code> at the repository root, and the same files to the templates of the Helm chart <code>charts/tram</code> (<code>templates/crds/</code> and <code>templates/tram-manager/rbac/</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>go<span class="w"> </span>generate<span class="w"> </span>./internal/adapters/k8scrd/...
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/GO-TRAM/TRAM" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+    
+  </body>
+</html>

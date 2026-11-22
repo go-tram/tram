@@ -4,6 +4,9 @@
         <loc>https://gotram.dev/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/benchmarks/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/components/</loc>
       </url>
       <url>
@@ -14,6 +17,9 @@
       </url>
       <url>
         <loc>https://gotram.dev/components/stages/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/contributing/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/deployment/container/</loc>
@@ -49,6 +55,12 @@
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/examples/kubernetes/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/examples/streams/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/guide/api/</loc>
       </url>
       <url>
@@ -65,6 +77,9 @@
       </url>
       <url>
         <loc>https://gotram.dev/guide/testing/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/kubernetes/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/operations/benchmarks/</loc>
