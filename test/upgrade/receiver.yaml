@@ -1,0 +1,31 @@
+# The receiver the reader delivers to, created only after the upgrade: it
+# logs every event it receives, so the test finds the buffered records.
+apiVersion: io.tram.core/v1alpha1
+kind: Engine
+metadata:
+  name: receiver
+  namespace: upgrade-test
+spec:
+  replicas: 1
+  imagePullPolicy: IfNotPresent
+  ports:
+    - name: otlp
+      port: 4318
+---
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: receiver
+  namespace: upgrade-test
+spec:
+  engineRefs:
+    - name: receiver
+  source:
+    name: in
+    type: otlp
+    spec:
+      http_port: 4318
+  sinks:
+    - name: log
+      type: debug
+      from: in

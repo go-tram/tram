@@ -41,3 +41,5 @@ examples/tenant-routing-k8s/
 examples/tenant-routing-demo/
 examples/tenant-routing-loadtest/
 setup/
+# Worktree task test:upgrade builds a release from
+/.upgrade-from-v*/
