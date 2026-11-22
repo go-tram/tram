@@ -45,6 +45,28 @@ jobs:
         uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: go.mod
+          cache: false
+
+      - name: Cache key
+        id: cache
+        env:
+          DEPS: ${{ hashFiles('go.mod', 'go.sum') }}
+          TARGET: ${{ matrix.target }}
+        run: echo "prefix=go-${RUNNER_OS}-${TARGET}-" >> "${GITHUB_OUTPUT}" && echo "deps=${DEPS}" >> "${GITHUB_OUTPUT}"
+
+      # The latest cache the CI workflow saved for this job on main; a
+      # release saves none, so it adds nothing to the cache storage.
+      - name: Restore the cache of main
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+          key: ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-
+            ${{ steps.cache.outputs.prefix }}
 
       - name: Install Task
         run: go install github.com/go-task/task/v3/cmd/task@${TASK_VERSION}
