@@ -77,8 +77,16 @@ jobs:
       - name: Check
         run: task ci:${{ matrix.target }}
 
-  image:
+  # Upgrades from the previous release to the tag in a kind cluster.
+  upgrade:
     needs: check
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/upgrade.yml
+
+  image:
+    needs: [check, upgrade]
     runs-on: ubuntu-latest
     permissions:
       contents: read

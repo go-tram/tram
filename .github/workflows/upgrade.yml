@@ -1,0 +1,88 @@
+# Upgrades TRAM from the latest release to the code under test in a kind
+# cluster and checks that it keeps running and that events buffered on an
+# Engine's volume survive the upgrade (test/upgrade/run.sh).
+#
+# Runs on pull requests that change the operator, the chart, the manifests,
+# the image or the test, on demand, and from the release workflow before it
+# publishes a release.
+
+name: Upgrade
+
+on:
+  pull_request:
+    paths:
+      - internal/adapters/k8scrd/**
+      - charts/**
+      - manifests/**
+      - Dockerfile
+      - test/upgrade/**
+      - .github/workflows/upgrade.yml
+  workflow_dispatch:
+    inputs:
+      from_version:
+        description: Release to upgrade from, without v, e.g. 0.1.0; empty for the latest tag
+        required: false
+  workflow_call:
+    inputs:
+      from_version:
+        description: Release to upgrade from, without v; empty for the latest tag before the commit
+        type: string
+        required: false
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: upgrade-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/go-tram/tram
+      NEW_TAG: upgrade-test
+    steps:
+      - name: Check out with the tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The latest tag before the commit under test: for a pull request the
+      # latest on main, for a release tag the one before it.
+      - name: Release to upgrade from
+        id: from
+        env:
+          INPUT: ${{ inputs.from_version }}
+        run: |
+          version="${INPUT:-$(git describe --tags --abbrev=0 HEAD^)}"
+          echo "version=${version#v}" >> "${GITHUB_OUTPUT}"
+          echo "Upgrading from ${version#v}"
+
+      - name: Log in to the GitHub Container Registry
+        env:
+          ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io --username "${ACTOR}" --password-stdin
+          echo "${GITHUB_TOKEN}" | helm registry login ghcr.io --username "${ACTOR}" --password-stdin
+
+      - name: Create a kind cluster
+        uses: helm/kind-action@ea822c7bf1874f08e5a491df991c228edffc3376 # v1.15.2
+        with:
+          cluster_name: upgrade
+
+      - name: Load the images of the release and of the code under test
+        env:
+          FROM_VERSION: ${{ steps.from.outputs.version }}
+        run: |
+          docker build -t "${IMAGE}:${NEW_TAG}" .
+          docker pull "${IMAGE}:${FROM_VERSION}"
+          kind load docker-image --name upgrade "${IMAGE}:${NEW_TAG}" "${IMAGE}:${FROM_VERSION}"
+
+      - name: Upgrade
+        env:
+          FROM_VERSION: ${{ steps.from.outputs.version }}
+        run: test/upgrade/run.sh

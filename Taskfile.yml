@@ -265,6 +265,34 @@ tasks:
         KUBEBUILDER_ASSETS="$(setup-envtest use {{.ENVTEST_K8S_VERSION}} -p path)"
         go test -race -count=1 -run '^TestOperator' {{.CLI_ARGS}} ./internal/adapters/k8scrd/
 
+  test:upgrade:
+    desc: Upgrade TRAM from the latest release to this repository in a kind cluster and check that buffered events survive
+    summary: |
+      Creates the kind cluster tram-upgrade if it is missing, builds the image
+      of this repository, pulls the image of the release to upgrade from, loads
+      both into the cluster and runs test/upgrade/run.sh. Set FROM_VERSION to
+      upgrade from another release than the latest tag, e.g.
+      `task test:upgrade FROM_VERSION=0.1.0`. Delete the cluster afterwards
+      with `kind delete cluster --name tram-upgrade`. With Podman, kind runs
+      with KIND_EXPERIMENTAL_PROVIDER=podman.
+    vars:
+      FROM_VERSION:
+        sh: git describe --tags --abbrev=0 | sed 's/^v//'
+      UPGRADE_CLUSTER: tram-upgrade
+      UPGRADE_IMAGE: ghcr.io/go-tram/tram
+    env:
+      KIND_EXPERIMENTAL_PROVIDER: '{{if eq .CONTAINER_TOOL "podman"}}podman{{end}}'
+    preconditions:
+      - sh: command -v kind && command -v helm && command -v kubectl
+        msg: the upgrade test needs kind, helm and kubectl
+    cmds:
+      - kind get clusters | grep -qx {{.UPGRADE_CLUSTER}} || kind create cluster --name {{.UPGRADE_CLUSTER}}
+      - '{{.CONTAINER_TOOL}} build -t {{.UPGRADE_IMAGE}}:upgrade-test .'
+      - '{{.CONTAINER_TOOL}} pull {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}'
+      - kind load docker-image --name {{.UPGRADE_CLUSTER}} {{.UPGRADE_IMAGE}}:upgrade-test {{.UPGRADE_IMAGE}}:{{.FROM_VERSION}}
+      - kubectl config use-context kind-{{.UPGRADE_CLUSTER}}
+      - FROM_VERSION={{.FROM_VERSION}} IMAGE={{.UPGRADE_IMAGE}} NEW_TAG=upgrade-test test/upgrade/run.sh
+
   test:cover:
     desc: Run all tests with coverage and show the total; the full report is in coverage.out
     cmds:
