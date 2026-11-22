@@ -143,3 +143,39 @@
 .md-typeset table:not([class]) td:first-child code {
   white-space: nowrap;
 }
+
+/* Start page buttons: trapezoids that widen toward the bottom, like the
+   front of the tram in the logo. The clip path cuts off borders and focus
+   rings on the slanted edges, so the buttons are filled and show focus by
+   their color. */
+.tram-hero .md-button {
+  --tram-slant: 0.75em;
+  margin: 0.2em 0;
+  padding: 0.6em calc(1.6em + var(--tram-slant));
+  border: none;
+  border-radius: 0;
+  outline: none;
+  clip-path: polygon(
+    var(--tram-slant) 0,
+    calc(100% - var(--tram-slant)) 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.tram-hero .md-button:not(.md-button--primary) {
+  background-color: color-mix(in srgb, var(--md-default-fg-color) 12%, transparent);
+  color: var(--md-default-fg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .tram-hero .md-button:not(.md-button--primary) {
+  color: var(--tram-yellow);
+}
+
+.tram-hero .md-button:not(.md-button--primary):hover,
+.tram-hero .md-button:not(.md-button--primary):focus-visible,
+[data-md-color-scheme="slate"] .md-typeset .tram-hero .md-button:not(.md-button--primary):hover,
+[data-md-color-scheme="slate"] .md-typeset .tram-hero .md-button:not(.md-button--primary):focus-visible {
+  background-color: var(--tram-yellow);
+  color: var(--tram-slate);
+}
