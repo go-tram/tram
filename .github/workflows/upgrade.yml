@@ -77,9 +77,15 @@ jobs:
       - name: Load the images of the release and of the code under test
         env:
           FROM_VERSION: ${{ steps.from.outputs.version }}
+        # kind cannot import images with several platforms or attestations,
+        # like the published ones and those docker build makes by default, so
+        # both are loaded as single-platform images without attestations,
+        # under the tags the charts use.
         run: |
-          docker build -t "${IMAGE}:${NEW_TAG}" .
-          docker pull "${IMAGE}:${FROM_VERSION}"
+          docker build --platform linux/amd64 --provenance=false --sbom=false -t "${IMAGE}:${NEW_TAG}" .
+          docker pull --platform linux/amd64 "${IMAGE}:${FROM_VERSION}"
+          echo "FROM ${IMAGE}:${FROM_VERSION}" |
+            docker build --platform linux/amd64 --provenance=false --sbom=false -t "${IMAGE}:${FROM_VERSION}" -
           kind load docker-image --name upgrade "${IMAGE}:${NEW_TAG}" "${IMAGE}:${FROM_VERSION}"
 
       - name: Upgrade
