@@ -66,6 +66,12 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - No processing stages
 - **JSON version**: [../config/otlp_basic.json](../config/otlp_basic.json)
 
+#### [`otlp_grpc.yaml`](examples/otlp_grpc.yaml)
+**Purpose**: OTLP over gRPC and HTTP into one stream
+- Receives OTLP/gRPC on port 4317 and OTLP/HTTP on port 4329; the example Engine lists both ports, so its Service exposes them
+- Forwards both to a central OTLP collector
+- **JSON version**: [../config/otlp_grpc.json](../config/otlp_grpc.json)
+
 #### [`otlp_debug.yaml`](examples/otlp_debug.yaml)
 **Purpose**: OTLP into the debug sink, to see what reaches an Engine
 - Receives OTLP data on port 4327

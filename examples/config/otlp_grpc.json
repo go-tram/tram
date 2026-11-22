@@ -1,0 +1,24 @@
+{
+  "stream": {
+    "name": "otlp_grpc",
+    "source": {
+      "name": "otlp_source",
+      "type": "otlp",
+      "spec": {
+        "grpc_port": 4317,
+        "http_port": 4329
+      }
+    },
+    "stages": [],
+    "sinks": [
+      {
+        "name": "otlp_sink",
+        "type": "otlp",
+        "from": "otlp_source",
+        "spec": {
+          "url": "http://localhost:4319"
+        }
+      }
+    ]
+  }
+}
