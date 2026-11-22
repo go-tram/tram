@@ -116,19 +116,19 @@ What the manager creates for an Engine, and how its instances find their Streams
 flowchart LR
     manager["tram manager"]
     subgraph ns["Engine's namespace"]
-        engine[/"Engine hub"/]
-        stream[/"Stream<br/>spec.engineRefs: hub"/]
+        engine[/"Engine blue-line"/]
+        stream[/"Stream<br/>spec.engineRefs: blue-line"/]
         refs[/"Secrets and ConfigMaps<br/>the Stream refers to"/]
         workload["Deployment,<br/>or StatefulSet with storage"]
         others["Service, ServiceAccount, RoleBinding,<br/>PodDisruptionBudget, HorizontalPodAutoscaler"]
-        instances["TRAM instances<br/>tram server<br/>--engine hub"]
+        instances["TRAM instances<br/>tram server<br/>--engine blue-line"]
     end
     manager -- watches --> engine
     manager -- creates --> workload
     manager -- creates --> others
-    manager -- "labels engine.tram.io/hub" --> stream
+    manager -- "labels engine.tram.io/blue-line" --> stream
     workload -- runs --> instances
-    instances -- "watch Streams labeled for hub, run them" --> stream
+    instances -- "watch Streams labeled for blue-line, run them" --> stream
     instances -. read .-> refs
 ```
 
