@@ -344,9 +344,16 @@ tasks:
 
   release:next:
     desc: Tag the version the Conventional Commits since the last tag call for (at least a patch) and push it
+    summary: |
+      Computes the version with svu from the commits on main since the last
+      tag: a breaking change (`feat!:` or a `BREAKING CHANGE:` footer) bumps
+      the major version, feat the minor version, anything else the patch
+      version. While the version is 0.x, a breaking change bumps the minor
+      version instead (--v0), so 1.0.0 is only tagged on purpose, with
+      release:major.
     cmds:
       - task: release
-        vars: { BUMP: next --always }
+        vars: { BUMP: next --always --v0 }
 
   release:patch:
     desc: Tag the next patch version on main and push it; the release workflow then builds and publishes the image
