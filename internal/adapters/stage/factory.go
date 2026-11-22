@@ -19,6 +19,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/stage/encryption"
 	"github.com/go-tram/tram/internal/adapters/stage/filter"
 	"github.com/go-tram/tram/internal/adapters/stage/noop"
+	"github.com/go-tram/tram/internal/adapters/stage/transform"
 	"github.com/go-tram/tram/internal/adapters/stage/validation"
 	"github.com/go-tram/tram/internal/adapters/stage/valuemap"
 	"github.com/go-tram/tram/internal/core/domain"
@@ -72,6 +73,8 @@ func (f *Factory) New(spec domain.StageSpec, stream string) (domain.Stage, error
 		return batch.New(spec, f.validator, f.logger)
 	case valuemap.Type:
 		return valuemap.New(spec, f.validator, f.logger, f.provider, stream)
+	case transform.Type:
+		return transform.New(spec, f.validator, f.logger, f.provider, stream)
 	default:
 		return nil, fmt.Errorf("%w: %q", domain.ErrInvalidStageType, spec.Type)
 	}

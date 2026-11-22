@@ -1,0 +1,41 @@
+# otlp_with_transform.yaml - normalize attributes with the transform stage.
+# The JSON version in ../../tests/otlp_with_transform.json carries test cases
+# for the same statements; Stream resources have no tests field.
+apiVersion: io.tram.core/v1
+kind: Stream
+metadata:
+  name: otlp-with-transform
+spec:
+  engineRefs:
+    - name: demo
+  source:
+    type: otlp
+    name: otlp_source
+    spec:
+      http_port: 4330
+  stages:
+    - type: transform
+      name: normalize
+      from: otlp_source
+      spec:
+        driver: cel
+        cel:
+          logs:
+            # Runs once per resource.
+            - set: "resource.attributes['deployment.environment']"
+              value: "attr(resource.attributes, 'k8s.namespace.name').split('-')[1]"
+            # Run once per log record.
+            - delete: "attributes['password']"
+            - rename: "attributes['user']"
+              to: user.name
+            - truncate: "attributes['note']"
+              length: 10
+            - set: "attributes['level']"
+              value: "record.severity_text.lowerAscii()"
+              when: "record.severity_text != ''"
+  sinks:
+    - type: otlp
+      name: backend
+      from: normalize
+      spec:
+        url: "http://otel-collector:4318"

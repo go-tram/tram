@@ -249,9 +249,9 @@ Until the source has answered, an event exists only in memory. If the process st
 
 | Type | Components |
 |------|-------------|
-| **Sources** | `broker`, `generator`, `otlp` |
-| **Stages** | `batch`, `delay`, `filter`, `noop`, `validation`, `value_map` |
-| **Sinks** | `broker`, `debug`, `otlp` |
+| **Sources** | `broker`, `buffer`, `generator`, `otlp` |
+| **Stages** | `batch`, `decryption`, `delay`, `encryption`, `filter`, `noop`, `transform`, `validation`, `value_map` |
+| **Sinks** | `broker`, `buffer`, `debug`, `otlp` |
 
 For detailed documentation on each component and its configuration, see [COMPONENTS.md](COMPONENTS.md).
 
