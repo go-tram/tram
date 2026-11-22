@@ -520,7 +520,7 @@ var _ domain.Sink = (*Webhook)(nil)
 
 ### Pull Request Requirements
 
-1. **Descriptive title**: Clearly describe what the PR does
+1. **Conventional title**: The title follows [Conventional Commits](https://www.conventionalcommits.org/), e.g. `feat(k8s): drain buffers on scale-down`, with one of the types `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore` or `revert`. Pull requests are squash-merged with their title as the commit message, so a check blocks the merge until the title conforms
 2. **Detailed description**: Explain the changes and why they're needed
 3. **Small, focused changes**: One logical change per PR
 4. **Proper commit messages**: Follow [Conventional Commits](https://www.conventionalcommits.org/)
