@@ -1285,6 +1285,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_tenant_routingjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_tenant_routing.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_grpcjson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2028,6 +2039,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#otlp_tenant_routingjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>otlp_tenant_routing.json</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#otlp_grpcjson" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2407,6 +2429,12 @@
 - Forwards to another OTLP endpoint
 - No processing stages
 - <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_basic.yaml">../k8s/examples/otlp_basic.yaml</a></p>
+<h4 id="otlp_tenant_routingjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_tenant_routing.json"><code>otlp_tenant_routing.json</code></a><a class="headerlink" href="#otlp_tenant_routingjson" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Route the data of several tenants by a header an ingress per tenant sets.
+- Copies the header <code>X-Tram-Router</code> into the resource attribute <code>tram.router.id</code> with <code>header_attributes</code>, over HTTP (4331) and gRPC (4332); a value the client sent there itself is replaced
+- Rejects requests without a valid router ID before the batch, so one tenant's bad request does not fail a batch shared with others
+- Routes each record to the NATS subject <code>router.&lt;router-id&gt;.&lt;signal&gt;</code>
+- <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_tenant_routing.yaml">../k8s/examples/otlp_tenant_routing.yaml</a></p>
 <h4 id="otlp_grpcjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_grpc.json"><code>otlp_grpc.json</code></a><a class="headerlink" href="#otlp_grpcjson" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: Receive OTLP over gRPC and HTTP in one stream.
 - Receives OTLP/gRPC on port 4317, the default of most OpenTelemetry SDKs, and OTLP/HTTP on port 4329

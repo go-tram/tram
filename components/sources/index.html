@@ -1776,6 +1776,13 @@
 <td><code>"5s"</code></td>
 <td>How long clients should wait before retrying a <code>503</code>, as a Go duration. Sent as the <code>Retry-After</code> header in whole seconds, rounded up</td>
 </tr>
+<tr>
+<td><code>header_attributes</code></td>
+<td>object</td>
+<td>No</td>
+<td>-</td>
+<td>Request headers to copy into resource attributes, as header name → attribute key, e.g. <code>{"X-Tram-Router": "tram.router.id"}</code>. Over gRPC, the metadata of the same name. See below</td>
+</tr>
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
@@ -1788,6 +1795,18 @@
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p">}</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
 </code></pre></div>
+<p><strong>Header attributes:</strong> a proxy in front of TRAM, e.g. one ingress per tenant, can tell TRAM something about a request that the client must not choose, such as the tenant or the router its data belongs to, by setting a header. <code>header_attributes</code> makes that part of the data: the source sets the attribute on every resource of the request, where stages and sinks read it, e.g. a broker sink's destination <code>'router.' + resource.attributes.get_attr('tram.router.id') + '.logs'</code>, and where it survives a broker between streams, since broker messages carry no headers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"customer-in"</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"otlp"</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">"http_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">4318</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">"grpc_port"</span><span class="p">:</span><span class="w"> </span><span class="mi">4317</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">"header_attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"X-Tram-Router"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tram.router.id"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+</code></pre></div>
+<p>The header decides the attribute alone: a value the client put into the attribute itself is replaced, and removed when the header is missing or empty. A header with several values is refused (<code>422</code>, <code>InvalidArgument</code> over gRPC), since it is unclear which one the proxy meant, e.g. when it appended its value to a header the client sent instead of replacing it. The header is only as trustworthy as the way to TRAM: let only the proxy reach the source's port, e.g. with a network policy, and have it replace the header rather than add to it.</p>
 <p><strong>Responses</strong> (OTLP/HTTP status, OTLP/gRPC code):</p>
 <table>
 <thead>
@@ -1838,6 +1857,7 @@
 <li>The ports are opened when the stream is created, so a port that is already in use fails the stream creation. An update that keeps the source keeps its ports open</li>
 <li>Over gRPC, it serves the OTLP <code>LogsService</code>, <code>MetricsService</code> and <code>TraceService</code>, without TLS. Messages may be compressed with gzip; the 20 MiB limit applies to the decompressed message</li>
 <li>Partial success is not used: a request is accepted or refused as a whole, over both protocols</li>
+<li>Header names in <code>header_attributes</code> are matched regardless of case. Two headers may not set the same attribute</li>
 </ul>
 </details>
 <h2 id="broker-source">Broker Source<a class="headerlink" href="#broker-source" title="Permanent link">&para;</a></h2>
@@ -2050,20 +2070,20 @@
 </ul>
 </details>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit-in"</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"broker"</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats"</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">"signal"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logs"</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">"workers"</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">"nats"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats://localhost:4222"</span><span class="p">,</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit.logs"</span><span class="p">,</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">      </span><span class="nt">"durable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit"</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit-in"</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"broker"</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats"</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">"signal"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logs"</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">"workers"</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">"nats"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats://localhost:4222"</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">      </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit.logs"</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">      </span><span class="nt">"durable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"audit"</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">}</span>
 </code></pre></div>
 <details class="note">
 <summary>Behavior</summary>
@@ -2151,18 +2171,18 @@
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"outbox"</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buffer"</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqlite"</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">"sqlite"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">"queue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"outbox"</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">"workers"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nt">"retry_initial"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1s"</span><span class="p">,</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nt">"retry_max"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5m"</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"outbox"</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buffer"</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqlite"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">"sqlite"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">"queue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"outbox"</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">"workers"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nt">"retry_initial"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1s"</span><span class="p">,</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nt">"retry_max"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5m"</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
 </code></pre></div>
 <details class="note">
 <summary>Behavior</summary>

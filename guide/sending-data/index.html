@@ -609,6 +609,23 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="././" class="md-nav__link md-nav__link--active">
         
   
@@ -624,6 +641,37 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#one-ingress-per-tenant" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        One Ingress per Tenant
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1530,6 +1578,11 @@
                       
                     
                     
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -1541,6 +1594,25 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#one-ingress-per-tenant" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        One Ingress per Tenant
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1625,6 +1697,19 @@
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <p>TRAM answers <code>503</code>, or <code>Unavailable</code> over gRPC, when a delivery fails or takes too long, and agents and SDKs retry it; keep their retries and queues enabled, since TRAM's delivery is at-least-once only as far as the sender retries.</p>
+<h2 id="one-ingress-per-tenant">One Ingress per Tenant<a class="headerlink" href="#one-ingress-per-tenant" title="Permanent link">&para;</a></h2>
+<p>When tenants send their own data, a proxy in front of TRAM can name the tenant, so the client cannot choose it: e.g. an ingress per tenant at <code>&lt;router-id&gt;.example.com</code> sets the header <code>X-Tram-Router</code>, and the OTLP source copies it into a resource attribute with <code>header_attributes</code>. Every resource of a request then carries it, and a broker sink routes each record by it, also when a batch stage has merged the requests of several tenants:</p>
+<pre class="mermaid"><code>flowchart LR
+    a(["Tenant A"]) -- "a.example.com" --&gt; ia["Ingress, sets&lt;br/&gt;X-Tram-Router: a"]
+    b(["Tenant B"]) -- "b.example.com" --&gt; ib["Ingress, sets&lt;br/&gt;X-Tram-Router: b"]
+    ia --&gt; src
+    ib --&gt; src
+    subgraph stream["one stream"]
+        src(["OTLP source&lt;br/&gt;header_attributes"]) --&gt; batch[batch] --&gt; sink(["broker sink&lt;br/&gt;router. + tram.router.id + .logs"])
+    end
+    sink --&gt; ra[("router.a.logs")]
+    sink --&gt; rb[("router.b.logs")]</code></pre>
+<p>The header decides the attribute: a value a client sends in the attribute itself is replaced or removed. See <a href="../../components/sources/#otlp-source">the OTLP Source</a> for the rules, and <code>examples/config/otlp_tenant_routing.json</code> for a stream that validates the router ID before the batch. Let only the proxy reach the source's port, and authenticate tenants there.</p>
 
 
 
