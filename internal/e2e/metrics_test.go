@@ -58,6 +58,7 @@ func TestMetricsFollowTheNamingContract(t *testing.T) {
 	require.NotEmpty(t, rm.ScopeMetrics, "nothing was measured")
 
 	var names []string
+	streams := map[string]bool{}
 	for _, sm := range rm.ScopeMetrics {
 		for _, m := range sm.Metrics {
 			assert.Regexpf(t, `^tram\.(node|source|stage|sink)(\.[a-z0-9_]+)+$`,
@@ -76,8 +77,11 @@ func TestMetricsFollowTheNamingContract(t *testing.T) {
 					assert.Containsf(t, allowedLabelKeys(), key,
 						"%s: every label key comes from the naming contract", m.Name)
 				}
-				assert.Equalf(t, "e2e", labels[metricnames.LabelStream],
+				// Parallel tests record into the same global provider, so
+				// series of other streams show up too; each has to name one.
+				assert.NotEmptyf(t, labels[metricnames.LabelStream],
 					"%s: every series names its stream", m.Name)
+				streams[labels[metricnames.LabelStream]] = true
 			}
 		}
 	}
@@ -86,6 +90,7 @@ func TestMetricsFollowTheNamingContract(t *testing.T) {
 	// a test that sees only one of the two layers proves nothing.
 	assert.Contains(t, names, "tram.node.records")
 	assert.Contains(t, names, "tram.stage.value_map.mapped")
+	assert.True(t, streams["e2e"], "the test's own stream was measured")
 }
 
 // teamRequest is one log record whose team attribute the value map maps.
