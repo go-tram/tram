@@ -144,26 +144,33 @@
   white-space: nowrap;
 }
 
-/* Start page buttons: trapezoids that widen toward the bottom, like the
-   front of the tram in the logo. The clip path cuts off borders and focus
-   rings on the slanted edges, so the buttons are filled and show focus by
-   their color. */
+/* Start page buttons: shaped like the front of the tram in the logo, on
+   both sides. A rounded top corner, a long slant outward, and near the
+   bottom a short, rounded bevel back inward. The shape is a mask of three
+   parts, so it fits any button width: the left end, the middle and the
+   mirrored right end; the middle reaches past the top and bottom, so no
+   rounded pixel row shows a step. The mask also hides borders and focus rings, so the
+   buttons are filled and show focus by their color. */
 .tram-hero .md-button {
-  --tram-slant: 0.75em;
+  --tram-end: 1.6em;
+  --tram-end-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 40' preserveAspectRatio='none'%3E%3Cpath d='M24 0H15Q12.5 0 11.6 2.3L1.3 28.4Q0.6 30.2 1.5 31.8L5.2 38.2Q6.3 40 8.4 40H24Z'/%3E%3C/svg%3E");
+  --tram-end-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 40' preserveAspectRatio='none'%3E%3Cpath d='M24 0H15Q12.5 0 11.6 2.3L1.3 28.4Q0.6 30.2 1.5 31.8L5.2 38.2Q6.3 40 8.4 40H24Z' transform='translate(24 0) scale(-1 1)'/%3E%3C/svg%3E");
   margin: 0.2em 0;
-  padding: 0.6em calc(1.6em + var(--tram-slant));
+  padding: 0.6em calc(var(--tram-end) + 0.9em);
   border: none;
   border-radius: 0;
   outline: none;
-  clip-path: polygon(
-    var(--tram-slant) 0,
-    calc(100% - var(--tram-slant)) 0,
-    100% 100%,
-    0 100%
-  );
+  -webkit-mask:
+    var(--tram-end-left) left / var(--tram-end) 100% no-repeat,
+    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--tram-end) + 2px) calc(100% + 2px) no-repeat,
+    var(--tram-end-right) right / var(--tram-end) 100% no-repeat;
+  mask:
+    var(--tram-end-left) left / var(--tram-end) 100% no-repeat,
+    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--tram-end) + 2px) calc(100% + 2px) no-repeat,
+    var(--tram-end-right) right / var(--tram-end) 100% no-repeat;
 }
 
-.tram-hero .md-button:not(.md-button--primary) {
+.md-typeset .tram-hero .md-button:not(.md-button--primary) {
   background-color: color-mix(in srgb, var(--md-default-fg-color) 12%, transparent);
   color: var(--md-default-fg-color);
 }
@@ -172,8 +179,8 @@
   color: var(--tram-yellow);
 }
 
-.tram-hero .md-button:not(.md-button--primary):hover,
-.tram-hero .md-button:not(.md-button--primary):focus-visible,
+.md-typeset .tram-hero .md-button:not(.md-button--primary):hover,
+.md-typeset .tram-hero .md-button:not(.md-button--primary):focus-visible,
 [data-md-color-scheme="slate"] .md-typeset .tram-hero .md-button:not(.md-button--primary):hover,
 [data-md-color-scheme="slate"] .md-typeset .tram-hero .md-button:not(.md-button--primary):focus-visible {
   background-color: var(--tram-yellow);
