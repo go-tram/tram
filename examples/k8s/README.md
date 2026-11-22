@@ -66,6 +66,13 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - No processing stages
 - **JSON version**: [../config/otlp_basic.json](../config/otlp_basic.json)
 
+#### [`otlp_tenant_routing.yaml`](examples/otlp_tenant_routing.yaml)
+**Purpose**: Route the data of several tenants by a header an ingress per tenant sets
+- Receives OTLP on ports 4331 (HTTP) and 4332 (gRPC); the ingress of each tenant sets `X-Tram-Router`, which the source copies into the resource attribute `tram.router.id`
+- Rejects requests without a valid router ID before the batch, then routes each record to `router.<router-id>.<signal>` in NATS
+- Restrict the ports to the ingress controller with a NetworkPolicy, so no one sends with a header of their choice
+- **JSON version**: [../config/otlp_tenant_routing.json](../config/otlp_tenant_routing.json)
+
 #### [`otlp_grpc.yaml`](examples/otlp_grpc.yaml)
 **Purpose**: OTLP over gRPC and HTTP into one stream
 - Receives OTLP/gRPC on port 4317 and OTLP/HTTP on port 4329; the example Engine lists both ports, so its Service exposes them
