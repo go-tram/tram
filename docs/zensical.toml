@@ -23,6 +23,8 @@ watch = [
   "../BENCHMARK.md",
   "../CONTRIBUTING.md",
   "../internal/adapters/k8scrd/README.md",
+  "../examples/config/README.md",
+  "../examples/k8s/README.md",
   "../cliff.toml",
 ]
 
@@ -41,6 +43,10 @@ nav = [
       { "Sources" = "components/sources.md" },
       { "Stages" = "components/stages.md" },
       { "Sinks" = "components/sinks.md" },
+  ] },
+  { "Examples" = [
+      { "Streams" = "examples/streams.md" },
+      { "Kubernetes" = "examples/kubernetes.md" },
   ] },
   { "Kubernetes" = "kubernetes.md" },
   { "Benchmarks" = "benchmarks.md" },

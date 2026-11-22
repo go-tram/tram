@@ -17,6 +17,8 @@ on:
       - BENCHMARK.md
       - CONTRIBUTING.md
       - internal/adapters/k8scrd/README.md
+      - examples/config/README.md
+      - examples/k8s/README.md
       - cliff.toml
       - .github/workflows/pages.yml
   workflow_dispatch:

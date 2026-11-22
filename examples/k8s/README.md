@@ -1,6 +1,6 @@
-# Tram Example Configurations for Kubernetes
+# TRAM Example Configurations for Kubernetes
 
-This directory contains Kubernetes YAML configurations for deploying Tram streams in Kubernetes environments. Each example has a corresponding JSON configuration in the `../config/` directory with the same base filename.
+This directory contains Kubernetes YAML configurations for deploying TRAM streams in Kubernetes environments. Each example has a corresponding JSON configuration in the `../config/` directory with the same base filename.
 
 Every example runs on the Engine `demo` from [`examples/engine.yaml`](examples/engine.yaml): its `spec.engineRefs` names it. The OTLP examples listen on ports of their own, 4318 to 4327, which the Engine declares, so all examples can run on it at once.
 
@@ -27,7 +27,7 @@ Or without Helm, with the kustomization in [`manifests/`](../../manifests/): the
 ```bash
 kubectl apply --server-side -k manifests/
 # or a release
-kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/download/v0.0.20/tram.yaml
+kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/latest/download/tram.yaml
 
 # The Engine that runs the examples
 kubectl apply -f examples/k8s/examples/engine.yaml
@@ -40,7 +40,7 @@ kubectl wait engine/demo --for=condition=Ready
 # Deploy a basic OTLP forwarding stream
 kubectl apply -f examples/k8s/examples/otlp_basic.yaml
 
-# Check the stream: labeled engine.tram.io/demo and active
+# Check the stream: labeled engine.tram.io/demo and mounted (column MOUNTED)
 kubectl get streams --show-labels
 kubectl get engines
 
@@ -57,7 +57,7 @@ kubectl apply -f examples/k8s/examples/
 
 ### Basic OTLP Examples
 
-These examples demonstrate using the OTLP sink in Tram for various use cases.
+These examples demonstrate using the OTLP sink in TRAM for various use cases.
 
 #### [`otlp_basic.yaml`](examples/otlp_basic.yaml)
 **Purpose**: Basic OTLP to OTLP forwarding
@@ -140,7 +140,7 @@ These examples demonstrate using the OTLP sink in Tram for various use cases.
 
 ### Benchmark Configurations
 
-These configurations match the exact scenarios used in the Tram benchmarks (see [BENCHMARK.md](../../BENCHMARK.md)). They demonstrate pipelines with OTLP sources, various processing stages, and broker sinks over NATS. The JetStream streams have to exist, since Tram creates none.
+These configurations match the exact scenarios used in the TRAM benchmarks (see [BENCHMARK.md](../../BENCHMARK.md)). They demonstrate pipelines with OTLP sources, various processing stages, and broker sinks over NATS. The JetStream streams have to exist, since TRAM creates none.
 
 #### [`benchmark_otlp_nats.yaml`](examples/benchmark_otlp_nats.yaml)
 **Purpose**: Exact configuration for the `otlp-nats` benchmark scenario: OTLP → NATS
@@ -183,7 +183,7 @@ spec:
 
 ### NATS Configuration
 
-For NATS-based examples, configure the NATS driver of the broker source. The JetStream stream that holds the subject has to exist; Tram creates none:
+For NATS-based examples, configure the NATS driver of the broker source. The JetStream stream that holds the subject has to exist; TRAM creates none:
 
 ```yaml
 source:
@@ -307,41 +307,25 @@ sinks:
         logs: "'output.logs'"
 ```
 
-### Multi-Region Deployment
+### Several Engines
 
-Deploy different streams for different regions:
+Which instances run a Stream is decided by `spec.engineRefs`, not by labels. To run streams in different places, e.g. per zone, node pool or team, create an Engine for each and name the Engines a Stream should run on:
 
 ```yaml
-# region-a.yaml
 apiVersion: io.tram.core/v1
 kind: Stream
 metadata:
-  name: my-stream-region-a
-  labels:
-    region: a
-# ...
-
-# region-b.yaml  
-apiVersion: io.tram.core/v1
-kind: Stream
-metadata:
-  name: my-stream-region-b
-  labels:
-    region: b
-# ...
+  name: my-stream
+spec:
+  engineRefs:
+    - name: zone-a
+    - name: zone-b
+  # ...
 ```
 
-### Canary Deployment
+### Canary
 
-Deploy a canary stream for testing new configurations:
-
-```bash
-# Main production stream
-kubectl apply -f otlp_secure.yaml
-
-# Canary stream with new configuration
-kubectl apply -f otlp_benchmark.yaml
-```
+To try a new configuration or TRAM version on part of the traffic, run it on an Engine of its own, e.g. `demo-canary` with another `spec.image`, as a Stream with another name and `engineRefs: [{name: demo-canary}]`. Then send a share of the traffic to that Engine's Service, e.g. from the load balancer or the senders, and remove the Engine or the Stream when you are done.
 
 ## Monitoring and Observability
 
@@ -419,7 +403,7 @@ sinks:
 
 ### Connection Issues
 
-Check connectivity to your endpoints. The Tram image has no shell, so use a temporary pod in the namespace of the Engine:
+Check connectivity to your endpoints. The TRAM image has no shell, so use a temporary pod in the namespace of the Engine:
 ```bash
 kubectl run curl --rm -it --restart=Never --image=curlimages/curl -- curl -v http://otel-collector:4318/v1/logs
 ```
@@ -453,8 +437,8 @@ kubectl get stream my-stream -o jsonpath='{.status}'
 1. **Use HTTPS**: Always use HTTPS in production for external endpoints
 2. **TLS Certificates**: Use proper TLS certificates, not `insecure: true`
 3. **Secrets Management**: Use Kubernetes Secrets for sensitive data
-4. **Network Policies**: Restrict access to your Tram streams
-5. **RBAC**: Use appropriate RBAC roles for the Tram operator
+4. **Network Policies**: Restrict access to your TRAM streams
+5. **RBAC**: Use appropriate RBAC roles for the TRAM operator
 
 Example NetworkPolicy:
 ```yaml

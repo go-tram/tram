@@ -52,6 +52,8 @@ TITLES = {
     "components/sources.md": "Sources",
     "components/stages.md": "Stages",
     "components/sinks.md": "Sinks",
+    "examples/streams.md": "Streams",
+    "examples/kubernetes.md": "Kubernetes",
     "kubernetes.md": "Kubernetes Operator",
     "benchmarks.md": "Benchmarks",
     "contributing.md": "Contributing",
@@ -86,6 +88,12 @@ SECTIONS = {
         "Sinks": ("components/sinks.md", UNWRAP),
         "Available Sinks": (COMPONENTS_INDEX, False),
         "Notes": (COMPONENTS_INDEX, False),
+    },
+    "examples/config/README.md": {
+        "TRAM Example Configurations": ("examples/streams.md", UNWRAP),
+    },
+    "examples/k8s/README.md": {
+        "TRAM Example Configurations for Kubernetes": ("examples/kubernetes.md", UNWRAP),
     },
     "internal/adapters/k8scrd/README.md": {
         "Kubernetes Operator": ("kubernetes.md", UNWRAP),
