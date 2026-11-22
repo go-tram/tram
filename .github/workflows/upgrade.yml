@@ -16,6 +16,7 @@ on:
       - manifests/**
       - Dockerfile
       - test/upgrade/**
+      - internal/adapters/buffer/**
       - .github/workflows/upgrade.yml
   workflow_dispatch:
     inputs:
