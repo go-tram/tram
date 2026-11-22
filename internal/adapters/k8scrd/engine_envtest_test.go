@@ -395,8 +395,8 @@ func TestManagerRunsEnginesWithItsClusterRole(t *testing.T) {
 	c := startEngineCluster(t)
 
 	for _, path := range []string{
-		filepath.Join("config", "rbac", "manager", "role.yaml"),
-		filepath.Join("config", "rbac", "role.yaml"),
+		manifest("tram-manager", "rbac", "manager", roleFile),
+		manifest("tram-manager", "rbac", "engine", roleFile),
 	} {
 		content, err := os.ReadFile(path)
 		require.NoError(t, err)

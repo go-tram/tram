@@ -7,7 +7,7 @@ Lets TRAM run streams described by `Stream` custom resources (`io.tram.core/v1`)
 1. Install the custom resource definition:
 
    ```sh
-   kubectl apply -f internal/adapters/k8scrd/config/crd/bases/io.tram.core_streams.yaml
+   kubectl apply -f manifests/crds/io.tram.core_streams.yaml
    ```
 
 2. Start TRAM with the operator enabled:
@@ -24,7 +24,7 @@ Lets TRAM run streams described by `Stream` custom resources (`io.tram.core/v1`)
    kubectl apply -f examples/k8s/examples/otlp_basic.yaml
    ```
 
-When TRAM runs in a cluster, its service account needs the permissions in `config/rbac/role.yaml` (a `ClusterRole` named `manager-role`), bound with a `ClusterRoleBinding`. With `--watch-namespace`, a `RoleBinding` to that `ClusterRole` in each watched namespace is enough. The role includes reading `Secret` and `ConfigMap` resources, for [references to secrets](#secrets) and [config maps](#config-maps).
+When TRAM runs in a cluster, its service account needs the permissions in [`manifests/tram-manager/rbac/engine/role.yaml`](../../../manifests/tram-manager/rbac/engine/role.yaml) (a `ClusterRole` named `manager-role`), bound with a `ClusterRoleBinding`. With `--watch-namespace`, a `RoleBinding` to that `ClusterRole` in each watched namespace is enough. The role includes reading `Secret` and `ConfigMap` resources, for [references to secrets](#secrets) and [config maps](#config-maps).
 
 ## Selecting Streams
 
@@ -35,7 +35,7 @@ By default every TRAM instance with the operator enabled runs every `Stream` res
 | `--watch-namespace` | Comma-separated namespaces whose `Stream` resources the instance runs, e.g. `tram-validation,tram-bridge` |
 | `--engine` | [Engine](#engines) whose `Stream` resources the instance runs: those whose `spec.engineRefs` name it. `tram manager` sets it on the instances of each Engine |
 
-- A resource that no instance selects runs nowhere, and its `status.active` is not set
+- A resource that no instance selects runs nowhere, and its `status.mounted` is not set
 - With `--engine`, the instance watches only the resources labeled `engine.tram.io/<engine>`, which `tram manager` derives from `spec.engineRefs`, and runs only those whose `spec.engineRefs` still name the engine. Removing the reference stops the stream on the engine's instances; adding it starts the stream
 - `--engine` only assigns streams to instances, it is no access control. Anyone who can create a `Stream` in a watched namespace can name any engine. Use `--watch-namespace` and RBAC to restrict who can run streams on an instance
 
@@ -108,7 +108,7 @@ spec:
   source: ...
 ```
 
-`examples/k8s/manager.yaml` deploys the manager, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
+The Helm chart [`charts/tram`](../../../charts/tram/) or the kustomization in [`manifests/`](../../../manifests/) deploys the manager with the CRDs and roles, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
 
 ### The Manager
 
@@ -122,8 +122,8 @@ spec:
 
 | Role | File | Bound to |
 |------|------|----------|
-| `tram-manager` | `config/rbac/manager/role.yaml` | The manager's service account, with a `ClusterRoleBinding` (a `RoleBinding` per namespace with `--watch-namespace`). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and `bind` on `manager-role` |
-| `manager-role` | `config/rbac/role.yaml` | Each Engine's service account, by the manager, in the Engine's namespace |
+| `tram-manager` | `manifests/tram-manager/rbac/manager/role.yaml` | The manager's service account, with a `ClusterRoleBinding` (a `RoleBinding` per namespace with `--watch-namespace`). Engines, Streams, the generated resources including StatefulSets, drain Jobs and volume claims, reading pods, leader election, and `bind` on `manager-role` |
+| `manager-role` | `manifests/tram-manager/rbac/engine/role.yaml` | Each Engine's service account, by the manager, in the Engine's namespace |
 
 Both `ClusterRole`s have to exist. With another `--engine-cluster-role`, grant the manager `bind` on that role instead.
 
@@ -136,14 +136,27 @@ The [buffer sink and source](../../../COMPONENTS.md#buffers) keep their queues o
 | What happens | What the manager does |
 |---|---|
 | `storage` is added | Starts a StatefulSet with as many instances as the Deployment, next to it; both serve meanwhile. Once the StatefulSet is ready, the Service selects only its instances (label `tram.io/storage: "true"`), then the Deployment is deleted, so no request reaches an instance without storage. `Migrating` is `True` meanwhile |
-| `storage` is removed | Waits while Streams with a buffer sink or source still run on the Engine: `Reconciled` is `False` with reason `StorageInUse`, naming them. Once none is left, starts a Deployment, and when it is ready, deletes the StatefulSet; its volumes stay and are drained |
+| `storage` is removed | Waits while Streams still write to buffers on the Engine, i.e. have a buffer sink and are not suspended: `Reconciled` is `False` with reason `StorageInUse`, naming them. Once none writes any more, starts a Deployment, and when it is ready, deletes the StatefulSet; its volumes stay and are drained through the reading Streams, see [Removing storage](#removing-storage) |
 | Scaling down, also by the autoscaler | The volume of an instance that goes stays and is drained |
 | Scaling up while a volume is drained | Stops the drain Job; the instance continues with its volume |
 | The Engine is deleted | Keeps it (finalizer `tram.io/drain-buffers`) until all its volumes are drained, after stopping its instances |
 
-A **drain Job** (`tram-drain-<random>`, labels `tram.io/drain=<engine>` and `tram.io/ordinal=<n>`) runs `tram drain` with the volume mounted: it loads the Engine's Streams and runs only those that read from a buffer, treating all others as suspended, so nothing writes to the volume any more. It ends once every queue is empty or holds only expired events, also queues no Stream reads any more, so it takes at most about the largest `max_age` after the instance stopped. Its pod is not selected by the Engine's Service or disruption budget and uses `storage.drainResources`. If a drain Job fails after its retries, the volume is kept and the Engine's `Draining` condition says so; delete the Job to try again. If a drain Job never finishes, e.g. because its volume cannot be attached, the volume is deleted once the Job is older than the largest `max_age` of the Engine's buffer sinks (at least 24 hours) plus one hour, since everything on it has expired by then.
+A **drain Job** (`tram-drain-<random>`, labels `tram.io/drain=<engine>` and `tram.io/ordinal=<n>`) runs `tram drain` with the volume mounted: it loads the Engine's Streams and runs only those that read from a buffer, also suspended ones, and treats all others as suspended, so nothing writes to the volume any more. It ends once every queue is empty or holds only expired events, also queues no Stream reads any more, so it takes at most about the largest `max_age` after the instance stopped. Its pod is not selected by the Engine's Service or disruption budget and uses `storage.drainResources`. When it is done, the volume is deleted, and the Job stays for an hour, so its logs show what it delivered (`kubectl logs -l tram.io/drain=<engine>`). Its finished pod still uses the volume, so the claim stays `Terminating` until the Job goes; if an instance needs a volume of the same name before, because storage was added back or the Engine scaled up, the manager deletes the Job, and with it its logs, right away. If a drain Job fails after its retries, the volume is kept and the Engine's `Draining` condition says so; delete the Job to try again. If a drain Job never finishes, e.g. because its volume cannot be attached, the volume is deleted once the Job is older than the largest `max_age` of the Engine's buffer sinks (at least 24 hours) plus one hour, since everything on it has expired by then.
 
 Deleting or suspending a Stream discards nothing: what its buffer sink wrote waits in the queue until a reading Stream delivers it or it expires, like messages of a broker without a consumer.
+
+#### Removing storage
+
+Removing storage ends the buffers on the Engine, so the manager asks the Streams' authors to stop writing first, and delivers what the volumes still hold through the reading Streams:
+
+1. Suspend the Streams that write to buffers (`spec.suspended: true`), or remove their buffer sinks. Their sources stop, so their clients can no longer send to them. Keep the Streams that read from the buffers
+2. Remove `spec.storage` from the Engine. The manager starts a Deployment; once it is ready, it deletes the StatefulSet
+3. A drain Job per volume runs the reading Streams against it and delivers through their sinks. A volume is deleted once its queues are empty, or their events expired because the destination stayed down
+4. Delete the reading Streams, or keep them for when the Engine gets storage again
+
+On instances without storage, Streams with a buffer sink or source do not run: they are not mounted (`status.mounted` is `false`), and report `StorageAvailable=False` per Engine.
+
+The manager records events on the Engine (`kubectl describe engine <name>`): `VolumeDraining` when a drain Job starts, `VolumeDrained` when it is done, `VolumeExpired` when a volume was deleted after the drain deadline, and `VolumeDiscarded` when the discard annotation deleted it, and `VolumeReleased` when it deleted a kept drain Job early so an instance gets its volume.
 
 The Engine's status shows the workload (`status.workload`), the number of volumes (`status.volumes`) and of volumes being drained (`status.drainingVolumes`), and the conditions `Migrating` and `Draining`.
 
@@ -206,7 +219,7 @@ Any value in a component's `spec` can come from a `Secret` in the namespace of t
 - The value replaces the whole object as a string, so a header needs its complete value in the secret, e.g. `Bearer ...`
 - The stream runs with the values, but TRAM shows only the references: the API and the files of the file sync never contain a secret's value. A component may still name a value in an error it logs, e.g. an invalid URL, so keep secrets out of values that components check, like URLs
 - Changing a secret restarts the streams that refer to it with the new value. TRAM watches only the metadata of secrets and reads a value when it applies a stream, so values are not kept in its cache
-- A missing secret or key keeps the stream from starting and sets `status.active` to `false`; the stream starts once the secret is there. A malformed reference, e.g. without `key`, fails for good until the resource is fixed
+- A missing secret or key keeps the stream from starting and sets `status.mounted` to `false`; the stream starts once the secret is there. A malformed reference, e.g. without `key`, fails for good until the resource is fixed
 - References work only in `Stream` resources. Streams from the API or the file sync are passed on unchanged, so they cannot read secrets or config maps
 
 ## Config Maps
@@ -242,7 +255,7 @@ data:
 - The selector takes `matchLabels` and `matchExpressions`, at least one of them. The value is an object with the keys and values of `data` of every matching config map; `binaryData` is ignored
 - Split a table over as many config maps as needed, e.g. one per router. A key may be in several of them only with the same value. Different values are a conflict: the error names the key and both config maps
 - Creating, changing or deleting a matching config map, or changing labels so that it starts or stops matching, applies the new table. Like with a changed spec, only stages and sinks are replaced; the source keeps running. As with secrets, TRAM watches only the metadata of config maps and reads their data when it applies a stream
-- No matching config map, or a conflict, keeps the stream from starting and sets `status.active` to `false`. A stream that already runs keeps running with its last table until the config maps are fixed. A malformed selector, e.g. an empty one, which would match every config map of the namespace, fails for good until the resource is fixed
+- No matching config map, or a conflict, keeps the stream from starting and sets `status.mounted` to `false`. A stream that already runs keeps running with its last table until the config maps are fixed. A malformed selector, e.g. an empty one, which would match every config map of the namespace, fails for good until the resource is fixed
 - The merged table exists only in TRAM's memory: it is never written to a Kubernetes object, so only each config map on its own is bound by the size limit. The API and the file sync show the selector, not the table
 - Every TRAM instance that runs the stream holds the whole table, and every reconcile reads all matching config maps. Keep tables of hundreds of thousands of entries in mind when sizing memory
 
@@ -250,7 +263,7 @@ data:
 
 - **Names:** a resource runs as the TRAM stream `<namespace>.<name>`, e.g. `default.test-stream`, so resources with the same name in different namespaces do not collide. The stream can be read through the API under that name
 - **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it
-- **Status:** `status.active` is `true` once the stream runs, and `false` if building it failed, e.g. because of an invalid component spec. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; `status.active` stays `true` meanwhile
+- **Status:** `status.mounted` is `true` once an instance loaded the stream, also while it is suspended (`spec.suspended`, which defaults to `false`), and `false` if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; `status.mounted` stays `true` meanwhile. `kubectl get streams` shows both as the columns `Mounted` and `Suspended`. Until version 0.0.19 the field was called `status.active`
 - **Deletion:** deleting the resource deletes the stream
 - **Scope:** the operator watches `Stream` resources in all namespaces, or in the namespaces from `--watch-namespace`, and with `--engine` only those whose `spec.engineRefs` name the engine; see [Selecting Streams](#selecting-streams). There is no leader election, so every TRAM instance with the operator enabled runs every `Stream` resource it selects
 - **Access:** creating a `Stream` lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the `Stream`'s namespace and send the value along, e.g. as a header to their own URL. Grant `create` on `streams.io.tram.core` only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see [Security](../../../README.md#-security)
@@ -266,12 +279,10 @@ data:
 | `internal/controller/stream_controller.go` | Reconciliation and the RBAC markers |
 | `api/v1alpha1/engine_types.go` | The `Engine` type and its kubebuilder markers |
 | `internal/engines/` | The controllers of `tram manager`: `engine_controller.go` runs Engines, `resources.go` builds their resources, `stream_controller.go` derives engine labels and `status.engines`; with their RBAC markers |
-| `config/crd/bases/`, `config/rbac/` | Generated CRD and RBAC manifests |
-| `config/rbac/manager/` | Generated RBAC of `tram manager` |
 | `operator.go` | Starts the controller manager inside TRAM |
 | `manager.go` | Starts the controller manager of `tram manager`, with leader election; caches only the resources it generates |
 
-After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0:
+After changing types or markers, regenerate the deepcopy code and the manifests with [controller-gen](https://book.kubebuilder.io/reference/controller-gen) v0.22.0. They write the CRDs to `manifests/crds/` and the roles to `manifests/tram-manager/rbac/` at the repository root, and the same files to the templates of the Helm chart `charts/tram` (`templates/crds/` and `templates/tram-manager/rbac/`):
 
 ```sh
 go generate ./internal/adapters/k8scrd/...

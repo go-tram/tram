@@ -35,6 +35,12 @@ const (
 	operatorName = "tram-operator"
 )
 
+// manifest returns the path of a file or directory of manifests/ in the
+// repository, where controller-gen writes the CRDs and roles.
+func manifest(parts ...string) string {
+	return filepath.Join(append([]string{"..", "..", "..", "manifests"}, parts...)...)
+}
+
 const (
 	eventuallyTimeout = 15 * time.Second
 	pollInterval      = 50 * time.Millisecond
@@ -53,7 +59,7 @@ func startCluster(t *testing.T) *cluster {
 	}
 
 	env := &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("config", "crd", "bases")},
+		CRDDirectoryPaths:     []string{manifest("crds")},
 		ErrorIfCRDPathMissing: true,
 	}
 	cfg, err := env.Start()
@@ -124,7 +130,7 @@ func (c *cluster) requireActive(t *testing.T, namespace, name string) {
 		var stream tramv1.Stream
 		key := types.NamespacedName{Namespace: namespace, Name: name}
 		assert.NoError(collect, c.admin.Get(t.Context(), key, &stream))
-		assert.True(collect, stream.Status.Active)
+		assert.True(collect, stream.Status.Mounted)
 	}, eventuallyTimeout, pollInterval)
 }
 
@@ -254,7 +260,7 @@ func TestOperatorNeedsOnlyRoleBindingInWatchedNamespace(t *testing.T) {
 	t.Parallel()
 	c := startCluster(t)
 
-	content, err := os.ReadFile(filepath.Join("config", "rbac", roleFile))
+	content, err := os.ReadFile(manifest("tram-manager", "rbac", "engine", roleFile))
 	require.NoError(t, err)
 	var role rbacv1.ClusterRole
 	require.NoError(t, yaml.Unmarshal(content, &role))
@@ -286,7 +292,7 @@ func TestOperatorAppliesSecrets(t *testing.T) {
 	t.Parallel()
 	c := startCluster(t)
 
-	content, err := os.ReadFile(filepath.Join("config", "rbac", roleFile))
+	content, err := os.ReadFile(manifest("tram-manager", "rbac", "engine", roleFile))
 	require.NoError(t, err)
 	var role rbacv1.ClusterRole
 	require.NoError(t, yaml.Unmarshal(content, &role))
@@ -361,7 +367,7 @@ func TestOperatorAppliesConfigMaps(t *testing.T) {
 	t.Parallel()
 	c := startCluster(t)
 
-	content, err := os.ReadFile(filepath.Join("config", "rbac", roleFile))
+	content, err := os.ReadFile(manifest("tram-manager", "rbac", "engine", roleFile))
 	require.NoError(t, err)
 	var role rbacv1.ClusterRole
 	require.NoError(t, yaml.Unmarshal(content, &role))
@@ -431,7 +437,7 @@ func TestOperatorAppliesConfigMaps(t *testing.T) {
 	require.NoError(t, c.admin.Create(t.Context(), conflict))
 	require.Eventually(t, func() bool {
 		var s tramv1.Stream
-		return c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: "s"}, &s) == nil && !s.Status.Active
+		return c.admin.Get(t.Context(), types.NamespacedName{Namespace: ns, Name: "s"}, &s) == nil && !s.Status.Mounted
 	}, eventuallyTimeout, pollInterval, "conflicting config maps deactivate the stream")
 	assert.Equal(t, map[string]any{"t1": "r3"}, core.resolvedTable(ns+".s"), "the stream keeps its last table")
 

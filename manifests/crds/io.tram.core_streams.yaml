@@ -15,8 +15,8 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.active
-      name: Active
+    - jsonPath: .status.mounted
+      name: Mounted
       type: boolean
     - description: The source does not run; no ports are opened and no consumers are
         attached
@@ -164,6 +164,7 @@ spec:
                   type: object
                 type: array
               suspended:
+                default: false
                 description: |-
                   Suspended keeps the stream defined but does not run its source: no
                   ports are opened and no consumers are attached. Used to pause a
@@ -175,9 +176,6 @@ spec:
             type: object
           status:
             properties:
-              active:
-                description: Active tells whether the stream runs.
-                type: boolean
               engines:
                 description: |-
                   Engines reports, per entry of spec.engineRefs, whether the Engine
@@ -256,6 +254,14 @@ spec:
                 x-kubernetes-list-map-keys:
                 - name
                 x-kubernetes-list-type: map
+              mounted:
+                default: false
+                description: |-
+                  Mounted tells whether an instance loaded the stream: it is built and
+                  runs, or it is suspended. False if it could not be built, e.g. because
+                  a secret is missing, or if the instance cannot run it, e.g. a stream
+                  with a buffer on an Engine without storage.
+                type: boolean
             type: object
         type: object
     served: true

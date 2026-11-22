@@ -1,5 +1,6 @@
-# Validates pull requests and pushes to main with golangci-lint (`task ci:lint`)
-# and unit and end-to-end tests (`task ci:test`), as two parallel jobs.
+# Validates pull requests and pushes to main with golangci-lint (`task ci:lint`),
+# unit and end-to-end tests (`task ci:test`) and the Helm chart
+# (`task ci:chart`), as parallel jobs.
 
 name: CI
 
@@ -22,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [lint, test]
+        target: [lint, test, chart]
     env:
       TASK_VERSION: v3.54.0
     steps:

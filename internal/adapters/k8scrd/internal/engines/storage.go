@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -45,6 +46,13 @@ const (
 	// the instance of a volume is gone.
 	waitForPod = 10 * time.Second
 
+	// drainJobTTL is how long a finished drain Job is kept with its logs.
+	drainJobTTL = time.Hour
+	// ClaimUIDAnnotation names the volume claim a drain Job drains, so a Job
+	// kept for its logs is not mistaken for the Job of a later claim with the
+	// same name.
+	ClaimUIDAnnotation = "tram.io/claim-uid"
+
 	defaultDrainCPU    = "50m"
 	defaultDrainMemory = "128Mi"
 )
@@ -54,14 +62,18 @@ type engineState struct {
 	deployment  *appsv1.Deployment
 	statefulSet *appsv1.StatefulSet
 	claims      []corev1.PersistentVolumeClaim
-	// jobs are the drain Jobs by the ordinal of their volume.
-	jobs    map[int]*batchv1.Job
+	// deletedClaims are the volume claims being deleted; the finished pod of
+	// a drain Job kept for its logs holds its claim until the Job goes.
+	deletedClaims []corev1.PersistentVolumeClaim
+	// jobs are the drain Jobs by the ordinal of their volume, also finished
+	// ones kept for their logs.
+	jobs    map[int][]*batchv1.Job
 	streams []tramv1.Stream
 }
 
 // load reads the Engine's resources the manager controls.
 func (r *EngineReconciler) load(ctx context.Context, engine *tramv1alpha1.Engine) (*engineState, error) {
-	state := &engineState{jobs: map[int]*batchv1.Job{}}
+	state := &engineState{jobs: map[int][]*batchv1.Job{}}
 	key := types.NamespacedName{Namespace: engine.Namespace, Name: ResourceName(engine.Name)}
 
 	var deployment appsv1.Deployment
@@ -85,8 +97,13 @@ func (r *EngineReconciler) load(ctx context.Context, engine *tramv1alpha1.Engine
 		return nil, fmt.Errorf("list volume claims: %w", err)
 	}
 	for _, claim := range claims.Items {
-		if _, ok := claimOrdinal(engine.Name, claim.Name); ok && claim.DeletionTimestamp.IsZero() {
+		if _, ok := claimOrdinal(engine.Name, claim.Name); !ok {
+			continue
+		}
+		if claim.DeletionTimestamp.IsZero() {
 			state.claims = append(state.claims, claim)
+		} else {
+			state.deletedClaims = append(state.deletedClaims, claim)
 		}
 	}
 
@@ -101,7 +118,7 @@ func (r *EngineReconciler) load(ctx context.Context, engine *tramv1alpha1.Engine
 		if err != nil || !metav1.IsControlledBy(job, engine) || !job.DeletionTimestamp.IsZero() {
 			continue
 		}
-		state.jobs[ordinal] = job
+		state.jobs[ordinal] = append(state.jobs[ordinal], job)
 	}
 
 	var streams tramv1.StreamList
@@ -192,12 +209,13 @@ func (w *workload) replicasApply() runtime.ApplyConfiguration {
 		WithSpec(appsv1ac.StatefulSetSpec().WithReplicas(replicas))
 }
 
-// streamsNeedingStorage returns the names of the Engine's Streams with a
-// buffer sink or source.
-func (s *engineState) streamsNeedingStorage() []string {
+// activeBufferWriters returns the names of the Engine's Streams that are not
+// suspended and write to a buffer. Reading Streams do not count: drain Jobs
+// deliver what the volumes hold through them.
+func (s *engineState) activeBufferWriters() []string {
 	var names []string
 	for i := range s.streams {
-		if usesBuffer(&s.streams[i]) {
+		if writesBuffer(&s.streams[i]) {
 			names = append(names, s.streams[i].Name)
 		}
 	}
@@ -271,62 +289,118 @@ func (r *EngineReconciler) drain(
 	state *engineState,
 	deleting bool,
 ) (drainResult, error) {
-	var result drainResult
+	pass := drainPass{
+		engine:   engine,
+		state:    state,
+		deleting: deleting,
+		discard:  engine.Annotations[tramv1alpha1.DiscardBuffersAnnotation] == labelTrue,
+		deadline: maxBufferAge(state.streams) + drainDeadlineMargin,
+		log:      logf.FromContext(ctx).WithValues("engine", client.ObjectKeyFromObject(engine)),
+	}
 	var errs []error
-	discard := engine.Annotations[tramv1alpha1.DiscardBuffersAnnotation] == labelTrue
-	deadline := maxBufferAge(state.streams) + drainDeadlineMargin
-	log := logf.FromContext(ctx).WithValues("engine", client.ObjectKeyFromObject(engine))
-
 	for i := range state.claims {
-		claim := &state.claims[i]
-		ordinal, _ := claimOrdinal(engine.Name, claim.Name)
-		job := state.jobs[ordinal]
-
-		if !deleting && state.ownsVolume(engine, ordinal) {
-			if job != nil {
-				// Scaled up again: the instance continues with its volume.
-				errs = append(errs, r.deleteJob(ctx, job))
-			}
-			continue
-		}
-		if discard {
-			log.Info("Discarding volume as the Engine asks", "claim", claim.Name)
-			errs = append(errs, r.deleteVolume(ctx, claim, job))
-			continue
-		}
-
-		result.draining++
-		gone, err := r.instanceGone(ctx, engine, ordinal)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		if !gone {
-			result.requeueAfter(waitForPod)
-			continue
-		}
-		if job == nil {
-			errs = append(errs, r.createDrainJob(ctx, engine, ordinal))
-			continue
-		}
-		switch {
-		case jobCondition(job, batchv1.JobComplete):
-			log.Info("Volume drained", "claim", claim.Name)
-			result.draining--
-			errs = append(errs, r.deleteVolume(ctx, claim, job))
-		case time.Since(job.CreationTimestamp.Time) >= deadline:
-			log.Info("Deleting volume whose buffer files have expired without being drained",
-				"claim", claim.Name, "deadline", deadline)
-			result.draining--
-			errs = append(errs, r.deleteVolume(ctx, claim, job))
-		default:
-			if jobCondition(job, batchv1.JobFailed) {
-				result.failed++
-			}
-			result.requeueAfter(deadline - time.Since(job.CreationTimestamp.Time))
+		errs = append(errs, r.drainVolume(ctx, &pass, &state.claims[i]))
+	}
+	if !deleting {
+		for i := range state.deletedClaims {
+			errs = append(errs, r.releaseClaim(ctx, engine, state, &state.deletedClaims[i]))
 		}
 	}
-	return result, errors.Join(errs...)
+	return pass.result, errors.Join(errs...)
+}
+
+// releaseClaim deletes the drain Job kept for the logs of a deleted volume
+// once an instance needs a volume of the same name again, after storage was
+// added back or the Engine scaled up: the Job's finished pod keeps the old
+// claim from going, and with it the instance from starting, until the Job's
+// time to live ends.
+func (r *EngineReconciler) releaseClaim(
+	ctx context.Context,
+	engine *tramv1alpha1.Engine,
+	state *engineState,
+	claim *corev1.PersistentVolumeClaim,
+) error {
+	ordinal, _ := claimOrdinal(engine.Name, claim.Name)
+	job := state.drainJobFor(ordinal, claim)
+	if job == nil || !state.ownsVolume(engine, ordinal) {
+		return nil
+	}
+	logf.FromContext(ctx).Info("Deleting drain Job that holds a deleted volume an instance needs again",
+		"engine", client.ObjectKeyFromObject(engine), "claim", claim.Name, "job", job.Name)
+	r.event(engine, corev1.EventTypeNormal, "VolumeReleased", "DeleteDrainJob",
+		"Deleted drain Job %s early, with its logs: its pod held volume %s, which instance %d needs again",
+		job.Name, claim.Name, ordinal)
+	return r.deleteJob(ctx, job)
+}
+
+// drainPass is one round of drain over an Engine's volumes.
+type drainPass struct {
+	engine   *tramv1alpha1.Engine
+	state    *engineState
+	deleting bool
+	discard  bool
+	deadline time.Duration
+	log      logr.Logger
+	result   drainResult
+}
+
+// drainVolume takes the next step for one volume: hand it back to its
+// instance, discard it, start its drain Job, or delete it once drained or
+// expired.
+func (r *EngineReconciler) drainVolume(
+	ctx context.Context,
+	pass *drainPass,
+	claim *corev1.PersistentVolumeClaim,
+) error {
+	engine := pass.engine
+	ordinal, _ := claimOrdinal(engine.Name, claim.Name)
+	job := pass.state.drainJobFor(ordinal, claim)
+
+	if !pass.deleting && pass.state.ownsVolume(engine, ordinal) {
+		if job != nil && !jobFinished(job) {
+			// Scaled up again: the instance continues with its volume.
+			return r.deleteJob(ctx, job)
+		}
+		return nil
+	}
+	if pass.discard {
+		pass.log.Info("Discarding volume as the Engine asks", "claim", claim.Name)
+		r.event(engine, corev1.EventTypeWarning, "VolumeDiscarded", "DeleteVolume",
+			"Deleted volume %s without draining it, as the Engine's %s annotation asks",
+			claim.Name, tramv1alpha1.DiscardBuffersAnnotation)
+		return r.deleteClaim(ctx, claim)
+	}
+
+	pass.result.draining++
+	gone, err := r.instanceGone(ctx, engine, ordinal)
+	if err != nil || !gone {
+		pass.result.requeueAfter(waitForPod)
+		return err
+	}
+	if job == nil {
+		return r.createDrainJob(ctx, engine, ordinal, claim)
+	}
+	age := time.Since(job.CreationTimestamp.Time)
+	switch {
+	case jobCondition(job, batchv1.JobComplete):
+		pass.log.Info("Volume drained", "claim", claim.Name, "job", job.Name)
+		r.event(engine, corev1.EventTypeNormal, "VolumeDrained", "DeleteVolume",
+			"Volume %s is drained; its Job %s is kept for %s with its logs", claim.Name, job.Name, drainJobTTL)
+		pass.result.draining--
+		return r.deleteClaim(ctx, claim)
+	case age >= pass.deadline:
+		pass.log.Info("Deleting volume whose buffer files have expired without being drained",
+			"claim", claim.Name, "job", job.Name, "deadline", pass.deadline)
+		r.event(engine, corev1.EventTypeWarning, "VolumeExpired", "DeleteVolume",
+			"Deleted volume %s: its drain Job %s did not finish within %s, so everything on it has expired",
+			claim.Name, job.Name, pass.deadline)
+		pass.result.draining--
+		return r.deleteClaim(ctx, claim)
+	case jobCondition(job, batchv1.JobFailed):
+		pass.result.failed++
+	}
+	pass.result.requeueAfter(pass.deadline - age)
+	return nil
 }
 
 // ownsVolume reports whether an instance runs with the volume of ordinal.
@@ -359,17 +433,52 @@ func (r *EngineReconciler) instanceGone(ctx context.Context, engine *tramv1alpha
 	return false, nil
 }
 
-func (r *EngineReconciler) createDrainJob(ctx context.Context, engine *tramv1alpha1.Engine, ordinal int) error {
+func (r *EngineReconciler) createDrainJob(
+	ctx context.Context,
+	engine *tramv1alpha1.Engine,
+	ordinal int,
+	claim *corev1.PersistentVolumeClaim,
+) error {
 	job, err := drainJobOf(engine, r.Image, ordinal, r.Scheme())
 	if err != nil {
 		return err
 	}
+	job.Annotations = map[string]string{ClaimUIDAnnotation: string(claim.UID)}
 	if err = r.Create(ctx, job); err != nil {
 		return fmt.Errorf("create drain job: %w", err)
 	}
 	logf.FromContext(ctx).Info("Draining volume without an instance",
-		"engine", client.ObjectKeyFromObject(engine), "claim", ClaimName(engine.Name, ordinal), "job", job.Name)
+		"engine", client.ObjectKeyFromObject(engine), "claim", claim.Name, "job", job.Name)
+	r.event(engine, corev1.EventTypeNormal, "VolumeDraining", "Drain",
+		"Volume %s has no instance; Job %s delivers what its buffers hold", claim.Name, job.Name)
 	return nil
+}
+
+// drainJobFor returns the drain Job of the claim of ordinal, nil if it has
+// none. Jobs of an earlier claim of the same ordinal, kept for their logs,
+// do not count.
+func (s *engineState) drainJobFor(ordinal int, claim *corev1.PersistentVolumeClaim) *batchv1.Job {
+	for _, job := range s.jobs[ordinal] {
+		if job.Annotations[ClaimUIDAnnotation] == string(claim.UID) {
+			return job
+		}
+	}
+	return nil
+}
+
+func jobFinished(job *batchv1.Job) bool {
+	return jobCondition(job, batchv1.JobComplete) || jobCondition(job, batchv1.JobFailed)
+}
+
+// event records an event on the Engine, if the reconciler has a recorder.
+func (r *EngineReconciler) event(
+	engine *tramv1alpha1.Engine,
+	eventType, reason, action, note string,
+	args ...any,
+) {
+	if r.Recorder != nil {
+		r.Recorder.Eventf(engine, nil, eventType, reason, action, note, args...)
+	}
 }
 
 func (r *EngineReconciler) deleteJob(ctx context.Context, job *batchv1.Job) error {
@@ -380,18 +489,11 @@ func (r *EngineReconciler) deleteJob(ctx context.Context, job *batchv1.Job) erro
 	return nil
 }
 
-// deleteVolume deletes a drained volume, and its drain Job first, so the
-// volume is no longer in use.
-func (r *EngineReconciler) deleteVolume(
-	ctx context.Context,
-	claim *corev1.PersistentVolumeClaim,
-	job *batchv1.Job,
-) error {
-	if job != nil {
-		if err := r.deleteJob(ctx, job); err != nil {
-			return err
-		}
-	}
+// deleteClaim deletes a drained, expired or discarded volume. Its drain Job,
+// if any, stays for its logs until its time to live ends. Its finished pod
+// still holds the claim, so the volume goes with the Job, or earlier once an
+// instance needs it again; see releaseClaim.
+func (r *EngineReconciler) deleteClaim(ctx context.Context, claim *corev1.PersistentVolumeClaim) error {
 	if err := r.Delete(ctx, claim); client.IgnoreNotFound(err) != nil {
 		return fmt.Errorf("delete volume claim: %w", err)
 	}
@@ -529,6 +631,8 @@ func drainJobOf(
 		Labels:       labels,
 		Spec: batchv1.JobSpec{
 			BackoffLimit: new(int32(drainBackoffLimit)),
+			// Kept after it finished, so its logs show what it delivered.
+			TTLSecondsAfterFinished: new(int32(drainJobTTL / time.Second)),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{Labels: labels},
 				Spec: corev1.PodSpec{

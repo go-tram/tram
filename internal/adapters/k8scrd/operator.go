@@ -4,9 +4,14 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
-//go:generate controller-gen crd paths="./..." output:crd:dir=config/crd/bases
-//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=config/rbac
-//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=config/rbac/manager
+// The CRDs and roles go to manifests/ of the repository and, the same, to the
+// templates of the Helm chart in charts/tram.
+//go:generate controller-gen crd paths="./..." output:crd:dir=../../../manifests/crds
+//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../manifests/tram-manager/rbac/engine
+//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../manifests/tram-manager/rbac/manager
+//go:generate controller-gen crd paths="./..." output:crd:dir=../../../charts/tram/files/crds
+//go:generate controller-gen rbac:roleName=manager-role paths="./internal/controller/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/engine
+//go:generate controller-gen rbac:roleName=tram-manager paths="./internal/engines/..." output:rbac:dir=../../../charts/tram/templates/tram-manager/rbac/manager
 
 package k8scrd
 
@@ -45,6 +50,9 @@ type Options struct {
 	Kubeconfig string
 	Namespaces []string
 	Engine     string
+	// HasDataDir tells whether the instance has a data directory for
+	// buffers; without one, Streams with a buffer are not run.
+	HasDataDir bool
 	// Drain runs only the Streams that read from a buffer, for `tram drain`.
 	Drain              bool
 	skipNameValidation bool
@@ -105,6 +113,7 @@ func New(core ports.Core, opts Options, logger *slog.Logger) (*Operator, error) 
 		Core:       core,
 		References: mgr.GetAPIReader(),
 		Engine:     opts.Engine,
+		HasDataDir: opts.HasDataDir,
 		Drain:      opts.Drain,
 	}).SetupWithManager(mgr); err != nil {
 		return nil, fmt.Errorf("set up controller: %w", err)

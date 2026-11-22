@@ -455,13 +455,21 @@ Every `<name>.json` file in the directory describes one stream, in the same form
 ### Kubernetes Operator
 
 ```bash
-kubectl apply -f internal/adapters/k8scrd/config/crd/bases/io.tram.core_streams.yaml
+kubectl apply -f manifests/crds/io.tram.core_streams.yaml
 ./tram server --enable-k8s-operator
 ```
 
 The operator watches `Stream` resources (`io.tram.core/v1`) and runs each as a stream named `<namespace>.<name>`. It uses the in-cluster configuration or the current kubeconfig context; `--kubeconfig` selects another file. By default every TRAM instance runs every `Stream` resource in the cluster, including those that name engines. With `--watch-namespace` limits an instance to some namespaces, and `--engine` to the `Stream` resources of one Engine. See [the operator documentation](internal/adapters/k8scrd/README.md) for details.
 
-Alternatively, `tram manager` runs `Engine` resources (`io.tram.core/v1alpha1`) as Deployments of TRAM instances, and a `Stream` names the engines that run it in `spec.engineRefs`; see [Engines](internal/adapters/k8scrd/README.md#engines) and `examples/k8s/`.
+Alternatively, `tram manager` runs `Engine` resources (`io.tram.core/v1alpha1`) as Deployments of TRAM instances, and a `Stream` names the engines that run it in `spec.engineRefs`; see [Engines](internal/adapters/k8scrd/README.md#engines) and `examples/k8s/`. The Helm chart [`charts/tram`](charts/tram/), or the kustomization in [`manifests/`](manifests/), installs the manager with the CRDs:
+
+```bash
+helm install tram oci://ghcr.io/go-tram/charts/tram --version 0.0.20 --namespace tram-system --create-namespace
+# or
+kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/download/v0.0.20/tram.yaml
+```
+
+Every release publishes the chart and the manifests with its version; from the repository, `charts/tram` and `kubectl apply --server-side -k manifests/` deploy the image `latest`.
 
 ---
 

@@ -37,7 +37,7 @@ const (
 	// for.
 	leaderElectionID = "manager.tram.io"
 	// DefaultEngineClusterRole is the role of a Tram instance with the
-	// operator enabled, from config/rbac/role.yaml.
+	// operator enabled, from manifests/tram-manager/rbac/engine/role.yaml.
 	DefaultEngineClusterRole = "manager-role"
 )
 
@@ -132,6 +132,7 @@ func NewManager(opts ManagerOptions, logger *slog.Logger) (*Manager, error) {
 		Client:      mgr.GetClient(),
 		Image:       opts.EngineImage,
 		ClusterRole: clusterRole,
+		Recorder:    mgr.GetEventRecorder(engines.FieldOwner),
 	}).SetupWithManager(mgr); err != nil {
 		return nil, fmt.Errorf("set up engine controller: %w", err)
 	}
