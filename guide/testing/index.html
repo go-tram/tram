@@ -12,15 +12,15 @@
       
       
       
-        <link rel="canonical" href="https://gotram.dev/guide/configuration/">
+        <link rel="canonical" href="https://gotram.dev/guide/testing/">
       
       
       
       
-        <link rel="prev" href="../api/">
+        <link rel="prev" href="../streams/">
       
       
-        <link rel="next" href="../metrics/">
+        <link rel="next" href="../sending-data/">
       
       
         
@@ -31,7 +31,7 @@
     
     
       
-        <title>Configuration Sources - TRAM</title>
+        <title>Testing Streams - TRAM</title>
       
     
     
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration Sources
+              Testing Streams
             
           </span>
         </div>
@@ -300,15 +300,17 @@
       
         
       
+        
+      
     
     
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/streams/" class="md-tabs__link">
+        <a href="../../deployment/container/" class="md-tabs__link">
           
   
-  Examples
+  Deployment
 
         </a>
       </li>
@@ -321,14 +323,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../kubernetes/" class="md-tabs__link">
+    
+      
+      
         
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/metrics/" class="md-tabs__link">
+          
   
-  Kubernetes
+  Operations
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -337,46 +351,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../benchmarks/" class="md-tabs__link">
-        
-  
-  Benchmarks
-
-      </a>
-    </li>
-  
-
+    
+      
       
         
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../releases/" class="md-tabs__link">
-        
-  
-  Releases
-
-      </a>
-    </li>
-  
-
       
         
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/contributing/" class="md-tabs__link">
+          
   
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../contributing/" class="md-tabs__link">
-        
-  
-  Contributing
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -576,33 +570,6 @@
                   
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  HTTP API
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
     
   
   
@@ -622,7 +589,7 @@
   <span class="md-ellipsis">
     
   
-  Configuration Sources
+  Testing Streams
 
     
   </span>
@@ -639,7 +606,7 @@
   <span class="md-ellipsis">
     
   
-  Configuration Sources
+  Testing Streams
 
     
   </span>
@@ -665,10 +632,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#file-sync" class="md-nav__link">
+  <a href="#test-cases" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        File Sync
+        Test Cases
       </span>
     </span>
   </a>
@@ -676,10 +643,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kubernetes-operator" class="md-nav__link">
+  <a href="#running-tests-in-ci" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Kubernetes Operator
+        Running Tests in CI
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dry-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dry Run
       </span>
     </span>
   </a>
@@ -702,14 +680,41 @@
   
   
     <li class="md-nav__item">
-      <a href="../metrics/" class="md-nav__link">
+      <a href="../sending-data/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-  Metrics
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
 
     
   </span>
@@ -929,6 +934,8 @@
       
         
       
+        
+      
     
     
     
@@ -950,7 +957,7 @@
   <span class="md-ellipsis">
     
   
-  Examples
+  Deployment
 
     
   </span>
@@ -966,6 +973,279 @@
               <span class="md-nav__icon md-icon"></span>
               
   
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
   Examples
 
             </label>
@@ -978,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/streams/" class="md-nav__link">
+      <a href="../../deployment/examples/streams/" class="md-nav__link">
         
   
   
@@ -1005,7 +1285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/kubernetes/" class="md-nav__link">
+      <a href="../../deployment/examples/kubernetes/" class="md-nav__link">
         
   
   
@@ -1013,6 +1293,159 @@
     
   
   Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
 
     
   </span>
@@ -1039,15 +1472,70 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../kubernetes/" class="md-nav__link">
+      <a href="../../development/contributing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-  Kubernetes
+  Contributing
 
     
   </span>
@@ -1058,41 +1546,16 @@
     </li>
   
 
-    
-      
-      
+                
+              
+                
+                  
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Benchmarks
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../releases/" class="md-nav__link">
+      <a href="../../development/releases/" class="md-nav__link">
         
   
   
@@ -1110,29 +1573,12 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+                
+              
+            </ul>
+          </nav>
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Contributing
-
-    
-  </span>
-  
-  
-
-      </a>
+      
     </li>
   
 
@@ -1178,10 +1624,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#file-sync" class="md-nav__link">
+  <a href="#test-cases" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        File Sync
+        Test Cases
       </span>
     </span>
   </a>
@@ -1189,10 +1635,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kubernetes-operator" class="md-nav__link">
+  <a href="#running-tests-in-ci" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Kubernetes Operator
+        Running Tests in CI
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dry-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dry Run
       </span>
     </span>
   </a>
@@ -1219,29 +1676,63 @@
   
 
 
-<h1 id="configuration-sources">Configuration Sources<a class="headerlink" href="#configuration-sources" title="Permanent link">&para;</a></h1>
-<p>Besides the API, streams can be managed from two further sources. All of them change the same set of streams.</p>
-<h2 id="file-sync">File Sync<a class="headerlink" href="#file-sync" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./tram<span class="w"> </span>server<span class="w"> </span>--enable-file-sync<span class="w"> </span>--config-dir<span class="w"> </span>config
+<h1 id="testing-streams">Testing Streams<a class="headerlink" href="#testing-streams" title="Permanent link">&para;</a></h1>
+<p>There are two ways to check a stream before it runs for real: <strong>test cases</strong> run its stages against sample events, locally or in CI, and a <strong>dry run</strong> asks a running instance what applying a change would do.</p>
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="Permanent link">&para;</a></h2>
+<p>A stream can carry test cases in <code>tests</code>. They are never run by loading the stream; only an explicit test run executes them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tram<span class="w"> </span><span class="nb">test</span><span class="w"> </span>stream.json<span class="w"> </span><span class="o">[</span>--secrets<span class="w"> </span>secrets.json<span class="o">]</span>
 </code></pre></div>
-<p>Every <code>&lt;name&gt;.json</code> file in the directory describes one stream, in the same format as the API request body (<code>{"stream": {...}}</code>); see <code>examples/config/</code> for examples. The file name, without <code>.json</code>, is the stream name. The sync works in both directions:</p>
+<p>The file holds either a bare stream object or a file sync file that wraps it in <code>{"stream": {...}}</code>, like the <a href="../../deployment/examples/tests/">examples with test cases</a>; see <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/tests/otlp_with_filters.json"><code>otlp_with_filters.json</code></a> for a stream with test cases.</p>
+<pre class="mermaid"><code>flowchart LR
+    inputs[/"tests[].input"/] --&gt; testsource(["test source&lt;br/&gt;replaces the source"])
+    subgraph tree["the stream's tree, in memory"]
+        testsource --&gt; stages["the real stages"]
+        stages --&gt; capture(["capture sinks&lt;br/&gt;replace the sinks"])
+    end
+    capture --&gt; compare{"compare with&lt;br/&gt;tests[].expect"}
+    compare --&gt; result(["PASS or FAIL,&lt;br/&gt;exit code 0 or 1"])</code></pre>
+<p>The stream is loaded into its own in-memory tree: the source is replaced by a test source that emits the test inputs, and every sink by a capture sink, so no external system is contacted. The stages are the real stages and process the events.</p>
+<p>Each test has a <code>name</code>, an <code>input</code> event and the expected outcome per sink in <code>expect</code>:</p>
 <ul>
-<li>Adding, changing or deleting a file creates, updates or deletes the stream</li>
-<li>Streams created or changed through the API or the Kubernetes operator are written to files (new files are readable only by the owner, mode <code>0600</code>), and deleted streams have their file removed</li>
-<li>Streams without a file are deleted when the directory is synced</li>
-<li>A stream that cannot be created or updated, e.g. because NATS is not reachable yet when TRAM starts, is tried again without its file changing: after 1 second, then with a delay that doubles up to 30 seconds, until every stream is applied. Changing a file starts over with the shortest delay. A stream that keeps failing is logged once a minute; one that is applied after failing is logged once more. A file that is invalid for good is tried again as well, so fix or remove it</li>
+<li><code>"out": &lt;event&gt;</code> — sink <code>out</code> must receive exactly this event. Events are OTLP JSON objects with one of the keys <code>logs</code>, <code>metrics</code> or <code>traces</code></li>
+<li><code>"out": "drop"</code> — sink <code>out</code> must receive nothing</li>
+<li><code>"out": "reject"</code> — the event must be rejected by a stage</li>
+<li>a sink without an entry in <code>expect</code> must receive nothing</li>
 </ul>
-<h2 id="kubernetes-operator">Kubernetes Operator<a class="headerlink" href="#kubernetes-operator" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>manifests/crds/io.tram.core_streams.yaml
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./tram<span class="w"> </span>server<span class="w"> </span>--enable-k8s-operator
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">"tests"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"keeps real logs"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">"input"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}}]}]}]}},</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"expect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"out"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}}]}]}]}}}</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p">{</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drops noise"</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">"input"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"noise"</span><span class="p">}}]}]}]}},</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">"expect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"out"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drop"</span><span class="p">}</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">]</span>
 </code></pre></div>
-<p>The operator watches <code>Stream</code> resources (<code>io.tram.core/v1</code>) and runs each as a stream named <code>&lt;namespace&gt;.&lt;name&gt;</code>. It uses the in-cluster configuration or the current kubeconfig context; <code>--kubeconfig</code> selects another file. By default every TRAM instance runs every <code>Stream</code> resource in the cluster, including those that name engines. With <code>--watch-namespace</code> limits an instance to some namespaces, and <code>--engine</code> to the <code>Stream</code> resources of one Engine. See <a href="../../kubernetes/">the operator documentation</a> for details.</p>
-<p>Alternatively, <code>tram manager</code> runs <code>Engine</code> resources (<code>io.tram.core/v1alpha1</code>) as Deployments of TRAM instances, and a <code>Stream</code> names the engines that run it in <code>spec.engineRefs</code>; see <a href="../../kubernetes/#engines">Engines</a> and <code>examples/k8s/</code>. The Helm chart <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram"><code>charts/tram</code></a>, or the kustomization in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a>, installs the manager with the CRDs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>helm<span class="w"> </span>install<span class="w"> </span>tram<span class="w"> </span>oci://ghcr.io/go-tram/charts/tram<span class="w"> </span>--version<span class="w"> </span><span class="m">0</span>.0.20<span class="w"> </span>--namespace<span class="w"> </span>tram-system<span class="w"> </span>--create-namespace
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># or</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>--server-side<span class="w"> </span>-f<span class="w"> </span>https://github.com/GO-TRAM/TRAM/releases/download/v0.0.20/tram.yaml
+<p><code>--secrets</code> reads a JSON file mapping <code>"&lt;name&gt;/&lt;key&gt;"</code> to values and resolves <code>secretKeyRef</code> references in stage specs. A reference that cannot be resolved is an error naming the reference, never its value. Source and sink specs are not used by a test run. The exit code is 0 when all tests pass and 1 otherwise.</p>
+<h2 id="running-tests-in-ci">Running Tests in CI<a class="headerlink" href="#running-tests-in-ci" title="Permanent link">&para;</a></h2>
+<p><code>tram test</code> takes one file and exits with <code>1</code> if a test fails, so a CI job runs it for every stream file, e.g. with the <a href="../../deployment/container/#container-image">container image</a>, whose entry point is <code>tram</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>streams/*.json<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">:/work"</span><span class="w"> </span>ghcr.io/go-tram/tram:latest<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">"/work/</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">done</span>
 </code></pre></div>
-<p>Every release publishes the chart and the manifests with its version; from the repository, <code>charts/tram</code> and <code>kubectl apply --server-side -k manifests/</code> deploy the image <code>latest</code>.</p>
+<p>Test cases are part of the stream files of the API and file sync. The <code>Stream</code> resource of the <a href="../../deployment/kubernetes/">Kubernetes operator</a> has no <code>tests</code> field, so keep the tests of a stream that runs on Kubernetes in a stream file next to its resource, and test that file.</p>
+<h2 id="dry-run">Dry Run<a class="headerlink" href="#dry-run" title="Permanent link">&para;</a></h2>
+<p><code>PUT /v1/streams/{name}</code> with <code>"dry_run": true</code> in the request body validates the stream and reports what applying it would do, without changing the running stream. The flag is a field of the request body, not a query parameter, because the PUT body maps to the whole request message. The response holds a <code>plan</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"stream"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"the requested stream"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">"plan"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STREAM_PLAN_ACTION_HOT_SWAP"</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"sourceReplaced"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">"createdNodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"enrich"</span><span class="p">],</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">"stoppedNodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"old-sink"</span><span class="p">]</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>action</code> is <code>STREAM_PLAN_ACTION_NOOP</code> (nothing would change), <code>STREAM_PLAN_ACTION_HOT_SWAP</code> (the source keeps running and its stages and sinks are replaced below it) or <code>STREAM_PLAN_ACTION_REBUILD</code> (the stream is new, stopped, or its source changed: it would be stopped and created again). An invalid spec is rejected with <code>400</code> as usual; nothing is applied either way.</p>
 
 
 
@@ -1279,7 +1770,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../api/" class="md-footer__link md-footer__link--prev" aria-label="Previous: HTTP API">
+          <a href="../streams/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Streams">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -1289,20 +1780,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                HTTP API
+                Streams
               </div>
             </div>
           </a>
         
         
           
-          <a href="../metrics/" class="md-footer__link md-footer__link--next" aria-label="Next: Metrics">
+          <a href="../sending-data/" class="md-footer__link md-footer__link--next" aria-label="Next: Sending Data to TRAM">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Metrics
+                Sending Data to TRAM
               </div>
             </div>
             <div class="md-footer__button md-icon">

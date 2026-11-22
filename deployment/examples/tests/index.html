@@ -12,38 +12,38 @@
       
       
       
-        <link rel="canonical" href="https://gotram.dev/guide/metrics/">
+        <link rel="canonical" href="https://gotram.dev/deployment/examples/tests/">
       
       
       
       
-        <link rel="prev" href="../configuration/">
+        <link rel="prev" href="../kubernetes/">
       
       
-        <link rel="next" href="../security/">
+        <link rel="next" href="../../../operations/metrics/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/TRAM.svg">
+      <link rel="icon" href="../../../assets/TRAM.svg">
       <meta name="generator" content="zensical-0.1.3">
     
     
       
-        <title>Metrics - TRAM</title>
+        <title>Tests - TRAM</title>
       
     
     
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e2cf241e.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
       
@@ -63,9 +63,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    <script>__md_scope=new URL("../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
@@ -101,9 +101,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+    <a href="../../.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
       
-  <img src="../../assets/TRAM.png" alt="TRAM">
+  <img src="../../../assets/TRAM.png" alt="TRAM">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Metrics
+              Tests
             
           </span>
         </div>
@@ -206,7 +206,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   Home
@@ -220,8 +220,6 @@
   
   
   
-    
-  
   
     
       
@@ -242,8 +240,8 @@
     
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../getting-started/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../guide/getting-started/" class="md-tabs__link">
           
   
   Guide
@@ -277,10 +275,42 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../components/" class="md-tabs__link">
+        <a href="../../../components/" class="md-tabs__link">
           
   
   Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../container/" class="md-tabs__link">
+          
+  
+  Deployment
 
         </a>
       </li>
@@ -305,10 +335,10 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/streams/" class="md-tabs__link">
+        <a href="../../../operations/metrics/" class="md-tabs__link">
           
   
-  Examples
+  Operations
 
         </a>
       </li>
@@ -321,62 +351,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../kubernetes/" class="md-tabs__link">
-        
-  
-  Kubernetes
-
-      </a>
-    </li>
-  
-
+    
+      
       
         
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../benchmarks/" class="md-tabs__link">
-        
-  
-  Benchmarks
-
-      </a>
-    </li>
-  
-
       
         
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../releases/" class="md-tabs__link">
-        
-  
-  Releases
-
-      </a>
-    </li>
-  
-
       
-        
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/contributing/" class="md-tabs__link">
+          
   
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../contributing/" class="md-tabs__link">
-        
-  
-  Contributing
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -402,9 +396,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+    <a href="../../.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
       
-  <img src="../../assets/TRAM.png" alt="TRAM">
+  <img src="../../../assets/TRAM.png" alt="TRAM">
 
     </a>
     TRAM
@@ -431,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -454,10 +448,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -477,20 +469,17 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -508,7 +497,7 @@
           </label>
         
         
-          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
             <label class="md-nav__title" for="__nav_2">
               <span class="md-nav__icon md-icon"></span>
               
@@ -525,7 +514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../../guide/getting-started/" class="md-nav__link">
         
   
   
@@ -552,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../streams/" class="md-nav__link">
+      <a href="../../../guide/streams/" class="md-nav__link">
         
   
   
@@ -579,7 +568,61 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../../../guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/api/" class="md-nav__link">
         
   
   
@@ -606,119 +649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Configuration Sources
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Metrics
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Metrics
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#choosing-the-metrics-of-a-stream" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Choosing the metrics of a stream
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../security/" class="md-nav__link">
+      <a href="../../../guide/security/" class="md-nav__link">
         
   
   
@@ -780,7 +711,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../components/" class="md-nav__link ">
+            <a href="../../../components/" class="md-nav__link ">
               
   
   
@@ -823,7 +754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components/sources/" class="md-nav__link">
+      <a href="../../../components/sources/" class="md-nav__link">
         
   
   
@@ -850,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components/stages/" class="md-nav__link">
+      <a href="../../../components/stages/" class="md-nav__link">
         
   
   
@@ -877,7 +808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../components/sinks/" class="md-nav__link">
+      <a href="../../../components/sinks/" class="md-nav__link">
         
   
   
@@ -885,6 +816,568 @@
     
   
   Sinks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Examples
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
 
     
   </span>
@@ -929,17 +1422,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-  Examples
+  Development
 
     
   </span>
@@ -950,12 +1443,12 @@
           </label>
         
         
-          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-            <label class="md-nav__title" for="__nav_4">
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
               <span class="md-nav__icon md-icon"></span>
               
   
-  Examples
+  Development
 
             </label>
             <ul class="md-nav__list" data-md-scrollfix>
@@ -967,14 +1460,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/streams/" class="md-nav__link">
+      <a href="../../../development/contributing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-  Streams
+  Contributing
 
     
   </span>
@@ -994,94 +1487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/kubernetes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Kubernetes
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-            </ul>
-          </nav>
-        
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../kubernetes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Kubernetes
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Benchmarks
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../releases/" class="md-nav__link">
+      <a href="../../../development/releases/" class="md-nav__link">
         
   
   
@@ -1099,29 +1505,12 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+                
+              
+            </ul>
+          </nav>
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Contributing
-
-    
-  </span>
-  
-  
-
-      </a>
+      
     </li>
   
 
@@ -1143,11 +1532,6 @@
                       
                     
                     
-                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-                      <div class="md-sidebar-button__wrapper">
-                        <label class="md-sidebar-button" for="__toc"></label>
-                      </div>
-                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -1159,25 +1543,6 @@
   
     
   
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#choosing-the-metrics-of-a-stream" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Choosing the metrics of a stream
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -1197,95 +1562,11 @@
   
 
 
-<h1 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link">&para;</a></h1>
-<p><code>GET /metrics</code> on the HTTP API serves TRAM's metrics in the Prometheus format, for Prometheus or any other scraper. By default the source and the sinks of every stream are measured, whatever their type, and the stages are not; see <a href="#choosing-the-metrics-of-a-stream">Choosing the metrics of a stream</a>:</p>
-<table>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Type</th>
-<th>Labels</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>tram_node_records_total</code></td>
-<td>Counter</td>
-<td><code>stream</code>, <code>node</code>, <code>kind</code>, <code>signal</code></td>
-<td>Records the node received: log records, metric data points and spans. <code>kind</code> is <code>source</code>, <code>stage</code> or <code>sink</code>, <code>signal</code> is <code>logs</code>, <code>metrics</code> or <code>traces</code></td>
-</tr>
-<tr>
-<td><code>tram_node_records_out_total</code></td>
-<td>Counter</td>
-<td><code>stream</code>, <code>node</code>, <code>kind</code>, <code>signal</code></td>
-<td>Records a source or stage passed on: log records, metric data points and spans. With several children, each record counts once, not once per child. Sinks pass nothing on</td>
-</tr>
-<tr>
-<td><code>tram_node_duration_seconds</code></td>
-<td>Histogram</td>
-<td><code>stream</code>, <code>node</code>, <code>kind</code>, <code>outcome</code></td>
-<td>Time the node took to handle an event. <code>outcome</code> is <code>ok</code>, <code>rejected</code> (the event was refused for good, e.g. by a <code>validation</code> stage), <code>cancelled</code> (the caller gave up, e.g. an OTLP client that closed its connection) or <code>error</code>. An expired <code>delivery_timeout</code> counts as <code>error</code>, since then TRAM took too long</td>
-</tr>
-<tr>
-<td><code>tram_source_request_size_bytes</code></td>
-<td>Histogram</td>
-<td><code>stream</code>, <code>node</code>, <code>kind</code>, <code>encoding</code>, <code>body</code></td>
-<td>Size of the requests a source decoded events from, such as the OTLP source. <code>body</code> is <code>received</code> (as sent, e.g. gzip-compressed) or <code>decoded</code> (after undoing the content encoding), <code>encoding</code> is <code>gzip</code> or <code>identity</code>. Sources that consume messages, like the broker source, report nothing</td>
-</tr>
-</tbody>
-</table>
-<p>The endpoint also serves the Go runtime (<code>go_*</code>) and process (<code>process_*</code>) metrics.</p>
-<p>For a source, the records are what it accepted and passed on, each counted once however many branches the stream has, and the outcome is the result its client gets: an event a single branch fails fails for the client. Events a source refuses before passing them on, such as an OTLP request that cannot be decoded, are not counted.</p>
-<p>Events pass through a stream synchronously, so the duration of a source or stage includes the stages and sinks below it, and for a <code>batch</code> stage the time an event waits for its batch to be flushed. The duration of a source is the time its client waits for TRAM. Only the duration of a sink is its own.</p>
-<p>So the time a stream's stages take, including the wait of a <code>batch</code> stage, is the duration of its source minus that of its sinks, without measuring the stages themselves.</p>
-<p>A stage's input minus its output is what it dropped, so the share each stage drops, for streams that measure the records of their stages, is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="p">,</span><span class="w"> </span><span class="nv">node</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_node_records_out_total</span><span class="p">{</span><span class="nl">kind</span><span class="o">=</span><span class="p">"</span><span class="s">stage</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="p">,</span><span class="w"> </span><span class="nv">node</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_node_records_total</span><span class="p">{</span><span class="nl">kind</span><span class="o">=</span><span class="p">"</span><span class="s">stage</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<h1 id="test-examples">Test Examples<a class="headerlink" href="#test-examples" title="Permanent link">&para;</a></h1>
+<p>Every stream file in this directory carries test cases in the <code>tests</code> field of its stream. They are never run by loading the stream; run them explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tram<span class="w"> </span><span class="nb">test</span><span class="w"> </span>examples/tests/otlp_with_filters.json
 </code></pre></div>
-<p>The average size of the requests a source received, compressed as sent and decoded, and the share of requests above 1 MB, half of a common 2 MB ingress limit:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="p">,</span><span class="w"> </span><span class="nv">body</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_source_request_size_bytes_sum</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="p">,</span><span class="w"> </span><span class="nv">body</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_source_request_size_bytes_count</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_source_request_size_bytes_bucket</span><span class="p">{</span><span class="nl">body</span><span class="o">=</span><span class="p">"</span><span class="s">received</span><span class="p">",</span><span class="nl">le</span><span class="o">=</span><span class="p">"</span><span class="s">1.048576e+06</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">stream</span><span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">tram_source_request_size_bytes_count</span><span class="p">{</span><span class="nl">body</span><span class="o">=</span><span class="p">"</span><span class="s">received</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
-</code></pre></div>
-<p>A stage that drops every record of a signal, such as a <code>filter</code> whose CEL expression for it is <code>"false"</code>, has no output series for that signal, so drop the <code>signal</code> label or use <code>or vector(0)</code> when comparing per signal.</p>
-<h2 id="choosing-the-metrics-of-a-stream">Choosing the metrics of a stream<a class="headerlink" href="#choosing-the-metrics-of-a-stream" title="Permanent link">&para;</a></h2>
-<p>Every node is a series of its own per metric, so many streams with several stages each add up to many series. The optional <code>metrics</code> field of a stream turns each metric on or off per kind of node; fields left out keep their defaults:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Metrics</th>
-<th>Defaults</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>records</code></td>
-<td><code>tram_node_records_total</code> and <code>tram_node_records_out_total</code></td>
-<td><code>source: true</code>, <code>stages: false</code>, <code>sinks: true</code></td>
-</tr>
-<tr>
-<td><code>duration</code></td>
-<td><code>tram_node_duration_seconds</code></td>
-<td><code>source: true</code>, <code>stages: false</code>, <code>sinks: true</code></td>
-</tr>
-<tr>
-<td><code>request_size</code></td>
-<td><code>tram_source_request_size_bytes</code></td>
-<td><code>true</code></td>
-</tr>
-</tbody>
-</table>
-<p>To see what each stage of a stream drops and how long it takes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"records"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stages"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"duration"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stages"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
-</code></pre></div>
-<p>The field is part of the stream in the API, in the files of the file sync and in the <code>Stream</code> resource of the Kubernetes operator (<code>spec.metrics</code>). Changing it rewires the stream's stages and sinks but keeps its source running. Series of a node that stops being measured stay at their last value until TRAM restarts.</p>
+<p>See <a href="../../../guide/testing/">Testing a Stream</a> for the format of test cases, and for running them in CI. The corresponding Kubernetes manifests of the examples live in <a href="../kubernetes/">../k8s/examples/</a>.</p>
 
 
 
@@ -1323,7 +1604,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../configuration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configuration Sources">
+          <a href="../kubernetes/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kubernetes">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -1333,20 +1614,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Configuration Sources
+                Kubernetes
               </div>
             </div>
           </a>
         
         
           
-          <a href="../security/" class="md-footer__link md-footer__link--next" aria-label="Next: Security">
+          <a href="../../../operations/metrics/" class="md-footer__link md-footer__link--next" aria-label="Next: Metrics">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Security
+                Metrics
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1400,10 +1681,10 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.9e76c64c.min.js"></script>
       
       
     

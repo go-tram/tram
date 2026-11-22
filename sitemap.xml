@@ -4,9 +4,6 @@
         <loc>https://gotram.dev/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/benchmarks/</loc>
-      </url>
-      <url>
         <loc>https://gotram.dev/components/</loc>
       </url>
       <url>
@@ -19,36 +16,60 @@
         <loc>https://gotram.dev/components/stages/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/contributing/</loc>
+        <loc>https://gotram.dev/deployment/container/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/examples/kubernetes/</loc>
+        <loc>https://gotram.dev/deployment/examples/kubernetes/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/examples/streams/</loc>
+        <loc>https://gotram.dev/deployment/examples/streams/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/examples/tests/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/kubernetes/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/kubernetes/engines/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/kubernetes/helm/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/kubernetes/storage/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/deployment/kubernetes/streams/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/contributing/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/guide/api/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/guide/configuration/</loc>
-      </url>
-      <url>
         <loc>https://gotram.dev/guide/getting-started/</loc>
-      </url>
-      <url>
-        <loc>https://gotram.dev/guide/metrics/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/guide/security/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/guide/sending-data/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/guide/streams/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/kubernetes/</loc>
+        <loc>https://gotram.dev/guide/testing/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/releases/</loc>
+        <loc>https://gotram.dev/operations/benchmarks/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/metrics/</loc>
       </url>
 </urlset>

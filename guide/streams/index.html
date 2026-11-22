@@ -20,7 +20,7 @@
         <link rel="prev" href="../getting-started/">
       
       
-        <link rel="next" href="../api/">
+        <link rel="next" href="../testing/">
       
       
         
@@ -300,15 +300,17 @@
       
         
       
+        
+      
     
     
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/streams/" class="md-tabs__link">
+        <a href="../../deployment/container/" class="md-tabs__link">
           
   
-  Examples
+  Deployment
 
         </a>
       </li>
@@ -321,14 +323,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../kubernetes/" class="md-tabs__link">
+    
+      
+      
         
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/metrics/" class="md-tabs__link">
+          
   
-  Kubernetes
+  Operations
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -337,46 +351,26 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../../benchmarks/" class="md-tabs__link">
-        
-  
-  Benchmarks
-
-      </a>
-    </li>
-  
-
+    
+      
       
         
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../releases/" class="md-tabs__link">
-        
-  
-  Releases
-
-      </a>
-    </li>
-  
-
       
         
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/contributing/" class="md-tabs__link">
+          
   
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../contributing/" class="md-tabs__link">
-        
-  
-  Contributing
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -685,40 +679,66 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Updating a Stream">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dry-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Dry Run
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-a-stream" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Testing a Stream
-      </span>
-    </span>
-  </a>
-  
 </li>
       
     </ul>
   
 </nav>
       
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -739,60 +759,6 @@
     
   
   HTTP API
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Configuration Sources
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../metrics/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Metrics
 
     
   </span>
@@ -1012,6 +978,8 @@
       
         
       
+        
+      
     
     
     
@@ -1033,7 +1001,7 @@
   <span class="md-ellipsis">
     
   
-  Examples
+  Deployment
 
     
   </span>
@@ -1049,6 +1017,279 @@
               <span class="md-nav__icon md-icon"></span>
               
   
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
   Examples
 
             </label>
@@ -1061,7 +1302,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/streams/" class="md-nav__link">
+      <a href="../../deployment/examples/streams/" class="md-nav__link">
         
   
   
@@ -1088,7 +1329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/kubernetes/" class="md-nav__link">
+      <a href="../../deployment/examples/kubernetes/" class="md-nav__link">
         
   
   
@@ -1096,6 +1337,159 @@
     
   
   Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
 
     
   </span>
@@ -1122,15 +1516,70 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../kubernetes/" class="md-nav__link">
+      <a href="../../development/contributing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-  Kubernetes
+  Contributing
 
     
   </span>
@@ -1141,41 +1590,16 @@
     </li>
   
 
-    
-      
-      
+                
+              
+                
+                  
   
   
   
   
     <li class="md-nav__item">
-      <a href="../../benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Benchmarks
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../releases/" class="md-nav__link">
+      <a href="../../development/releases/" class="md-nav__link">
         
   
   
@@ -1193,29 +1617,12 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+                
+              
+            </ul>
+          </nav>
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Contributing
-
-    
-  </span>
-  
-  
-
-      </a>
+      
     </li>
   
 
@@ -1331,34 +1738,6 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Updating a Stream
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Updating a Stream">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dry-run" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Dry Run
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-a-stream" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Testing a Stream
       </span>
     </span>
   </a>
@@ -1576,47 +1955,8 @@
 </tbody>
 </table>
 <p>If an update fails, e.g. because of an invalid component spec, the request returns an error and the previous version of the stream keeps running. Delete and create a stream to restart it completely.</p>
-<h3 id="dry-run">Dry Run<a class="headerlink" href="#dry-run" title="Permanent link">&para;</a></h3>
-<p><code>PUT /v1/streams/{name}</code> with <code>"dry_run": true</code> in the request body validates the stream and reports what applying it would do, without changing the running stream. The flag is a field of the request body, not a query parameter, because the PUT body maps to the whole request message. The response holds a <code>plan</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"stream"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"the requested stream"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"plan"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STREAM_PLAN_ACTION_HOT_SWAP"</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">"sourceReplaced"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">"createdNodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"enrich"</span><span class="p">],</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">"stoppedNodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"old-sink"</span><span class="p">]</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
-</code></pre></div>
-<p><code>action</code> is <code>STREAM_PLAN_ACTION_NOOP</code> (nothing would change), <code>STREAM_PLAN_ACTION_HOT_SWAP</code> (the source keeps running and its stages and sinks are replaced below it) or <code>STREAM_PLAN_ACTION_REBUILD</code> (the stream is new, stopped, or its source changed: it would be stopped and created again). An invalid spec is rejected with <code>400</code> as usual; nothing is applied either way.</p>
 <p>If the source of a stream stops on its own, e.g. because the NATS stream of a broker source does not exist yet, TRAM restarts the stream after a delay that grows from 1 second to 1 minute while it keeps failing. A <code>PUT</code> of the unchanged stream restarts it right away.</p>
-<h2 id="testing-a-stream">Testing a Stream<a class="headerlink" href="#testing-a-stream" title="Permanent link">&para;</a></h2>
-<p>A stream can carry test cases in <code>tests</code>. They are never run by loading the stream; only an explicit test run executes them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tram<span class="w"> </span><span class="nb">test</span><span class="w"> </span>stream.json<span class="w"> </span><span class="o">[</span>--secrets<span class="w"> </span>secrets.json<span class="o">]</span>
-</code></pre></div>
-<p>The file holds either a bare stream object or a file sync file that wraps it in <code>{"stream": {...}}</code>, like the examples in <code>examples/tests/</code>; see <code>examples/tests/otlp_with_filters.json</code> for a stream with test cases.</p>
-<p>The stream is loaded into its own in-memory tree: the source is replaced by a test source that emits the test inputs, and every sink by a capture sink, so no external system is contacted. The stages are the real stages and process the events.</p>
-<p>Each test has a <code>name</code>, an <code>input</code> event and the expected outcome per sink in <code>expect</code>:</p>
-<ul>
-<li><code>"out": &lt;event&gt;</code> — sink <code>out</code> must receive exactly this event. Events are OTLP JSON objects with one of the keys <code>logs</code>, <code>metrics</code> or <code>traces</code></li>
-<li><code>"out": "drop"</code> — sink <code>out</code> must receive nothing</li>
-<li><code>"out": "reject"</code> — the event must be rejected by a stage</li>
-<li>a sink without an entry in <code>expect</code> must receive nothing</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">"tests"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"keeps real logs"</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"input"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}}]}]}]}},</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">"expect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"out"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}}]}]}]}}}</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="p">},</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drops noise"</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nt">"input"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"logs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"resourceLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"scopeLogs"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"logRecords"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"stringValue"</span><span class="p">:</span><span class="w"> </span><span class="s2">"noise"</span><span class="p">}}]}]}]}},</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nt">"expect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"out"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drop"</span><span class="p">}</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">]</span>
-</code></pre></div>
-<p><code>--secrets</code> reads a JSON file mapping <code>"&lt;name&gt;/&lt;key&gt;"</code> to values and resolves <code>secretKeyRef</code> references in stage specs. A reference that cannot be resolved is an error naming the reference, never its value. Source and sink specs are not used by a test run. The exit code is 0 when all tests pass and 1 otherwise.</p>
+<p>Check an update before applying it with a <a href="../testing/#dry-run">dry run</a>.</p>
 
 
 
@@ -1671,13 +2011,13 @@
         
         
           
-          <a href="../api/" class="md-footer__link md-footer__link--next" aria-label="Next: HTTP API">
+          <a href="../testing/" class="md-footer__link md-footer__link--next" aria-label="Next: Testing Streams">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                HTTP API
+                Testing Streams
               </div>
             </div>
             <div class="md-footer__button md-icon">
