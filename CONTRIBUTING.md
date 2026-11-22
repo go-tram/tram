@@ -750,7 +750,7 @@ When adding new components:
 
 The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as four parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests, `task ci:containers` the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
 
-Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests only restore the latest one, so they stay fast without filling the cache storage.
+Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests and the release workflow only restore the latest one, so they stay fast without filling the cache storage.
 
 The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.
 
