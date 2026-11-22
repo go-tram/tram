@@ -4,6 +4,29 @@
 
 Security fixes go into the latest release. Please check that a problem still exists there before you report it.
 
+## Verifying Releases
+
+Every release's container image and Helm chart are signed with [cosign](https://docs.sigstore.dev/), keyless: the signature names the release workflow of this repository and the tag it ran for, attested by GitHub, so no key has to be distributed. Verify them before deploying:
+
+```bash
+cosign verify ghcr.io/go-tram/tram:0.2.0 \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp '(?i)^https://github\.com/go-tram/tram/\.github/workflows/release\.yml@refs/tags/v'
+
+cosign verify ghcr.io/go-tram/charts/tram:0.2.0 \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp '(?i)^https://github\.com/go-tram/tram/\.github/workflows/release\.yml@refs/tags/v'
+```
+
+The image also carries an SBOM, which lists its contents, and a provenance attestation, which records how it was built, for each platform:
+
+```bash
+docker buildx imagetools inspect ghcr.io/go-tram/tram:0.2.0 --format '{{ json .SBOM }}'
+docker buildx imagetools inspect ghcr.io/go-tram/tram:0.2.0 --format '{{ json .Provenance }}'
+```
+
+Releases before `v0.2.0` are not signed.
+
 ## Reporting a Vulnerability
 
 Please do not report vulnerabilities in public issues, pull requests or discussions.
