@@ -3087,6 +3087,7 @@
 - Copies the header <code>X-Tram-Router</code> into the resource attribute <code>tram.router.id</code> with <code>header_attributes</code>, over HTTP (4331) and gRPC (4332); a value the client sent there itself is replaced
 - Rejects requests without a valid router ID before the batch, so one tenant's bad request does not fail a batch shared with others
 - Routes each record to the NATS subject <code>router.&lt;router-id&gt;.&lt;signal&gt;</code>
+- Keeps requests and batches below NATS' default <code>max_payload</code> of 1 MB with <code>max_request_bytes</code> and the batch's <code>max_bytes</code>, so no message is too large for the server
 - <strong>Kubernetes version</strong>: <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples/otlp_tenant_routing.yaml">../k8s/examples/otlp_tenant_routing.yaml</a></p>
 <h4 id="otlp_grpcjson"><a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/config/otlp_grpc.json"><code>otlp_grpc.json</code></a><a class="headerlink" href="#otlp_grpcjson" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: Receive OTLP over gRPC and HTTP in one stream.
