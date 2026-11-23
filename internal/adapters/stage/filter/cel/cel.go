@@ -11,9 +11,9 @@ import (
 	"errors"
 	"fmt"
 
+	"cel.dev/cel-go/cel"
+	"cel.dev/cel-go/interpreter"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/interpreter"
 	commonpb "go.opentelemetry.io/proto/otlp/common/v1"
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
