@@ -97,6 +97,57 @@
         <loc>https://gotram.dev/development/contributing/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/development/decisions/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0001-record-architecture-decisions/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0002-otlp-as-the-data-model/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0003-ports-and-adapters/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0004-components-as-concept-and-driver/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0005-events-are-read-only/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0006-at-least-once-delivery/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0007-synchronous-delivery-and-backpressure/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0008-requests-accepted-or-refused-as-a-whole/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0009-no-authentication-in-tram/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0010-one-stream-state-last-write-wins/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0011-transform-stage/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0012-object-storage-sink/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0013-value-map-driver/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0014-releases-from-conventional-commits/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0015-persistence-between-streams/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/development/decisions/0016-request-size-limit-at-the-source/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
