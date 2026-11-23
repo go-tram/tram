@@ -63,7 +63,8 @@ task nats:up
 |------|--------------|
 | `task build` / `task run` | Build the binary, or run the server (`task run -- --enable-file-sync`) |
 | `task check` | Lint, unit and end-to-end tests: what a change should pass |
-| `task ci` / `task ci:lint` / `task ci:test` / `task ci:containers` | What the CI workflows run: the pinned golangci-lint (`ci:lint`), unit and end-to-end tests without the broker packages (`ci:test`), and the broker tests against containers (`ci:containers`) |
+| `task ci` / `task ci:lint` / `task ci:test` / `task ci:containers` / `task ci:envtest` | What the CI workflows run: the pinned golangci-lint and govulncheck (`ci:lint`), unit and end-to-end tests without the broker packages (`ci:test`), the broker tests against containers (`ci:containers`), and the operator tests against a real API server (`ci:envtest`) |
+| `task vuln` | Checks the code and its dependencies for known vulnerabilities with govulncheck; fails only on vulnerable code that TRAM calls |
 | `task test:all` | `task check` plus the container and operator (envtest) tests; fails instead of skipping if Podman/Docker or setup-envtest is missing |
 | `task test` | All tests; tests that need containers are skipped without Docker or Podman |
 | `task test:unit` / `task test:e2e` | Unit tests only, or the end-to-end tests that need no containers |
@@ -756,7 +757,7 @@ When adding new components:
 
 ### Checks on Pull Requests
 
-The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as four parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml`, `task ci:test` the unit and end-to-end tests, `task ci:containers` the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
+The CI workflow (`.github/workflows/ci.yml`) runs on GitHub-hosted runners (`ubuntu-latest`) for every pull request and every push to main, as five parallel jobs: `task ci:lint` runs golangci-lint in the version pinned in `Taskfile.yml` and govulncheck, `task ci:test` the unit and end-to-end tests, `task ci:containers` the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, `task ci:envtest` the operator tests against kube-apiserver and etcd from setup-envtest, and `task ci:chart` checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in `manifests/` and `charts/tram`, then runs `task chart:lint`: `helm lint --strict`, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.
 
 Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests and the release workflow only restore the latest one, so they stay fast without filling the cache storage.
 

@@ -47,6 +47,7 @@ vars:
   CONTROLLER_GEN_VERSION: v0.22.0
   GOLANGCI_LINT_VERSION: v2.15.0
   SETUP_ENVTEST_VERSION: v0.25.2
+  GOVULNCHECK_VERSION: v1.10.0
   KUBECONFORM_VERSION: v0.8.0
   # svu computes release versions from the tags; run with `go run`, so it
   # needs no install.
@@ -105,6 +106,14 @@ tasks:
     cmds:
       - golangci-lint run {{.CLI_ARGS}} {{.PACKAGES}}
 
+  vuln:
+    desc: Check the code and its dependencies for known vulnerabilities with govulncheck
+    summary: |
+      Fails only on vulnerabilities in code that TRAM calls; those in
+      dependencies it does not reach are listed with `-show verbose`.
+    cmds:
+      - go run golang.org/x/vuln/cmd/govulncheck@{{.GOVULNCHECK_VERSION}} {{.CLI_ARGS}} {{.PACKAGES}}
+
   chart:lint:
     desc: Lint the Helm chart and validate what it renders against the Kubernetes schemas (needs helm and kubeconform)
     preconditions:
@@ -152,18 +161,26 @@ tasks:
       - task: test:e2e
 
   ci:
-    desc: Run what the CI workflows run, ci:lint, ci:test, ci:containers and ci:chart, one after the other
+    desc: Run what the CI workflows run, ci:lint, ci:test, ci:containers, ci:envtest and ci:chart, one after the other
     cmds:
       - task: ci:lint
       - task: ci:test
       - task: ci:containers
+      - task: ci:envtest
       - task: ci:chart
 
   ci:lint:
-    desc: Run the CI lint job - install the pinned golangci-lint, then task lint
+    desc: Run the CI lint job - install the pinned golangci-lint, then task lint and task vuln
     cmds:
       - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
       - task: lint
+      - task: vuln
+
+  ci:envtest:
+    desc: Run the CI envtest job - install the pinned setup-envtest, then task test:envtest
+    cmds:
+      - go install sigs.k8s.io/controller-runtime/tools/setup-envtest@{{.SETUP_ENVTEST_VERSION}}
+      - task: test:envtest
 
   ci:chart:
     desc: Run the CI chart job - check that the chart's and manifests' CRDs and roles are generated, then task chart:lint
@@ -252,18 +269,21 @@ tasks:
       - "{{.TESTCONTAINERS_ENV}} go test -race -count=1 -run '^TestBroker(NATS|Kafka|AMQP)$' {{.CLI_ARGS}} ./internal/e2e/"
 
   test:envtest:
-    desc: Run the Kubernetes operator tests against a real API server and etcd (envtest)
+    desc: Run the Kubernetes operator and manager tests against a real API server and etcd (envtest)
     summary: |
       Downloads kube-apiserver and etcd for ENVTEST_K8S_VERSION with
-      setup-envtest on first use and runs the operator tests against them.
-      Without KUBEBUILDER_ASSETS, e.g. in `task test`, these tests are skipped.
+      setup-envtest on first use and runs the tests of the operator, the
+      manager, Engines and their storage against them. Every test starts an
+      API server of its own, so at most four run at once; more stall on a
+      laptop. Without KUBEBUILDER_ASSETS, e.g. in `task test`, these tests
+      are skipped.
     preconditions:
       - sh: command -v setup-envtest
         msg: setup-envtest is missing; run `task tools`
     cmds:
       - >-
         KUBEBUILDER_ASSETS="$(setup-envtest use {{.ENVTEST_K8S_VERSION}} -p path)"
-        go test -race -count=1 -run '^TestOperator' {{.CLI_ARGS}} ./internal/adapters/k8scrd/
+        go test -race -count=1 -parallel 4 {{.CLI_ARGS}} ./internal/adapters/k8scrd/
 
   test:upgrade:
     desc: Upgrade TRAM from the latest release to this repository in a kind cluster and check that buffered events survive
