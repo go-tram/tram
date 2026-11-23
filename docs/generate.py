@@ -24,6 +24,7 @@ import posixpath
 import re
 import shutil
 import subprocess
+import tomllib
 import unicodedata
 from collections import defaultdict
 from pathlib import Path
@@ -50,9 +51,10 @@ TITLES = {
     API: "HTTP API",
     "guide/security.md": "Security",
     COMPONENTS_INDEX: "Overview",
-    "components/sources.md": "Sources",
-    "components/stages.md": "Stages",
-    "components/sinks.md": "Sinks",
+    "components/sources/index.md": "Sources",
+    "components/stages/index.md": "Stages",
+    "components/sinks/index.md": "Sinks",
+    # The page of every component is added by add_component_pages.
     "deployment/container.md": "Container & Binary",
     KUBERNETES: "Kubernetes Operator",
     "deployment/kubernetes/helm.md": "Helm Chart",
@@ -93,13 +95,13 @@ SECTIONS = {
     },
     "COMPONENTS.md": {
         "Components Documentation": (COMPONENTS_INDEX, UNWRAP),
-        "Sources": ("components/sources.md", UNWRAP),
-        "Available Sources": (COMPONENTS_INDEX, False),
-        "Stages": ("components/stages.md", UNWRAP),
-        "Available Stages": (COMPONENTS_INDEX, False),
-        "Sinks": ("components/sinks.md", UNWRAP),
-        "Available Sinks": (COMPONENTS_INDEX, False),
-        "Notes": (COMPONENTS_INDEX, False),
+        "Sources": ("components/sources/index.md", UNWRAP),
+        "Available Sources": ("components/sources/index.md", False),
+        "Stages": ("components/stages/index.md", UNWRAP),
+        "Available Stages": ("components/stages/index.md", False),
+        "Sinks": ("components/sinks/index.md", UNWRAP),
+        "Available Sinks": ("components/sinks/index.md", False),
+        "Stream Behavior": (STREAMS, False),
     },
     "internal/adapters/k8scrd/README.md": {
         "Kubernetes Operator": (KUBERNETES, UNWRAP),
@@ -285,7 +287,79 @@ def clean():
     shutil.rmtree(CONTENT / "assets", ignore_errors=True)
 
 
+# The groups of COMPONENTS.md whose components get a page each, with the
+# suffix of their headings.
+COMPONENT_GROUPS = {"Sources": "Source", "Stages": "Stage", "Sinks": "Sink"}
+
+
+def add_component_pages():
+    """Gives every component of COMPONENTS.md a page of its own, derived from
+    its heading: "### OTLP Source" under "## Sources" becomes
+    components/sources/otlp.md, titled "OTLP Source". A new component gets its
+    page without changing this script; check_nav makes sure it is in the
+    navigation."""
+    group, in_fence = None, False
+    for line in (REPO / "COMPONENTS.md").read_text(encoding="utf-8").splitlines():
+        if FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        heading = None if in_fence else HEADING.match(line)
+        if not heading:
+            continue
+        level, title = len(heading[1]), EMOJI.sub("", heading[2])
+        if level == 2:
+            group = title if title in COMPONENT_GROUPS else None
+        elif level == 3 and group and not title.startswith("Available "):
+            name = title.removesuffix(" " + COMPONENT_GROUPS[group])
+            page = f"components/{group.lower()}/{slugify(name)}.md"
+            TITLES[page] = title
+            SECTIONS["COMPONENTS.md"][title] = (page, UNWRAP)
+
+
+DECISIONS = "development/decisions"
+
+
+def add_decision_pages():
+    """Gives the index of docs/adr/ and every record in it a page under
+    development/decisions/, titled by the record's first heading: a new record
+    gets its page without changing this script; check_nav makes sure it is in
+    the navigation."""
+    adr = REPO / "docs" / "adr"
+    for path in [adr / "README.md", *sorted(adr.glob("[0-9][0-9][0-9][0-9]-*.md"))]:
+        title = next(
+            HEADING.match(line)[2]
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if HEADING.match(line)
+        )
+        page = f"{DECISIONS}/{'index' if path.name == 'README.md' else path.stem}.md"
+        TITLES[page] = title
+        SECTIONS[path.relative_to(REPO).as_posix()] = {title: (page, UNWRAP)}
+
+
+def nav_pages(entries):
+    """The pages a Zensical nav lists, at any depth."""
+    pages = set()
+    for entry in entries:
+        values = entry.values() if isinstance(entry, dict) else [entry]
+        for value in values:
+            pages |= nav_pages(value) if isinstance(value, list) else {value}
+    return pages
+
+
+def check_nav():
+    """Fails when a generated page is missing from the navigation, e.g. the
+    page of a new component."""
+    with open(DOCS / "zensical.toml", "rb") as f:
+        nav = tomllib.load(f)["project"]["nav"]
+    missing = sorted(set(TITLES) - nav_pages(nav))
+    if missing:
+        raise SystemExit(f"not in the nav of docs/zensical.toml: {', '.join(missing)}")
+
+
 def main():
+    add_component_pages()
+    add_decision_pages()
+    check_nav()
     chunks, anchors = split_all()
     clean()
     empty = [page for page in TITLES if not chunks[page]]

@@ -18,6 +18,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/source/base"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 )
 
 type noopSubscriber struct{}
@@ -91,9 +92,11 @@ func BenchmarkNotifySubscribers(b *testing.B) {
 	b.Run("baseline=direct-call", func(b *testing.B) {
 		var sub domain.Subscriber = noopSubscriber{}
 		b.ReportAllocs()
+		cpu := benchcpu.Start()
 		for b.Loop() {
 			_ = sub.Notify(b.Context(), event)
 		}
+		cpu.Report(b)
 	})
 
 	for _, children := range []int{1, 2, 8} {
@@ -107,18 +110,22 @@ func BenchmarkNotifySubscribers(b *testing.B) {
 
 		b.Run(fmt.Sprintf("children=%d", children), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				_ = src.NotifySubscribers(b.Context(), event)
 			}
+			cpu.Report(b)
 		})
 
 		b.Run(fmt.Sprintf("children=%d/parallel", children), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					_ = src.NotifySubscribers(context.Background(), event)
 				}
 			})
+			cpu.Report(b)
 		})
 	}
 }

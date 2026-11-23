@@ -1,3 +1,7 @@
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/tram)](https://artifacthub.io/packages/search?repo=tram)
+[![Release](https://github.com/go-tram/tram/actions/workflows/release.yml/badge.svg)](https://github.com/go-tram/tram/actions/workflows/release.yml)
+[![CI](https://github.com/go-tram/tram/actions/workflows/ci.yml/badge.svg)](https://github.com/go-tram/tram/actions/workflows/ci.yml)
+
 ![TRAM Logo](docs/assets/TRAM_background.png)
 
 # TRAM: A Lightweight, Extensible Data Pipeline Framework
@@ -605,6 +609,30 @@ kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/latest/d
 Without `--version`, Helm installs the latest chart; every release publishes the chart and the manifests with its version, e.g. `--version 0.0.19` or `releases/download/v0.0.19/tram.yaml`. From the repository, `charts/tram` and `kubectl apply --server-side -k manifests/` deploy the image `latest`.
 
 ---
+
+### Conflicts Between Configuration Sources
+
+TRAM holds one set of streams. The API, the file sync and the operator all write to it, and a stream does not belong to any of them: whatever changed a stream last decides what runs, until a source writes it again. When each source writes decides how a change from another source lasts:
+
+| Source | Writes a stream | Removes a stream |
+|--------|-----------------|------------------|
+| API | On every request | On a `DELETE` request |
+| File sync | When a file in the directory changes, for every file that differs from its running stream; while streams fail, again after each retry delay | Every running stream without a file, when the directory is synced, whichever source created it |
+| Operator | When the `Stream` resource's `spec`, a secret it refers to or a config map it selects changes, and when the instance starts | When the resource is deleted |
+
+The file sync writes changes of the API and the operator back to the files, so a stream changed elsewhere keeps its file. The operator does not write back to resources, and its periodic resyncs do not apply the resource again. That means:
+
+- **API change to a stream of a `Stream` resource:** runs until the resource changes or the instance restarts; then the resource wins again. With file sync, the change is also written to the stream's file
+- **Changed file of a stream of a `Stream` resource:** the file wins in the same way, until the resource changes or the instance restarts
+- **Deleted file, or API `DELETE`, of a stream of a `Stream` resource:** the stream stops, and the operator starts it again only when the resource changes or the instance restarts
+- **API change to a stream with a file:** written to the file, so it survives a restart. A change to the file afterwards wins over it
+- **Changes of the same stream at the same moment:** applied one after the other, in no defined order; the last one wins
+
+Give every stream one source that owns it and change it only there:
+
+- With the operator, change streams only through `Stream` resources, and use the API and the files to read them
+- Use file sync together with the operator only to keep a copy of the streams on disk, and do not edit the files of streams that come from resources
+- The operator names its streams `<namespace>.<name>`; do not create streams with such a name through the API or a file, or the operator replaces them
 
 ## 🔒 Security
 

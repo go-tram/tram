@@ -108,6 +108,8 @@ spec:
   source: ...
 ```
 
+The `tram` container of the instances, and of the drain Jobs, runs as non-root with a read-only root file system, without privilege escalation or capabilities, and with the `RuntimeDefault` seccomp profile; these settings cannot be changed. Temporary files, e.g. those of SQLite, go to an empty directory mounted at `/tmp`. `podTemplate.spec.securityContext` sets the pod-level context, e.g. another `fsGroup`.
+
 The Helm chart [`charts/tram`](../../../charts/tram/) or the kustomization in [`manifests/`](../../../manifests/) deploys the manager with the CRDs and roles, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
 
 What the manager creates for an Engine, and how its instances find their Streams:
@@ -309,7 +311,7 @@ data:
 - **One direction:** the operator reads `Stream` resources; it does not write streams back as resources. A stream created, changed or deleted through the API of an instance changes only that instance, in memory: the other instances do not see it, a restart loses it, and the next change of the resource overwrites it. With the operator, manage streams through `Stream` resources and use the API to read them. File sync, in contrast, works in both directions
 - **Scope:** the operator watches `Stream` resources in all namespaces, or in the namespaces from `--watch-namespace`, and with `--engine` only those whose `spec.engineRefs` name the engine; see [Selecting Streams](#selecting-streams). There is no leader election, so every TRAM instance with the operator enabled runs every `Stream` resource it selects
 - **Access:** creating a `Stream` lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the `Stream`'s namespace and send the value along, e.g. as a header to their own URL. Grant `create` on `streams.io.tram.core` only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see [Security](../../../README.md#-security)
-- **File sync:** with `--enable-file-sync`, streams created by the operator are also written to the configuration directory
+- **File sync:** with `--enable-file-sync`, streams created by the operator are also written to the configuration directory. Editing or deleting such a file changes or stops the stream until the resource changes or the instance restarts; see [Conflicts Between Configuration Sources](../../../README.md#conflicts-between-configuration-sources)
 
 ## Development
 

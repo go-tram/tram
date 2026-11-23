@@ -16,6 +16,8 @@ spec:
     spec:
       http_port: 4331
       grpc_port: 4332
+      # Below NATS' default max_payload of 1 MB, like the batch's max_bytes.
+      max_request_bytes: 1000000
       header_attributes:
         X-Tram-Router: tram.router.id
   stages:
@@ -36,6 +38,7 @@ spec:
       from: require_router
       spec:
         max_records: 1000
+        max_bytes: 1000000
         timeout: 200ms
   sinks:
     - type: broker

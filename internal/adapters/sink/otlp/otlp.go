@@ -19,8 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"cel.dev/cel-go/cel"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/cel-go/cel"
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
 	tracepb "go.opentelemetry.io/proto/otlp/trace/v1"

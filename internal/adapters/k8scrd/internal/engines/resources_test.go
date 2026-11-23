@@ -98,6 +98,12 @@ func TestBuildResourcesDefaults(t *testing.T) {
 	}, container.Ports)
 	assert.Equal(t, intstr.FromString("http"), container.ReadinessProbe.TCPSocket.Port)
 	assert.Equal(t, new(false), container.SecurityContext.AllowPrivilegeEscalation)
+	assert.Equal(t, new(true), container.SecurityContext.RunAsNonRoot)
+	assert.Equal(t, new(true), container.SecurityContext.ReadOnlyRootFilesystem)
+	// With a read-only root file system, temporary files go to an empty
+	// directory.
+	assert.Equal(t, []corev1.VolumeMount{{Name: "tmp", MountPath: "/tmp"}}, container.VolumeMounts)
+	assert.Equal(t, []corev1.Volume{{Name: "tmp", EmptyDir: &corev1.EmptyDirVolumeSource{}}}, pod.Spec.Volumes)
 
 	service := typed[corev1.Service](t, res.Service())
 	assert.Equal(t, corev1.ServiceTypeClusterIP, service.Spec.Type)

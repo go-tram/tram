@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -50,6 +51,12 @@ type ConfigSync struct {
 	debouncer        *time.Timer
 	debounceDuration time.Duration
 	syncMu           sync.Mutex
+	// written asks the loop of Run to report, by closing the channel it
+	// receives, that it has written the files of every change of the core it
+	// received before; see waitForWrites.
+	written chan chan struct{}
+	// running tells whether the loop of Run receives the changes of the core.
+	running atomic.Bool
 
 	// Guarded by syncMu.
 	unapplied                    int
@@ -76,6 +83,7 @@ func New(c ports.Core, dir string, logger *slog.Logger) (*ConfigSync, error) {
 		logger:           logger,
 		watcher:          watcher,
 		fsEvents:         make(chan fsnotify.Event, fsEventBuffer),
+		written:          make(chan chan struct{}),
 		debounceDuration: debounceDuration,
 		minRetryDelay:    minRetryDelay,
 		maxRetryDelay:    maxRetryDelay,
@@ -122,10 +130,20 @@ func (c *ConfigSync) Run(ctx context.Context) error {
 	c.syncMu.Unlock()
 	c.afterSync(ctx, unapplied, nil, false)
 
+	c.running.Store(true)
+	// Runs first on return: a sync waiting for the loop stops waiting before
+	// the deferred cleanup above takes syncMu, which that sync holds.
+	defer func() {
+		c.running.Store(false)
+		cancel()
+	}()
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
+
+		case done := <-c.written:
+			close(done)
 
 		case err := <-c.watcher.Errors:
 			return fmt.Errorf("watcher error: %w", err)
@@ -203,10 +221,24 @@ func (c *ConfigSync) afterSync(ctx context.Context, unapplied int, err error, fi
 // the file, e.g. while an editor is still saving it. Syncs run one at a time,
 // so a slow sync cannot apply an older state of the files after a newer one.
 // sync returns how many streams could not be applied.
+//
+// Streams are created through the API or the operator while a sync runs, and
+// their files are written after they run. So sync lists the running streams
+// before it reads the files, waits until the files of these streams are
+// written, and deletes only streams of that list: a stream created after it
+// is not in it, and one created before has its file.
 func (c *ConfigSync) sync(ctx context.Context) (int, error) {
 	c.syncMu.Lock()
 	defer c.syncMu.Unlock()
 	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
+
+	configured, err := c.core.GetStreams(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if err = c.waitForWrites(ctx); err != nil {
 		return 0, err
 	}
 
@@ -215,9 +247,7 @@ func (c *ConfigSync) sync(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	if err = c.deleteRemovedStreams(ctx, files, unreadable); err != nil {
-		return 0, err
-	}
+	c.deleteRemovedStreams(ctx, configured, files, unreadable)
 
 	for name := range c.failing {
 		if _, ok := files[name]; !ok {
@@ -230,18 +260,37 @@ func (c *ConfigSync) sync(ctx context.Context) (int, error) {
 	return unapplied, nil
 }
 
+// waitForWrites returns once the loop of Run has written the files of all
+// changes of the core it received so far. The core sends a change before the
+// stream can be listed, so afterwards every listed stream has its file. Before
+// Run, nothing writes files and there is nothing to wait for.
+func (c *ConfigSync) waitForWrites(ctx context.Context) error {
+	if !c.running.Load() {
+		return nil
+	}
+	done := make(chan struct{})
+	select {
+	case c.written <- done:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
 // deleteRemovedStreams deletes the configured streams that have no file
-// anymore. Streams whose file cannot be read are kept. Must be called with
-// syncMu held.
+// anymore. Streams whose file cannot be read are kept, as are streams that
+// were deleted meanwhile. Must be called with syncMu held.
 func (c *ConfigSync) deleteRemovedStreams(
 	ctx context.Context,
+	configured []domain.StreamSpec,
 	files map[string]Stream,
 	unreadable map[string]struct{},
-) error {
-	configured, err := c.core.GetStreams(ctx)
-	if err != nil {
-		return err
-	}
+) {
 	for _, stream := range configured {
 		if _, ok := files[stream.Name]; ok {
 			continue
@@ -252,7 +301,7 @@ func (c *ConfigSync) deleteRemovedStreams(
 			continue
 		}
 		c.logger.DebugContext(ctx, "Deleting stream", slog.String("stream", stream.Name))
-		if err = c.core.DeleteStream(ctx, stream.Name); err != nil {
+		if err := c.core.DeleteStream(ctx, stream.Name); err != nil && !errors.Is(err, domain.ErrStreamNotFound) {
 			c.logger.ErrorContext(
 				ctx,
 				"Could not delete stream",
@@ -261,7 +310,6 @@ func (c *ConfigSync) deleteRemovedStreams(
 			)
 		}
 	}
-	return nil
 }
 
 // applyStreamFiles applies every stream file and returns how many could not

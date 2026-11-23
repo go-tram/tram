@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/stage/valuemap"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -80,11 +81,13 @@ func BenchmarkNotifyLogs(b *testing.B) {
 
 			b.Run(source.name+"/"+shape.String(), func(b *testing.B) {
 				b.ReportAllocs()
+				cpu := benchcpu.Start()
 				for b.Loop() {
 					if notifyErr := mapper.Notify(b.Context(), event); notifyErr != nil {
 						b.Fatal(notifyErr)
 					}
 				}
+				cpu.Report(b)
 				b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 			})
 		}

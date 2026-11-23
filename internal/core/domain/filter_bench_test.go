@@ -16,6 +16,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -79,10 +80,12 @@ func BenchmarkFilter(b *testing.B) {
 
 func benchmarkFilter(b *testing.B, shape otlpgen.Shape, filter func() (any, error)) {
 	b.ReportAllocs()
+	cpu := benchcpu.Start()
 	for b.Loop() {
 		if _, err := filter(); err != nil {
 			b.Fatal(err)
 		}
 	}
+	cpu.Report(b)
 	b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/stage"
 	"github.com/go-tram/tram/internal/core"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -157,11 +158,13 @@ func pipeline(b *testing.B, spec domain.StreamSpec, sinks int, shape otlpgen.Sha
 
 	event := &domain.Event{Logs: otlpgen.Logs(shape)}
 	b.ReportAllocs()
+	cpu := benchcpu.Start()
 	for b.Loop() {
 		if notifyErr := src.NotifySubscribers(b.Context(), event); notifyErr != nil {
 			b.Fatal(notifyErr)
 		}
 	}
+	cpu.Report(b)
 
 	b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 	if want := int64(shape.Records * b.N * sinks); records.Load() != want {

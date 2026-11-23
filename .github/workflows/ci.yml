@@ -1,7 +1,8 @@
-# Validates pull requests and pushes to main with golangci-lint (`task ci:lint`),
-# unit and end-to-end tests (`task ci:test`), the broker tests against
-# containers (`task ci:containers`) and the Helm chart (`task ci:chart`), as
-# parallel jobs.
+# Validates pull requests and pushes to main with golangci-lint and govulncheck
+# (`task ci:lint`), unit and end-to-end tests (`task ci:test`), the broker
+# tests against containers (`task ci:containers`), the operator tests against
+# a real API server (`task ci:envtest`) and the Helm chart (`task ci:chart`),
+# as parallel jobs.
 #
 # Each job keeps its own cache of Go modules and builds (and, for lint, of
 # golangci-lint's results), so it only restores what it needs. Pushes to main
@@ -29,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [lint, test, containers, chart]
+        target: [lint, test, containers, envtest, chart]
     env:
       TASK_VERSION: v3.54.0
     steps:
@@ -60,6 +61,7 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
             ~/.cache/golangci-lint
+            ~/.local/share/kubebuilder-envtest
           key: ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-${{ github.run_id }}
           restore-keys: |
             ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-
@@ -82,4 +84,5 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
             ~/.cache/golangci-lint
+            ~/.local/share/kubebuilder-envtest
           key: ${{ steps.cache.outputs.prefix }}${{ steps.cache.outputs.deps }}-${{ github.run_id }}
