@@ -2858,7 +2858,7 @@
 </tr>
 </tbody>
 </table>
-<p>After changing types or markers, regenerate the deepcopy code and the manifests with <a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> v0.22.0. They write the CRDs to <code>manifests/crds/</code> and the roles to <code>manifests/tram-manager/rbac/</code> at the repository root, and the same files to the templates of the Helm chart <code>charts/tram</code> (<code>templates/crds/</code> and <code>templates/tram-manager/rbac/</code>):</p>
+<p>After changing types or markers, regenerate the deepcopy code and the manifests with <a href="https://book.kubebuilder.io/reference/controller-gen">controller-gen</a> v0.22.0. They write the CRDs to <code>manifests/crds/</code> and the roles to <code>manifests/tram-manager/rbac/</code> at the repository root, and the same files to the Helm chart <code>charts/tram</code>, the CRDs to its <code>crds/</code> directory and the roles to <code>templates/tram-manager/rbac/</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>go<span class="w"> </span>generate<span class="w"> </span>./internal/adapters/k8scrd/...
 </code></pre></div>
 
