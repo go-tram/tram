@@ -27,6 +27,7 @@ These examples demonstrate using the OTLP sink in TRAM for various use cases.
 - Copies the header `X-Tram-Router` into the resource attribute `tram.router.id` with `header_attributes`, over HTTP (4331) and gRPC (4332); a value the client sent there itself is replaced
 - Rejects requests without a valid router ID before the batch, so one tenant's bad request does not fail a batch shared with others
 - Routes each record to the NATS subject `router.<router-id>.<signal>`
+- Keeps requests and batches below NATS' default `max_payload` of 1 MB with `max_request_bytes` and the batch's `max_bytes`, so no message is too large for the server
 - **Kubernetes version**: [../k8s/examples/otlp_tenant_routing.yaml](../k8s/examples/otlp_tenant_routing.yaml)
 
 #### [`otlp_grpc.json`](otlp_grpc.json)

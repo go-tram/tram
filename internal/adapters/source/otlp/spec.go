@@ -15,4 +15,8 @@ type Spec struct {
 	// HeaderAttributes maps request headers, or gRPC metadata, to resource
 	// attributes the source sets on every resource of a request.
 	HeaderAttributes map[string]string `json:"header_attributes,omitempty"`
+	// MaxRequestBytes limits the size of a request in bytes, both as sent and
+	// decompressed; larger ones are refused before they are decoded. Zero
+	// means 20 MiB.
+	MaxRequestBytes int `json:"max_request_bytes,omitempty" validate:"omitempty,min=1024,max=1073741824"`
 }

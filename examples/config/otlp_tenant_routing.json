@@ -7,6 +7,7 @@
       "spec": {
         "http_port": 4331,
         "grpc_port": 4332,
+        "max_request_bytes": 1000000,
         "header_attributes": {
           "X-Tram-Router": "tram.router.id"
         }
@@ -33,6 +34,7 @@
         "from": "require_router",
         "spec": {
           "max_records": 1000,
+          "max_bytes": 1000000,
           "timeout": "200ms"
         }
       }
