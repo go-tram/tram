@@ -4186,8 +4186,12 @@
 <td>Lint, unit and end-to-end tests: what a change should pass</td>
 </tr>
 <tr>
-<td><code>task ci</code> / <code>task ci:lint</code> / <code>task ci:test</code> / <code>task ci:containers</code></td>
-<td>What the CI workflows run: the pinned golangci-lint (<code>ci:lint</code>), unit and end-to-end tests without the broker packages (<code>ci:test</code>), and the broker tests against containers (<code>ci:containers</code>)</td>
+<td><code>task ci</code> / <code>task ci:lint</code> / <code>task ci:test</code> / <code>task ci:containers</code> / <code>task ci:envtest</code></td>
+<td>What the CI workflows run: the pinned golangci-lint and govulncheck (<code>ci:lint</code>), unit and end-to-end tests without the broker packages (<code>ci:test</code>), the broker tests against containers (<code>ci:containers</code>), and the operator tests against a real API server (<code>ci:envtest</code>)</td>
+</tr>
+<tr>
+<td><code>task vuln</code></td>
+<td>Checks the code and its dependencies for known vulnerabilities with govulncheck; fails only on vulnerable code that TRAM calls</td>
 </tr>
 <tr>
 <td><code>task test:all</code></td>
@@ -4884,7 +4888,7 @@
 </ol>
 <h2 id="continuous-integration-and-releases">Continuous Integration and Releases<a class="headerlink" href="#continuous-integration-and-releases" title="Permanent link">&para;</a></h2>
 <h3 id="checks-on-pull-requests">Checks on Pull Requests<a class="headerlink" href="#checks-on-pull-requests" title="Permanent link">&para;</a></h3>
-<p>The CI workflow (<code>.github/workflows/ci.yml</code>) runs on GitHub-hosted runners (<code>ubuntu-latest</code>) for every pull request and every push to main, as four parallel jobs: <code>task ci:lint</code> runs golangci-lint in the version pinned in <code>Taskfile.yml</code>, <code>task ci:test</code> the unit and end-to-end tests, <code>task ci:containers</code> the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, and <code>task ci:chart</code> checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in <code>manifests/</code> and <code>charts/tram</code>, then runs <code>task chart:lint</code>: <code>helm lint --strict</code>, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.</p>
+<p>The CI workflow (<code>.github/workflows/ci.yml</code>) runs on GitHub-hosted runners (<code>ubuntu-latest</code>) for every pull request and every push to main, as five parallel jobs: <code>task ci:lint</code> runs golangci-lint in the version pinned in <code>Taskfile.yml</code> and govulncheck, <code>task ci:test</code> the unit and end-to-end tests, <code>task ci:containers</code> the tests of the NATS, Kafka and AMQP broker packages and the end-to-end broker tests against containers, which take the longest, <code>task ci:envtest</code> the operator tests against kube-apiserver and etcd from setup-envtest, and <code>task ci:chart</code> checks the Helm chart. That job regenerates the CRDs and roles with controller-gen and fails if they differ from the ones committed in <code>manifests/</code> and <code>charts/tram</code>, then runs <code>task chart:lint</code>: <code>helm lint --strict</code>, and the chart rendered with the default and other values validated against the Kubernetes schemas with kubeconform.</p>
 <p>Each job caches the Go modules and builds, and the lint job golangci-lint's results, under a key of its own. Pushes to main save a new cache per run; pull requests and the release workflow only restore the latest one, so they stay fast without filling the cache storage.</p>
 <p>The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.</p>
 <p><strong>Upgrade test.</strong> Pull requests that change the operator, the chart, the manifests, the image or the test itself also run <code>.github/workflows/upgrade.yml</code>. In a kind cluster, it installs the latest release, creates an Engine with storage whose streams buffer records for a receiver that does not exist yet, upgrades to the chart and image of the pull request, and checks that the Engine runs the new image, its streams are mounted again, the CRDs match the repository, and every buffered record reaches the receiver once it exists. The release workflow runs it from the previous release before it publishes. Run it locally with <code>task test:upgrade</code>; the steps are in <code>test/upgrade/run.sh</code>.</p>
