@@ -129,8 +129,8 @@ tasks:
         -schema-location 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master/{{`{{.ResourceKind}}{{.KindSuffix}}`}}.json'
     cmds:
       - helm lint --strict charts/tram
-      # The default values, then the options that change what is rendered.
-      - helm template tram charts/tram --namespace tram-system | kubeconform {{.KUBECONFORM_ARGS}}
+      # The default values with CRDs, then the options that change what is rendered.
+      - helm template tram charts/tram --namespace tram-system --include-crds | kubeconform {{.KUBECONFORM_ARGS}}
       - >-
         helm template tram charts/tram --namespace tram-system
         --set 'manager.watchNamespaces={team-a,team-b}'
@@ -145,7 +145,7 @@ tasks:
       # Prometheus operator's schema, which kubeconform lacks.
       - >-
         helm template tram charts/tram --namespace tram-system
-        --set crds.install=false --set replicaCount=1 --set engineMetrics.podMonitor.enabled=true
+        --set replicaCount=1 --set engineMetrics.podMonitor.enabled=true
         | kubeconform {{.KUBECONFORM_ARGS}} -skip PodMonitor
 
   fmt:

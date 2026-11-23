@@ -18,13 +18,13 @@ internal/engines/                          Controllers of `tram manager`: Engine
 hack/boilerplate.go.txt                    Header for generated files
 ```
 
-The generated CRDs and roles live in `manifests/` at the repository root (`crds/`, and `tram-manager/rbac/engine/` and `tram-manager/rbac/manager/`), with kustomizations, and the same files in the templates of the Helm chart `charts/tram` (`templates/crds/` and `templates/tram-manager/rbac/`). Example resources live in `examples/k8s/`.
+The generated CRDs and roles live in `manifests/` at the repository root (`crds/`, and `tram-manager/rbac/engine/` and `tram-manager/rbac/manager/`), with kustomizations, and the same files in the Helm chart `charts/tram` (`crds/` and `templates/tram-manager/rbac/`). Example resources live in `examples/k8s/`.
 
 ## Critical Rules
 
 ### Never Edit Generated Files
 
-`api/v1/zz_generated.deepcopy.go` and the CRDs and roles in `manifests/crds/` and `manifests/tram-manager/rbac/` are produced by controller-gen v0.22.0 from the `//go:generate` directives in `operator.go`, which write the CRDs and roles a second time into the chart's `charts/tram/templates/crds/` and `charts/tram/templates/tram-manager/rbac/`. After editing `*_types.go` or any marker, regenerate them:
+`api/v1/zz_generated.deepcopy.go` and the CRDs and roles in `manifests/crds/` and `manifests/tram-manager/rbac/` are produced by controller-gen v0.22.0 from the `//go:generate` directives in `operator.go`, which write the CRDs and roles a second time into the chart's `charts/tram/crds/` and `charts/tram/templates/tram-manager/rbac/`. After editing `*_types.go` or any marker, regenerate them:
 
 ```sh
 go generate ./internal/adapters/k8scrd/...

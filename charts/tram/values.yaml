@@ -18,12 +18,6 @@ nameOverride: ""
 # -- Overrides the full name of the resources, release and chart name by default.
 fullnameOverride: ""
 
-# -- Apply the CRDs of Engine and Stream. They are kept when the release is
-# uninstalled, so uninstalling deletes no Engines and Streams; disable this
-# if they are installed some other way.
-crds:
-  install: true
-
 manager:
   # -- Namespaces whose Engines and Streams the manager handles; empty for all.
   # With namespaces, the manager's role is bound only there and in the

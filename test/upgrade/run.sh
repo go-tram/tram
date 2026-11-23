@@ -108,6 +108,7 @@ fi
 echo "Stored ${RECORDS} records; the reader retries them while the receiver is missing"
 
 step "Upgrade to this repository's chart and image ${IMAGE}:${NEW_TAG}"
+kubectl apply --server-side --force-conflicts -f "${repo}/charts/tram/crds/"
 helm upgrade tram "${repo}/charts/tram" --namespace "${system}" \
   --set image.repository="${IMAGE}" --set image.tag="${NEW_TAG}" --set image.pullPolicy=IfNotPresent \
   --wait --timeout 3m
@@ -117,9 +118,9 @@ wait_for 180 "the Engine to run ${IMAGE}:${NEW_TAG}" engine_runs_image "${IMAGE}
 kubectl rollout status statefulset/tram-engine-blue-line -n "${ns}" --timeout=3m
 wait_for 120 "the writer to be mounted" mounted writer
 wait_for 120 "the reader to be mounted" mounted reader
-if ! kubectl diff --server-side -f "${repo}/charts/tram/files/crds/" >/dev/null; then
-  echo "The CRDs in the cluster differ from charts/tram/files/crds after the upgrade" >&2
-  kubectl diff --server-side -f "${repo}/charts/tram/files/crds/" || true
+if ! kubectl diff --server-side -f "${repo}/charts/tram/crds/" >/dev/null; then
+  echo "The CRDs in the cluster differ from charts/tram/crds after the upgrade" >&2
+  kubectl diff --server-side -f "${repo}/charts/tram/crds/" || true
   exit 1
 fi
 echo "The Engine runs the new image, its streams are mounted and the CRDs are up to date"
