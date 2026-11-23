@@ -269,18 +269,21 @@ tasks:
       - "{{.TESTCONTAINERS_ENV}} go test -race -count=1 -run '^TestBroker(NATS|Kafka|AMQP)$' {{.CLI_ARGS}} ./internal/e2e/"
 
   test:envtest:
-    desc: Run the Kubernetes operator tests against a real API server and etcd (envtest)
+    desc: Run the Kubernetes operator and manager tests against a real API server and etcd (envtest)
     summary: |
       Downloads kube-apiserver and etcd for ENVTEST_K8S_VERSION with
-      setup-envtest on first use and runs the operator tests against them.
-      Without KUBEBUILDER_ASSETS, e.g. in `task test`, these tests are skipped.
+      setup-envtest on first use and runs the tests of the operator, the
+      manager, Engines and their storage against them. Every test starts an
+      API server of its own, so at most four run at once; more stall on a
+      laptop. Without KUBEBUILDER_ASSETS, e.g. in `task test`, these tests
+      are skipped.
     preconditions:
       - sh: command -v setup-envtest
         msg: setup-envtest is missing; run `task tools`
     cmds:
       - >-
         KUBEBUILDER_ASSETS="$(setup-envtest use {{.ENVTEST_K8S_VERSION}} -p path)"
-        go test -race -count=1 -run '^TestOperator' {{.CLI_ARGS}} ./internal/adapters/k8scrd/
+        go test -race -count=1 -parallel 4 {{.CLI_ARGS}} ./internal/adapters/k8scrd/
 
   test:upgrade:
     desc: Upgrade TRAM from the latest release to this repository in a kind cluster and check that buffered events survive
