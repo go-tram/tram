@@ -222,6 +222,11 @@ func TestEngineMigratesBackAndDrainsVolumes(t *testing.T) {
 	assert.Equal(t, "data-tram-engine-edge-0",
 		job.Spec.Template.Spec.Volumes[0].PersistentVolumeClaim.ClaimName)
 	assert.NotContains(t, job.Spec.Template.Labels, "tram.io/engine", "the Service must not select drain pods")
+	drain := job.Spec.Template.Spec.Containers[0]
+	assert.Equal(t, new(true), drain.SecurityContext.ReadOnlyRootFilesystem)
+	assert.Equal(t, new(true), drain.SecurityContext.RunAsNonRoot)
+	assert.Contains(t, drain.VolumeMounts, corev1.VolumeMount{Name: "tmp", MountPath: "/tmp"},
+		"SQLite writes its temporary files there")
 
 	c.completeJob(t, job)
 	require.EventuallyWithT(t, func(collect *assert.CollectT) {

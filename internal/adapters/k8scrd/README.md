@@ -108,6 +108,8 @@ spec:
   source: ...
 ```
 
+The `tram` container of the instances, and of the drain Jobs, runs as non-root with a read-only root file system, without privilege escalation or capabilities, and with the `RuntimeDefault` seccomp profile; these settings cannot be changed. Temporary files, e.g. those of SQLite, go to an empty directory mounted at `/tmp`. `podTemplate.spec.securityContext` sets the pod-level context, e.g. another `fsGroup`.
+
 The Helm chart [`charts/tram`](../../../charts/tram/) or the kustomization in [`manifests/`](../../../manifests/) deploys the manager with the CRDs and roles, and `examples/k8s/examples/` holds an Engine and Streams that run on it.
 
 What the manager creates for an Engine, and how its instances find their Streams:

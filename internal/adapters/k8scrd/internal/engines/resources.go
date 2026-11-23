@@ -65,7 +65,12 @@ const (
 	// called <volumeName>-<StatefulSet>-<ordinal>.
 	volumeName       = "data"
 	defaultMountPath = "/var/lib/tram"
-	drainMountPath   = "/data"
+	// The root file system of the containers is read-only; SQLite, the
+	// driver of buffers, writes its temporary files to an empty directory
+	// mounted at tmpMountPath instead.
+	tmpVolumeName  = "tmp"
+	tmpMountPath   = "/tmp"
+	drainMountPath = "/data"
 	// nonRootGroup is the group of the image's nonroot user; volumes are made
 	// writable for it.
 	nonRootGroup      = 65532
@@ -344,7 +349,8 @@ func podSpecOf(
 	pod := engine.Spec.PodTemplate.Spec
 	spec := corev1ac.PodSpec().
 		WithServiceAccountName(serviceAccount).
-		WithContainers(container)
+		WithContainers(container).
+		WithVolumes(corev1ac.Volume().WithName(tmpVolumeName).WithEmptyDir(corev1ac.EmptyDirVolumeSource()))
 	if seconds, ok := gracePeriod(engine); ok {
 		spec.WithTerminationGracePeriodSeconds(seconds)
 	}
@@ -386,6 +392,8 @@ func containerOf(
 		WithReadinessProbe(corev1ac.Probe().
 			WithTCPSocket(corev1ac.TCPSocketAction().WithPort(intstr.FromString("http")))).
 		WithSecurityContext(corev1ac.SecurityContext().
+			WithRunAsNonRoot(true).
+			WithReadOnlyRootFilesystem(true).
 			WithAllowPrivilegeEscalation(false).
 			WithCapabilities(corev1ac.Capabilities().WithDrop("ALL")).
 			WithSeccompProfile(corev1ac.SeccompProfile().WithType(corev1.SeccompProfileTypeRuntimeDefault)))
@@ -402,6 +410,7 @@ func containerOf(
 	if storage := engine.Spec.Storage; storage != nil {
 		container.WithVolumeMounts(corev1ac.VolumeMount().WithName(volumeName).WithMountPath(mountPath(storage)))
 	}
+	container.WithVolumeMounts(corev1ac.VolumeMount().WithName(tmpVolumeName).WithMountPath(tmpMountPath))
 	resources, err := convert[corev1ac.ResourceRequirementsApplyConfiguration](engine.Spec.Resources)
 	if err != nil {
 		return nil, err
