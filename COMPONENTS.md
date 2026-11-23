@@ -1120,8 +1120,15 @@ The node metrics framework counts records and durations only, not failed stateme
     - A resource or scope that an event does not have is created for statements that set something on it, and left out again otherwise
     - With `drop`, scopes and resources that lose all their entries are removed, and an event that loses all of them is not passed on
     - The statements are compiled when the stream is created or updated, so an invalid statement fails the request, also as a [dry run](README.md#dry-run), naming the statement and its signal
-    - Each entry statement costs a CEL evaluation per log record, data point or span; resource and scope statements run once per resource and scope and cost little. On one core, the stage handles about 2 million log records per second with one entry statement and about 1.4 million with four (`BenchmarkNotifyLogs` in `internal/adapters/stage/transform`); prefer resource statements where the value is the same for all entries of a resource
+    - Each entry statement costs a CEL evaluation per log record, data point or span; resource and scope statements run once per resource and scope and cost little; prefer resource statements where the value is the same for all entries of a resource
     - The stage holds no events back and does not count toward the [Hold Times](#hold-times)
+
+#### Performance
+
+Entry statements are evaluated once per log record, data point or span, and every additional one adds its evaluation, while scope and resource statements are evaluated once per scope and resource. The rows are measured on the shapes of the [Value Map Stage](#value-map-stage) benchmark, so the two stages compare.
+
+<!-- BEGIN benchreport:component:transform -->
+<!-- END benchreport:component:transform -->
 
 ---
 

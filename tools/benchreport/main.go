@@ -582,6 +582,7 @@ const (
 	pkgCELFilter    = "internal/adapters/stage/filter/cel"
 	pkgCELValidator = "internal/adapters/stage/validation/cel"
 	pkgValueMap     = "internal/adapters/stage/valuemap"
+	pkgTransform    = "internal/adapters/stage/transform"
 	pkgEncryption   = "internal/adapters/stage/encryption"
 	pkgDecryption   = "internal/adapters/stage/decryption"
 	pkgBufferSink   = "internal/adapters/sink/buffer"
@@ -601,6 +602,7 @@ const (
 	sectionDecryption   = "decryption"
 	sectionNoop         = "noop"
 	sectionValueMap     = "value-map"
+	sectionTransform    = "transform"
 	sectionBrokerSink   = "broker-sink"
 	sectionBufferSource = "buffer-source"
 	sectionBufferSink   = "buffer-sink"
@@ -611,7 +613,7 @@ func componentSections() []string {
 	return []string{
 		sectionOTLPSource, sectionBrokerSource, sectionBufferSource,
 		sectionFilter, sectionValidation, sectionBatch, sectionEncryption, sectionDecryption,
-		sectionNoop, sectionValueMap,
+		sectionNoop, sectionValueMap, sectionTransform,
 		sectionOTLPSink, sectionBrokerSink, sectionBufferSink,
 	}
 }
@@ -738,6 +740,24 @@ func perRecordStages() []component {
 			pkgValueMap,
 			"NotifyLogs/resource-level/records=1000/resources=10/teams=2",
 			sectionValueMap,
+		},
+		{
+			"transform (CEL), one entry statement",
+			pkgTransform,
+			"NotifyLogs/set/records=1000/resources=10/teams=2",
+			sectionTransform,
+		},
+		{
+			"transform (CEL), four entry statements of a normalization",
+			pkgTransform,
+			"NotifyLogs/normalize/records=1000/resources=10/teams=2",
+			sectionTransform,
+		},
+		{
+			"transform (CEL), one resource statement",
+			pkgTransform,
+			"NotifyLogs/resource/records=1000/resources=10/teams=2",
+			sectionTransform,
 		},
 		{
 			"encryption, body only",

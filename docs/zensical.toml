@@ -59,6 +59,7 @@ nav = [
           { "No-op" = "components/stages/no-op.md" },
           { "Validation" = "components/stages/validation.md" },
           { "Value Map" = "components/stages/value-map.md" },
+          { "Transform" = "components/stages/transform.md" },
       ] },
       { "Sinks" = [
           "components/sinks/index.md",
