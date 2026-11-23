@@ -5,7 +5,10 @@
 
 package configsync
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // SetRetryDelays shortens the delays between retries of streams that could
 // not be applied. It must be called before Run.
@@ -13,4 +16,14 @@ func SetRetryDelays(c *ConfigSync, minDelay, maxDelay time.Duration) {
 	c.syncMu.Lock()
 	defer c.syncMu.Unlock()
 	c.minRetryDelay, c.maxRetryDelay = minDelay, maxDelay
+}
+
+// Sync syncs the directory once, like a change of a file does.
+func Sync(ctx context.Context, c *ConfigSync) (int, error) {
+	return c.sync(ctx)
+}
+
+// Running tells whether Run receives the changes of the core.
+func Running(c *ConfigSync) bool {
+	return c.running.Load()
 }
