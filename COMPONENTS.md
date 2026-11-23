@@ -9,7 +9,7 @@ A stream is a tree of components: exactly one **source** at the root, which rece
 ```mermaid
 flowchart LR
     src(["source<br/>otlp, broker, buffer, generator"]) --> s1["stage<br/>validation"]
-    s1 --> s2["stage<br/>filter"] --> s3["stage<br/>transform, value_map, encryption"] --> s4["stage<br/>batch"] --> k1(["sink<br/>broker"])
+    s1 --> s2["stage<br/>filter"] --> s3["stage<br/>value_map, encryption"] --> s4["stage<br/>batch"] --> k1(["sink<br/>broker"])
     s1 --> k2(["sink<br/>otlp"])
     src --> k3(["sink<br/>buffer, debug"])
 ```
@@ -18,22 +18,22 @@ flowchart LR
 
 | Component | Kind | Drivers | Signals | Holds events back | State on disk | Performance |
 |-----------|------|---------|---------|-------------------|---------------|-------------|
-| [`otlp`](#otlp-source) | source | – | logs, metrics, traces | – | – | ✓ |
+| [`otlp`](#otlp-source) | source | – | all | – | – | ✓ |
 | [`broker`](#broker-source) | source | `nats`, `kafka`, `amqp` | one per source (`signal`) | – | – | ✓ NATS |
-| [`buffer`](#buffer-source) | source | `sqlite` | logs, metrics, traces | – | reads the queue | – |
+| [`buffer`](#buffer-source) | source | `sqlite` | all | – | reads the queue | – |
 | [`generator`](#generator-source) | source | – | empty events | – | – | – |
 | [`validation`](#validation-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`filter`](#filter-stage) | stage | `cel` | per signal | – | – | ✓ |
-| [`value_map`](#value-map-stage) | stage | – | logs, metrics, traces | – | – | ✓ |
+| [`value_map`](#value-map-stage) | stage | – | all | – | – | ✓ |
 | [`encryption`](#encryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
 | [`decryption`](#decryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
-| [`batch`](#batch-stage) | stage | – | logs, metrics, traces | up to `timeout` | – | ✓ |
-| [`delay`](#delay-stage) | stage | – | logs, metrics, traces | for `delay` | – | – |
-| [`noop`](#no-op-stage) | stage | – | logs, metrics, traces | – | – | ✓ |
-| [`otlp`](#otlp-sink) | sink | – | logs, metrics, traces | – | – | – |
+| [`batch`](#batch-stage) | stage | – | all | up to `timeout` | – | ✓ |
+| [`delay`](#delay-stage) | stage | – | all | for `delay` | – | – |
+| [`noop`](#no-op-stage) | stage | – | all | – | – | ✓ |
+| [`otlp`](#otlp-sink) | sink | – | all | – | – | – |
 | [`broker`](#broker-sink) | sink | `nats`, `kafka`, `amqp` | per signal (`destination`) | – | – | ✓ NATS |
-| [`buffer`](#buffer-sink) | sink | `sqlite` | logs, metrics, traces | – | writes the queue | – |
-| [`debug`](#debug-sink) | sink | – | logs, metrics, traces | – | – | – |
+| [`buffer`](#buffer-sink) | sink | `sqlite` | all | – | writes the queue | – |
+| [`debug`](#debug-sink) | sink | – | all | – | – | – |
 
 - **Holds events back:** the caller waits while the stage holds an event, which counts toward the [Hold Times](#hold-times) a stream may add up.
 - **State on disk:** everything else works in memory; only a buffer keeps events on the instance's disk, between two streams. See [Buffers](#buffers).
