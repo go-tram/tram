@@ -4,22 +4,67 @@
         <loc>https://gotram.dev/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/benchmarks/</loc>
-      </url>
-      <url>
         <loc>https://gotram.dev/components/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/components/sinks/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/components/sinks/broker/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sinks/buffer/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sinks/debug/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sinks/otlp/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/components/sources/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sources/broker/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sources/buffer/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sources/generator/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/sources/otlp/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/components/stages/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/contributing/</loc>
+        <loc>https://gotram.dev/components/stages/batch/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/decryption/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/delay/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/encryption/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/filter/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/no-op/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/transform/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/validation/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/components/stages/value-map/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/deployment/container/</loc>
@@ -55,12 +100,6 @@
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
-        <loc>https://gotram.dev/examples/kubernetes/</loc>
-      </url>
-      <url>
-        <loc>https://gotram.dev/examples/streams/</loc>
-      </url>
-      <url>
         <loc>https://gotram.dev/guide/api/</loc>
       </url>
       <url>
@@ -77,9 +116,6 @@
       </url>
       <url>
         <loc>https://gotram.dev/guide/testing/</loc>
-      </url>
-      <url>
-        <loc>https://gotram.dev/kubernetes/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/operations/benchmarks/</loc>

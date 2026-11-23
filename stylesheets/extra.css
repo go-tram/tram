@@ -186,3 +186,26 @@
   background-color: var(--tram-yellow);
   color: var(--tram-slate);
 }
+
+/* Sortable table headers (javascripts/sortable-tables.js): a pointer, and an
+   arrow for the column and direction the table is sorted by. */
+.md-typeset th.tram-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.md-typeset th.tram-sortable::after {
+  content: " ↕";
+  opacity: 0.35;
+}
+
+.md-typeset th.tram-sortable[aria-sort="ascending"]::after {
+  content: " ↑";
+  opacity: 1;
+}
+
+.md-typeset th.tram-sortable[aria-sort="descending"]::after {
+  content: " ↓";
+  opacity: 1;
+}
