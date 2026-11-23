@@ -38,6 +38,8 @@ spec:
       port: 4317
     - name: otlp-grpc-http
       port: 4329
+    - name: otlp-transform
+      port: 4330
     - name: tenant-http
       port: 4331
     - name: tenant-grpc

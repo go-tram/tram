@@ -69,6 +69,7 @@ task nats:up
 | `task test:unit` / `task test:e2e` | Unit tests only, or the end-to-end tests that need no containers |
 | `task test:containers` | End-to-end tests against NATS, Kafka and Artemis (AMQP) in containers; fails if no container runtime runs |
 | `task test:envtest` | Kubernetes operator tests against a real API server and etcd; downloads them on first use |
+| `task test:upgrade` | Upgrades from the latest release to this repository in a kind cluster and checks that buffered events survive; needs kind, helm and kubectl |
 | `task test:cover` | All tests with coverage, written to `coverage.out` |
 | `task lint` / `task fmt` | golangci-lint (including go vet), or format with its configured formatters |
 | `task generate` | Regenerate protobuf, gateway and swagger code and the Kubernetes CRD |
@@ -756,9 +757,11 @@ Each job caches the Go modules and builds, and the lint job golangci-lint's resu
 
 The actions the workflows use are pinned to the commit of a release, with the version in a comment; update both together.
 
+**Upgrade test.** Pull requests that change the operator, the chart, the manifests, the image or the test itself also run `.github/workflows/upgrade.yml`. In a kind cluster, it installs the latest release, creates an Engine with storage whose streams buffer records for a receiver that does not exist yet, upgrades to the chart and image of the pull request, and checks that the Engine runs the new image, its streams are mounted again, the CRDs match the repository, and every buffered record reaches the receiver once it exists. The release workflow runs it from the previous release before it publishes. Run it locally with `task test:upgrade`; the steps are in `test/upgrade/run.sh`.
+
 ### Releases
 
-A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint, test, containers and chart jobs, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`. Then it publishes the Helm chart `charts/tram` to `oci://ghcr.io/go-tram/charts/tram` with that version as chart and app version, renders `manifests/` with the image of that version into `tram.yaml`, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. In the repository the chart keeps the version `0.0.0` and the manifests the image tag `latest`; do not bump them.
+A release is a version tag on main. The release workflow (`.github/workflows/release.yml`) refuses tags that are not on main, runs the same lint, test, containers and chart jobs and the upgrade test from the previous release, and then builds the image with Docker Buildx for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/go-tram/tram` as the version without the leading `v` (e.g. `0.1.0`) and as `latest`. Then it publishes the Helm chart `charts/tram` to `oci://ghcr.io/go-tram/charts/tram` with that version as chart and app version, renders `manifests/` with the image of that version into `tram.yaml`, and attaches both to the GitHub Release of the tag, which it creates if it does not exist. The image gets an SBOM and a provenance attestation, and image and chart are signed with cosign, keyless through the workflow's GitHub OIDC token; [SECURITY.md](SECURITY.md#verifying-releases) shows how to verify them. It also pushes `charts/artifacthub-repo.yml` as the tag `artifacthub.io` of the chart's repository, from which [Artifact Hub](https://artifacthub.io) reads the repository ID and owners. In the repository the chart keeps the version `0.0.0` and the manifests the image tag `latest`; do not bump them.
 
 Tag releases with the release tasks rather than by hand. They use [svu](https://github.com/caarlos0/svu) to compute the version from the existing tags, check that you are on main, that it matches `origin/main` and has no uncommitted changes, run `task check`, and then create and push the annotated tag:
 

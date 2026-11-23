@@ -249,9 +249,9 @@ Until the source has answered, an event exists only in memory. If the process st
 
 | Type | Components |
 |------|-------------|
-| **Sources** | `broker`, `generator`, `otlp` |
-| **Stages** | `batch`, `delay`, `filter`, `noop`, `validation`, `value_map` |
-| **Sinks** | `broker`, `debug`, `otlp` |
+| **Sources** | `broker`, `buffer`, `generator`, `otlp` |
+| **Stages** | `batch`, `decryption`, `delay`, `encryption`, `filter`, `noop`, `transform`, `validation`, `value_map` |
+| **Sinks** | `broker`, `buffer`, `debug`, `otlp` |
 
 For detailed documentation on each component and its configuration, see [COMPONENTS.md](COMPONENTS.md).
 
@@ -550,7 +550,7 @@ The header decides the attribute: a value a client sends in the attribute itself
 
 ## 🐳 Container Image
 
-Every release publishes a multi-architecture image (`linux/amd64`, `linux/arm64`) as `ghcr.io/go-tram/tram:<version>`, e.g. `0.0.19`, and as `latest`. It holds only the `tram` binary on a distroless base, runs as the non-root user `65532` and starts `tram server` with both APIs listening on all interfaces of the container:
+Every release publishes a multi-architecture image (`linux/amd64`, `linux/arm64`) as `ghcr.io/go-tram/tram:<version>`, e.g. `0.0.19`, and as `latest`. It is signed with cosign and carries an SBOM; see [Verifying Releases](SECURITY.md#verifying-releases). It holds only the `tram` binary on a distroless base, runs as the non-root user `65532` and starts `tram server` with both APIs listening on all interfaces of the container:
 
 ```bash
 docker run --rm -p 8080:8080 -p 50051:50051 -p 4317:4317 -p 4318:4318 ghcr.io/go-tram/tram:latest

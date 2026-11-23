@@ -1,8 +1,8 @@
 apiVersion: v2
 name: tram
 description: >-
-  The Tram manager, which runs Tram Engines on Kubernetes as Deployments, with
-  the Engine and Stream CRDs.
+  The TRAM manager, which runs TRAM Engines on Kubernetes as Deployments or
+  StatefulSets, with the Engine and Stream CRDs.
 type: application
 # The release workflow publishes the chart with the version of the release
 # tag as both version and appVersion; these are the values of the repository,
@@ -18,3 +18,23 @@ keywords:
   - telemetry
   - pipeline
   - operator
+# Shown on Artifact Hub (https://artifacthub.io).
+annotations:
+  artifacthub.io/category: monitoring-logging
+  artifacthub.io/license: MPL-2.0
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://gotram.dev/
+    - name: Source
+      url: https://github.com/GO-TRAM/TRAM
+  artifacthub.io/crds: |
+    - kind: Engine
+      version: v1alpha1
+      name: engines.io.tram.core
+      displayName: Engine
+      description: A group of TRAM instances the manager runs as a Deployment, or a StatefulSet with storage for buffers
+    - kind: Stream
+      version: v1
+      name: streams.io.tram.core
+      displayName: Stream
+      description: A stream the instances of the Engines it names run

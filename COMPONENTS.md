@@ -24,6 +24,7 @@ flowchart LR
 | [`generator`](#generator-source) | source | – | empty events | – | – | – |
 | [`validation`](#validation-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`filter`](#filter-stage) | stage | `cel` | per signal | – | – | ✓ |
+| [`transform`](#transform-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`value_map`](#value-map-stage) | stage | – | all | – | – | ✓ |
 | [`encryption`](#encryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
 | [`decryption`](#decryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
@@ -48,6 +49,7 @@ flowchart LR
 | ride out an outage of a destination | a [`buffer` sink](#buffer-sink) in one stream and a [`buffer` source](#buffer-source) in another; see [Buffers](#buffers) |
 | accept or refuse whole requests | [`validation`](#validation-stage), with `on_mismatch: reject` before a batch |
 | keep only some records | [`filter`](#filter-stage) |
+| change attributes: derive them from others, rename, truncate or delete them | [`transform`](#transform-stage) |
 | set an attribute from a table, e.g. tenant → router | [`value_map`](#value-map-stage) |
 | keep values secret on their way | [`encryption`](#encryption-stage) before the sinks, [`decryption`](#decryption-stage) where they may be read |
 | send fewer, larger requests or messages | [`batch`](#batch-stage) before the sink |
@@ -57,7 +59,7 @@ flowchart LR
 
 ## 🔌 Drivers
 
-Some components are a concept with exchangeable technologies: the broker source and sink with NATS, Kafka or AMQP, the buffer with SQLite, encryption and decryption with a local key or a KMS, filter and validation with CEL. Such a component names its technology in `driver` and holds the driver's options under the driver's name; the fields beside them are the component's own and apply to every driver:
+Some components are a concept with exchangeable technologies: the broker source and sink with NATS, Kafka or AMQP, the buffer with SQLite, encryption and decryption with a local key or a KMS, filter, transform and validation with CEL. Such a component names its technology in `driver` and holds the driver's options under the driver's name; the fields beside them are the component's own and apply to every driver:
 
 ```yaml
 type: broker
@@ -379,6 +381,7 @@ Stages process, transform, or filter data between sources and sinks.
 | [`encryption`](#encryption-stage) | Encrypts log record bodies and selected attributes before the sinks |
 | [`filter`](#filter-stage) | Keeps only the records that match the rules of its driver, e.g. CEL |
 | [`noop`](#no-op-stage) | Pass-through stage that does no processing (useful for testing) |
+| [`transform`](#transform-stage) | Sets, deletes, renames and truncates attributes with the statements of its driver, e.g. CEL |
 | [`validation`](#validation-stage) | Accepts, drops or rejects whole events by the rules of its driver, e.g. CEL |
 | [`value_map`](#value-map-stage) | Copies an attribute value to another attribute by looking it up in a table |
 
@@ -944,7 +947,7 @@ Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `8d47958`, 2026-11-23; 
 
 ### Value Map Stage
 
-Looks up a source attribute in a table for every record and sets a target attribute to the mapped value, or to `default` on a miss (missing attribute or no table entry). Every record is passed on; nothing is filtered, dropped or held back.
+Looks up a source attribute in a table for every record and sets a target attribute to the mapped value, or to `default` on a miss (missing attribute or no table entry). Every record is passed on; nothing is filtered, dropped or held back. It maps values by data, a table; to compute attributes from others by logic, use the [Transform Stage](#transform-stage), e.g. after this stage on its result.
 
 **Type:** `value_map`
 
@@ -1009,6 +1012,116 @@ Mapping a resource attribute runs once per resource instead of once per record, 
 
 Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `8d47958`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:value-map -->
+
+### Transform Stage
+
+Changes the attributes of log records, metric data points and spans, and of their scopes and resources, with the statements of the driver chosen by `driver`. The driver's options are under the driver's name, e.g. `cel:`. Use it to derive attributes from others, rename keys to a convention, cut long values, or remove attributes nobody should store. To look values up in a table, use the [Value Map Stage](#value-map-stage) instead; to encrypt or hash values, the [Encryption Stage](#encryption-stage).
+
+**Type:** `transform`
+
+**Configuration:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `driver` | string | Yes | - | The language of the statements: `cel` (Common Expression Language) |
+| `on_error` | string | No | `skip` | What happens when a statement fails on a resource, scope or entry: `skip` the statement and keep the entry, `drop` the entry (or the resource or scope with its entries), or `reject` the event (`422` for OTLP clients) |
+| `cel` | object | With `driver: cel` | - | Options of the CEL driver, see below |
+
+**CEL driver options:** a list of statements per signal, at least one list.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `logs` | []statement | Statements for logs |
+| `metrics` | []statement | Statements for metrics, applied to their data points |
+| `traces` | []statement | Statements for traces |
+
+**Statements:** each has exactly one operation, which names the target path, and an optional `when`:
+
+| Operation | Arguments | Effect |
+|-----------|-----------|--------|
+| `set` | `value`: CEL expression | Sets the attribute to the value: a string, bool, int, double or bytes. Replaces an existing value |
+| `delete` | - | Removes the attribute; a missing one is no error |
+| `rename` | `to`: key | Moves the value to the key `to` in the same attributes, replacing a value there; a missing attribute is no error |
+| `truncate` | `length`: int ≥ 1 | Shortens a string value to `length` characters; other types stay as they are |
+| (any) | `when`: CEL expression | The statement only runs where it returns `true` |
+
+**Target paths and when statements run:** the path decides how often a statement runs, so a statement on the resource runs once per resource, not once per record that shares it:
+
+| Path | Runs once per | CEL variables |
+|------|---------------|---------------|
+| `resource.attributes['key']` | resource | `resource` |
+| `scope.attributes['key']` | scope | `resource`, `scope` |
+| `attributes['key']` | log record, metric data point or span | `resource`, `scope`, and `record` (logs), `metric` and `datapoint` (metrics) or `span` (traces) |
+
+```mermaid
+flowchart LR
+    event(["event, copied"]) --> resource["resource statements<br/>once per resource"]
+    resource --> scope["scope statements<br/>once per scope"]
+    scope --> entry["entry statements<br/>once per record, data point or span"]
+    entry --> next(["next stage or sink"])
+    resource -. "failed statement" .-> onerror{"on_error"}
+    scope -.-> onerror
+    entry -.-> onerror
+    onerror -- skip --> continue["next statement"]
+    onerror -- drop --> dropped["entry, scope or resource removed"]
+    onerror -- reject --> rejected["event rejected, 422"]
+```
+
+Within a signal, the resource statements run first, then the scope statements, then the entry statements, each group in the order of the list. Keys go in single or double quotes.
+
+**Functions:** besides standard CEL, expressions have the [string functions](https://github.com/google/cel-go/blob/master/ext/README.md#strings) of CEL, e.g. `split`, `replace`, `lowerAscii`, `substring`, `trim`, and `attr(attributes, 'key')`, which returns the value of an attribute: a string, bool, int, double or bytes, or `null` if it is missing. Arrays and key-value lists are returned as their OTLP `AnyValue`.
+
+**Example:** derive the environment from the namespace, drop a secret, follow the semantic conventions and keep notes short:
+
+```json
+{
+  "name": "normalize",
+  "type": "transform",
+  "from": "otlp-in",
+  "spec": {
+    "driver": "cel",
+    "cel": {
+      "logs": [
+        {
+          "set": "resource.attributes['deployment.environment']",
+          "value": "attr(resource.attributes, 'k8s.namespace.name').split('-')[1]"
+        },
+        { "delete": "attributes['password']" },
+        { "rename": "attributes['user']", "to": "user.name" },
+        { "truncate": "attributes['note']", "length": 256 },
+        {
+          "set": "attributes['level']",
+          "value": "record.severity_text.lowerAscii()",
+          "when": "record.severity_text != ''"
+        }
+      ],
+      "metrics": [
+        { "rename": "attributes['http.method']", "to": "http.request.method" }
+      ]
+    }
+  }
+}
+```
+
+`examples/tests/otlp_with_transform.json` holds this stream with test cases; run them with `tram test`.
+
+**Metrics:** besides the node metrics of its stream, the stage counts the statements that failed, with the `stream`, the `node` of the stage and the `signal` as labels:
+
+| Metric | Type | Labels | Description |
+|--------|------|--------|-------------|
+| `tram_stage_transform_failed_total` | Counter | `stream`, `node`, `signal` | Statements that failed on a resource, scope or entry, whatever `on_error` then did |
+
+The node metrics framework counts records and durations only, not failed statements, which is why the stage adds its own counter, created from the meter provider its factory passes. It is labeled like the node metrics, so every stream and stage has a series of its own. The first failure in a minute is also logged as a warning with its error.
+
+??? note "Behavior"
+
+    - The stage changes a copy of the signals it has statements for; the event it receives is shared with sibling branches and stays as it is. Signals without statements are passed on as they are
+    - A statement fails when an expression fails, e.g. on a missing attribute (`null` has no `split`), or returns a value that is no string, bool, int, double or bytes. With `on_error: skip`, use `when` or `attr(...) != null` to run a statement only where it applies, so the failed metric shows real problems
+    - A resource or scope that an event does not have is created for statements that set something on it, and left out again otherwise
+    - With `drop`, scopes and resources that lose all their entries are removed, and an event that loses all of them is not passed on
+    - The statements are compiled when the stream is created or updated, so an invalid statement fails the request, also as a [dry run](README.md#dry-run), naming the statement and its signal
+    - Each entry statement costs a CEL evaluation per log record, data point or span; resource and scope statements run once per resource and scope and cost little. On one core, the stage handles about 2 million log records per second with one entry statement and about 1.4 million with four (`BenchmarkNotifyLogs` in `internal/adapters/stage/transform`); prefer resource statements where the value is the same for all entries of a resource
+    - The stage holds no events back and does not count toward the [Hold Times](#hold-times)
 
 ---
 

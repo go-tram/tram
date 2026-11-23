@@ -1,0 +1,143 @@
+{
+  "stream": {
+    "name": "otlp_with_transform",
+    "source": {
+      "name": "otlp_source",
+      "type": "otlp",
+      "spec": {
+        "http_port": 4330
+      }
+    },
+    "stages": [
+      {
+        "name": "normalize",
+        "type": "transform",
+        "from": "otlp_source",
+        "spec": {
+          "driver": "cel",
+          "cel": {
+            "logs": [
+              {
+                "set": "resource.attributes['deployment.environment']",
+                "value": "attr(resource.attributes, 'k8s.namespace.name').split('-')[1]"
+              },
+              { "delete": "attributes['password']" },
+              { "rename": "attributes['user']", "to": "user.name" },
+              { "truncate": "attributes['note']", "length": 10 },
+              {
+                "set": "attributes['level']",
+                "value": "record.severity_text.lowerAscii()",
+                "when": "record.severity_text != ''"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "sinks": [
+      {
+        "name": "backend",
+        "type": "otlp",
+        "from": "normalize",
+        "spec": {
+          "url": "http://otel-collector:4318"
+        }
+      }
+    ],
+    "tests": [
+      {
+        "name": "normalizes a log record",
+        "input": {
+          "logs": {
+            "resourceLogs": [
+              {
+                "resource": {
+                  "attributes": [{ "key": "k8s.namespace.name", "value": { "stringValue": "shop-prod" } }]
+                },
+                "scopeLogs": [
+                  {
+                    "logRecords": [
+                      {
+                        "severityText": "WARN",
+                        "attributes": [
+                          { "key": "user", "value": { "stringValue": "ann" } },
+                          { "key": "password", "value": { "stringValue": "s3cret" } },
+                          { "key": "note", "value": { "stringValue": "a very long note text" } }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "expect": {
+          "backend": {
+            "logs": {
+              "resourceLogs": [
+                {
+                  "resource": {
+                    "attributes": [
+                      { "key": "k8s.namespace.name", "value": { "stringValue": "shop-prod" } },
+                      { "key": "deployment.environment", "value": { "stringValue": "prod" } }
+                    ]
+                  },
+                  "scopeLogs": [
+                    {
+                      "logRecords": [
+                        {
+                          "severityText": "WARN",
+                          "attributes": [
+                            { "key": "note", "value": { "stringValue": "a very lon" } },
+                            { "key": "user.name", "value": { "stringValue": "ann" } },
+                            { "key": "level", "value": { "stringValue": "warn" } }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "name": "skips statements that cannot apply and keeps the record",
+        "input": {
+          "logs": {
+            "resourceLogs": [
+              {
+                "scopeLogs": [
+                  {
+                    "logRecords": [
+                      { "body": { "stringValue": "no resource, no attributes" } }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "expect": {
+          "backend": {
+            "logs": {
+              "resourceLogs": [
+                {
+                  "scopeLogs": [
+                    {
+                      "logRecords": [
+                        { "body": { "stringValue": "no resource, no attributes" } }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
