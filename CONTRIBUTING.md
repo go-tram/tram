@@ -153,6 +153,7 @@ tram/
 ├── pkg/gen/go/api/proto/stream/v1/   # Generated protobuf, gRPC and gateway code
 ├── examples/                            # Example configurations: config/, k8s/, nats/
 ├── tools/benchreport/                # Generates BENCHMARK.md
+├── docs/adr/                         # Architecture Decision Records
 ├── docs/assets/                      # Images used in the documentation
 ├── buf.yaml, buf.gen.yaml, buf.lock  # Protobuf generation
 ├── generate.go                       # Entry point for go generate
@@ -726,6 +727,10 @@ func (u *User) Validate() error {
     // implementation
 }
 ```
+
+### Architecture Decisions
+
+Decisions that are hard to reverse, change a contract (configuration, API, delivery semantics, metrics) or turn down an obvious alternative are recorded in [docs/adr/](docs/adr/README.md). A pull request that makes such a decision adds a record, or a new one that supersedes an old one; see [Writing a Record](docs/adr/README.md#writing-a-record).
 
 ### API Documentation
 
