@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,11 +59,20 @@ type Options struct {
 	skipNameValidation bool
 }
 
+// loggerSet makes setLogger set the logger once per process.
+//
+//nolint:gochecknoglobals // guards controller-runtime's logger, which is global itself
+var loggerSet sync.Once
+
 // setLogger sets the global logger of controller-runtime. Its package-level
 // loggers, like those of the client config, cache and sources, use it instead
-// of the manager's logger.
+// of the manager's logger. A process runs one operator or manager, so the
+// first logger is the only one; managers started concurrently, as in tests,
+// would otherwise set it at the same time.
 func setLogger(logger *slog.Logger) {
-	ctrl.SetLogger(logr.FromSlogHandler(logger.Handler()))
+	loggerSet.Do(func() {
+		ctrl.SetLogger(logr.FromSlogHandler(logger.Handler()))
+	})
 }
 
 func New(core ports.Core, opts Options, logger *slog.Logger) (*Operator, error) {
