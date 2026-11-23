@@ -194,6 +194,16 @@ Costs of single components, measured in isolation, to compare them with each oth
 | validation (CEL), resource-level expression | 13.5 ns | 0.1 | 73.86 M | ±14% ⚠️ |
 | Record filter helper without CEL | 8.0 ns | 0.0 | 124.60 M | ±3% |
 | batch, 8 concurrent callers | 0.5 ns | 0.0 | 2.10 G | ±7% |
+| OTLP source over gRPC: request with the client's encoding | n/a | n/a | n/a | |
+| Broker source (Kafka), 8 workers | n/a | n/a | n/a | |
+| Broker source (AMQP), 8 workers | n/a | n/a | n/a | |
+| Buffer source (SQLite), 1 worker | n/a | n/a | n/a | |
+| Buffer source (SQLite), 8 workers | n/a | n/a | n/a | |
+| OTLP sink: encode and send over loopback | n/a | n/a | n/a | |
+| Broker sink (Kafka): group and publish, 10 topics | n/a | n/a | n/a | |
+| Broker sink (AMQP): group and publish, 10 queues | n/a | n/a | n/a | |
+| Buffer sink (SQLite), one caller | n/a | n/a | n/a | |
+| Buffer sink (SQLite), concurrent callers | n/a | n/a | n/a | |
 | value_map, mapping a record attribute | n/a | n/a | n/a | |
 | value_map, mapping a resource attribute | n/a | n/a | n/a | |
 | encryption, body only | n/a | n/a | n/a | |
@@ -210,6 +220,13 @@ Fixed costs per event, independent of its size. They dominate when events are sm
 |---|---|---|---|
 | Broker sink (NATS): one record (waits for the acknowledgement) | 38.11 µs | 64 | ±5% |
 | OTLP source: request with one record | 6.47 µs | 85 | ±23% ⚠️ |
+| OTLP source over gRPC: request with one record | n/a | n/a | |
+| Broker sink (Kafka): one record (waits for the acknowledgement) | n/a | n/a | |
+| Broker sink (AMQP): one record (waits for the acknowledgement) | n/a | n/a | |
+| OTLP sink: one record (waits for the answer) | n/a | n/a | |
+| Buffer sink (SQLite): one record, one caller (waits for the sync) | n/a | n/a | |
+| Buffer sink (SQLite): one record, concurrent callers | n/a | n/a | |
+| Buffer source (SQLite): one record, 1 worker | n/a | n/a | |
 | batch, one caller | 1.65 µs | 15 | ±7% |
 | Passing an event to 1 child | 381.0 ns | 6 | ±4% |
 | Passing an event to 8 children | 1.59 µs | 20 | ±7% |
@@ -267,7 +284,7 @@ What it shows:
 
 ## Regenerating
 
-The scenario and NATS benchmarks need Docker or Podman; without them they are skipped and their rows show `n/a`. With Podman on macOS, point Testcontainers to the socket inside the Podman VM first:
+The scenario and broker benchmarks need Docker or Podman, which run NATS, Kafka and ActiveMQ Artemis in containers; without them they are skipped and their rows show `n/a`. With Podman on macOS, point Testcontainers to the socket inside the Podman VM first:
 
 ```bash
 export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/run/podman/podman.sock

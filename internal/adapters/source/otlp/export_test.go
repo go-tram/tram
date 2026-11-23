@@ -7,7 +7,10 @@ package otlp
 
 import (
 	"net/http"
+
 	"time"
+
+	"google.golang.org/grpc"
 
 	"github.com/go-tram/tram/internal/adapters/source/base"
 	"github.com/go-tram/tram/internal/core/domain"
@@ -42,4 +45,10 @@ func SetResponseWriteTimeout(o *OTLP, timeout time.Duration) {
 
 func HandleLogs(o *OTLP, w http.ResponseWriter, r *http.Request) {
 	o.handleLogs(w, r)
+}
+
+// NewGRPCServer is the gRPC server of o, for benchmarks that serve it on a
+// listener of their own.
+func NewGRPCServer(o *OTLP) *grpc.Server {
+	return newGRPCServer(o)
 }

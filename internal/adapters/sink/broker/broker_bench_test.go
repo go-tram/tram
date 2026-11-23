@@ -6,7 +6,9 @@
 package broker_test
 
 import (
+	"fmt"
 	"log/slog"
+	"maps"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -15,11 +17,16 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/sink/broker"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
-// Publishes to NATS through the NATS driver.
+// benchTeams is how many teams, and so destinations, the largest shape has.
+const benchTeams = 10
+
+// Publishes to NATS through the NATS driver, one subject per team.
 func BenchmarkNotify(b *testing.B) {
 	url := natstest.Start(b)
 	nc, err := nats.Connect(url)
@@ -36,22 +43,54 @@ func BenchmarkNotify(b *testing.B) {
 	}); err != nil {
 		b.Fatal(err)
 	}
+	benchmarkNotify(b, map[string]any{"driver": "nats", "nats": map[string]any{"url": url}}, "'bench.' + ")
+}
 
+// Publishes to Kafka through the Kafka driver, one topic per team.
+func BenchmarkNotifyKafka(b *testing.B) {
+	brokers := kafkatest.Start(b)
+	for i := range benchTeams {
+		kafkatest.CreateTopic(b, brokers, fmt.Sprintf("bench-team-%d", i), 1)
+	}
+	seeds := make([]any, len(brokers))
+	for i, s := range brokers {
+		seeds[i] = s
+	}
+	benchmarkNotify(b, map[string]any{"driver": "kafka", "kafka": map[string]any{"brokers": seeds}}, "'bench-' + ")
+}
+
+// Publishes to ActiveMQ Artemis through the AMQP 1.0 driver, one queue per
+// team.
+func BenchmarkNotifyAMQP(b *testing.B) {
+	artemis := amqptest.Start(b)
+	for i := range benchTeams {
+		artemis.CreateQueue(b, fmt.Sprintf("bench.team-%d", i))
+	}
+	benchmarkNotify(b, map[string]any{"driver": "amqp", "amqp": map[string]any{"url": artemis.URL}}, "'bench.' + ")
+}
+
+// benchmarkNotify measures the sink with the driver spec on the shapes of all
+// brokers; prefix is the CEL expression that starts each destination, which
+// ends with the record's team.
+func benchmarkNotify(b *testing.B, driverSpec map[string]any, prefix string) {
+	b.Helper()
 	v := validator.New(validator.WithRequiredStructEnabled())
 	shapes := []otlpgen.Shape{
 		{Records: 1, Resources: 1, Teams: 1, Attributes: 4},
 		{Records: 100, Resources: 1, Teams: 1, Attributes: 4},
 		{Records: 1000, Resources: 10, Teams: 1, Attributes: 4},
-		{Records: 1000, Resources: 10, Teams: 10, Attributes: 4},
+		{Records: 1000, Resources: 10, Teams: benchTeams, Attributes: 4},
 	}
 	for _, shape := range shapes {
-		sink, newErr := broker.New(domain.SinkSpec{Name: "broker", From: "in", Spec: map[string]any{
-			"driver": "nats",
-			"nats":   map[string]any{"url": url},
-			"destination": map[string]any{
-				"logs": "'bench.' + logs.resource_logs[0].scope_logs[0].log_records[0].attributes.get_attr('team')",
-			},
-		}}, v, slog.New(slog.DiscardHandler))
+		spec := map[string]any{"destination": map[string]any{
+			"logs": prefix + "logs.resource_logs[0].scope_logs[0].log_records[0].attributes.get_attr('team')",
+		}}
+		maps.Copy(spec, driverSpec)
+		sink, newErr := broker.New(
+			domain.SinkSpec{Name: "broker", From: "in", Spec: spec},
+			v,
+			slog.New(slog.DiscardHandler),
+		)
 		if newErr != nil {
 			b.Fatal(newErr)
 		}

@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 )
 
@@ -328,6 +330,8 @@ func renderEnvironment(e env, count int, scenarioTime, componentTime string) str
 	fmt.Fprintf(&b, "| CPU | %s |\n", or(e.cpu, "unknown"))
 	fmt.Fprintf(&b, "| Go | %s |\n", e.goVersion)
 	fmt.Fprintf(&b, "| NATS | `%s` in a local container |\n", natstest.Image)
+	fmt.Fprintf(&b, "| Kafka | `%s` in a local container |\n", kafkatest.Image)
+	fmt.Fprintf(&b, "| AMQP | `%s` in a local container |\n", amqptest.Image)
 	fmt.Fprintf(
 		&b,
 		"| Runs | %d per benchmark, medians shown; scenarios `-benchtime=%s`, streams `-benchtime=%s`, components `-benchtime=%s` |\n",
@@ -571,6 +575,9 @@ const (
 	pkgValueMap     = "internal/adapters/stage/valuemap"
 	pkgEncryption   = "internal/adapters/stage/encryption"
 	pkgDecryption   = "internal/adapters/stage/decryption"
+	pkgBufferSink   = "internal/adapters/sink/buffer"
+	pkgBufferSource = "internal/adapters/source/buffer"
+	pkgOTLPSink     = "internal/adapters/sink/otlp"
 )
 
 // The sections of the component documentation, one per component that has
@@ -586,14 +593,17 @@ const (
 	sectionNoop         = "noop"
 	sectionValueMap     = "value-map"
 	sectionBrokerSink   = "broker-sink"
+	sectionBufferSource = "buffer-source"
+	sectionBufferSink   = "buffer-sink"
+	sectionOTLPSink     = "otlp-sink"
 )
 
 func componentSections() []string {
 	return []string{
-		sectionOTLPSource, sectionBrokerSource,
+		sectionOTLPSource, sectionBrokerSource, sectionBufferSource,
 		sectionFilter, sectionValidation, sectionBatch, sectionEncryption, sectionDecryption,
 		sectionNoop, sectionValueMap,
-		sectionBrokerSink,
+		sectionOTLPSink, sectionBrokerSink, sectionBufferSink,
 	}
 }
 
@@ -664,7 +674,34 @@ func perRecordComponents() []component {
 			"Batch/parallel-8-events/records=1000/resources=10/teams=1", sectionBatch,
 		},
 	}
-	return append(rows, perRecordStages()...)
+	return append(append(rows, perRecordDrivers()...), perRecordStages()...)
+}
+
+// perRecordDrivers are the per-record rows of the other drivers and
+// protocols of sources and sinks, next to the NATS and OTLP/HTTP rows.
+func perRecordDrivers() []component {
+	return []component{
+		{"OTLP source over gRPC: request with the client's encoding", pkgOTLPSource,
+			"GRPCExportLogs/records=1000/resources=10/teams=1", sectionOTLPSource},
+		{"Broker source (Kafka), 8 workers", pkgBrokerSource,
+			"ConsumeKafka/workers=8/records=1000/resources=10/teams=1", sectionBrokerSource},
+		{"Broker source (AMQP), 8 workers", pkgBrokerSource,
+			"ConsumeAMQP/workers=8/records=1000/resources=10/teams=1", sectionBrokerSource},
+		{"Buffer source (SQLite), 1 worker", pkgBufferSource,
+			"Consume/workers=1/records=1000/resources=10/teams=1", sectionBufferSource},
+		{"Buffer source (SQLite), 8 workers", pkgBufferSource,
+			"Consume/workers=8/records=1000/resources=10/teams=1", sectionBufferSource},
+		{"OTLP sink: encode and send over loopback", pkgOTLPSink,
+			"Notify/records=1000/resources=10/teams=1", sectionOTLPSink},
+		{"Broker sink (Kafka): group and publish, 10 topics", pkgBrokerSink,
+			"NotifyKafka/records=1000/resources=10/teams=10", sectionBrokerSink},
+		{"Broker sink (AMQP): group and publish, 10 queues", pkgBrokerSink,
+			"NotifyAMQP/records=1000/resources=10/teams=10", sectionBrokerSink},
+		{"Buffer sink (SQLite), one caller", pkgBufferSink,
+			"Notify/serial/records=1000/resources=10/teams=1", sectionBufferSink},
+		{"Buffer sink (SQLite), concurrent callers", pkgBufferSink,
+			"Notify/parallel/records=1000/resources=10/teams=1", sectionBufferSink},
+	}
 }
 
 // perRecordStages are the per-record rows of the stages that transform or
@@ -723,6 +760,20 @@ func perEventComponents() []component {
 			pkgOTLPSource,
 			"HandleLogs/records=1/resources=1/teams=1", sectionOTLPSource,
 		},
+		{"OTLP source over gRPC: request with one record", pkgOTLPSource,
+			"GRPCExportLogs/records=1/resources=1/teams=1", sectionOTLPSource},
+		{"Broker sink (Kafka): one record (waits for the acknowledgement)", pkgBrokerSink,
+			"NotifyKafka/records=1/resources=1/teams=1", sectionBrokerSink},
+		{"Broker sink (AMQP): one record (waits for the acknowledgement)", pkgBrokerSink,
+			"NotifyAMQP/records=1/resources=1/teams=1", sectionBrokerSink},
+		{"OTLP sink: one record (waits for the answer)", pkgOTLPSink,
+			"Notify/records=1/resources=1/teams=1", sectionOTLPSink},
+		{"Buffer sink (SQLite): one record, one caller (waits for the sync)", pkgBufferSink,
+			"Notify/serial/records=1/resources=1/teams=1", sectionBufferSink},
+		{"Buffer sink (SQLite): one record, concurrent callers", pkgBufferSink,
+			"Notify/parallel/records=1/resources=1/teams=1", sectionBufferSink},
+		{"Buffer source (SQLite): one record, 1 worker", pkgBufferSource,
+			"Consume/workers=1/records=1/resources=1/teams=1", sectionBufferSource},
 		{"batch, one caller", pkgBatch, "Batch/flush-per-event/records=1/resources=1/teams=1", sectionBatch},
 		{"Passing an event to 1 child", pkgSourceBase, "NotifySubscribers/children=1", ""},
 		{"Passing an event to 8 children", pkgSourceBase, "NotifySubscribers/children=8", ""},

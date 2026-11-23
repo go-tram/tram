@@ -19,8 +19,8 @@ flowchart LR
 | Component | Kind | Drivers | Signals | Holds events back | State on disk | Performance |
 |-----------|------|---------|---------|-------------------|---------------|-------------|
 | [`otlp`](#otlp-source) | source | – | all | – | – | ✓ |
-| [`broker`](#broker-source) | source | `nats`, `kafka`, `amqp` | one per source (`signal`) | – | – | ✓ NATS |
-| [`buffer`](#buffer-source) | source | `sqlite` | all | – | reads the queue | – |
+| [`broker`](#broker-source) | source | `nats`, `kafka`, `amqp` | one per source (`signal`) | – | – | ✓ |
+| [`buffer`](#buffer-source) | source | `sqlite` | all | – | reads the queue | ✓ |
 | [`generator`](#generator-source) | source | – | empty events | – | – | – |
 | [`validation`](#validation-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`filter`](#filter-stage) | stage | `cel` | per signal | – | – | ✓ |
@@ -30,9 +30,9 @@ flowchart LR
 | [`batch`](#batch-stage) | stage | – | all | up to `timeout` | – | ✓ |
 | [`delay`](#delay-stage) | stage | – | all | for `delay` | – | – |
 | [`noop`](#no-op-stage) | stage | – | all | – | – | ✓ |
-| [`otlp`](#otlp-sink) | sink | – | all | – | – | – |
-| [`broker`](#broker-sink) | sink | `nats`, `kafka`, `amqp` | per signal (`destination`) | – | – | ✓ NATS |
-| [`buffer`](#buffer-sink) | sink | `sqlite` | all | – | writes the queue | – |
+| [`otlp`](#otlp-sink) | sink | – | all | – | – | ✓ |
+| [`broker`](#broker-sink) | sink | `nats`, `kafka`, `amqp` | per signal (`destination`) | – | – | ✓ |
+| [`buffer`](#buffer-sink) | sink | `sqlite` | all | – | writes the queue | ✓ |
 | [`debug`](#debug-sink) | sink | – | all | – | – | – |
 
 - **Holds events back:** the caller waits while the stage holds an event, which counts toward the [Hold Times](#hold-times) a stream may add up.
@@ -181,16 +181,18 @@ The header decides the attribute alone: a value the client put into the attribut
 
 #### Performance
 
-Each request costs a fixed amount on top of its records, so small requests are expensive per record: let senders batch, e.g. with the batch processor of an OpenTelemetry SDK or Collector, rather than sending every record on its own.
+Each request costs a fixed amount on top of its records, so small requests are expensive per record: let senders batch, e.g. with the batch processor of an OpenTelemetry SDK or Collector, rather than sending every record on its own. The gRPC rows include the client's encoding, measured in the same process, so they are not directly comparable with the HTTP rows, which start from an encoded body.
 
 <!-- BEGIN benchreport:component:otlp-source -->
 | Component | Per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|
 | OTLP source: decoding a request | 1.48 µs | 34.3 | 677 k | ±10% ⚠️ |
+| OTLP source over gRPC: request with the client's encoding | n/a | n/a | n/a | |
 
 | Component | Per event | Allocs per event | Spread |
 |---|---|---|---|
 | OTLP source: request with one record | 6.47 µs | 85 | ±23% ⚠️ |
+| OTLP source over gRPC: request with one record | n/a | n/a | |
 
 Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:otlp-source -->
@@ -295,6 +297,8 @@ Workers process messages in parallel; more `workers` lower the cost per record u
 |---|---|---|---|---|
 | Broker source (NATS), 1 worker | 1.61 µs | 34.2 | 621 k | ±5% |
 | Broker source (NATS), 8 workers | 270.0 ns | 34.2 | 3.70 M | ±1% |
+| Broker source (Kafka), 8 workers | n/a | n/a | n/a | |
+| Broker source (AMQP), 8 workers | n/a | n/a | n/a | |
 
 Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:broker-source -->
@@ -343,6 +347,23 @@ Reads the queue a [Buffer Sink](#buffer-sink) of the same instance writes and de
     - Retries keep their schedule across restarts. An event whose delivery was interrupted by a restart is delivered again right away
     - Like the Broker Source, it waits for nothing: its stages and sinks get each event as soon as it is due, and their hold times do not count against any timeout of the source
     - Without a data directory (`tram server --data-dir`), the stream fails to build
+
+#### Performance
+
+Every delivered event is removed from the queue, which writes to disk too, so single-record events are bound by the disk like the sink; more `workers` deliver large events in parallel.
+
+<!-- BEGIN benchreport:component:buffer-source -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| Buffer source (SQLite), 1 worker | n/a | n/a | n/a | |
+| Buffer source (SQLite), 8 workers | n/a | n/a | n/a | |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| Buffer source (SQLite): one record, 1 worker | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:buffer-source -->
 
 ## 🔧 Stages
 
@@ -1124,6 +1145,22 @@ With `url_expression`, the sink sends each log record, metric data point and spa
 }
 ```
 
+#### Performance
+
+Every request waits for the destination's answer, which dominates small events; put a batch stage before the sink, so fewer, larger requests are sent. The numbers measure TRAM's side, against a local server that does no work.
+
+<!-- BEGIN benchreport:component:otlp-sink -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| OTLP sink: encode and send over loopback | n/a | n/a | n/a | |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| OTLP sink: one record (waits for the answer) | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:otlp-sink -->
+
 ### Broker Sink
 
 Sends OTLP data to a message broker chosen by `driver` (driver options under `nats:`, `kafka:`, `amqp:`). A CEL expression per signal computes each record's destination; the records of one signal and destination become one message. The broker is set up outside TRAM: the sink creates no streams, topics or queues.
@@ -1206,17 +1243,21 @@ With `partition`, the sink computes a partition per record from a key, e.g. the 
 
 #### Performance
 
-Every message waits for the broker's acknowledgement, which dominates small events; put a batch stage before the sink, so fewer, larger messages are published. The number of subjects changes the cost per record little.
+Every message waits for the broker's acknowledgement, which dominates small events; put a batch stage before the sink, so fewer, larger messages are published. The drivers differ most there; in the benchmarks, a single Kafka publish waits much longer than one to NATS or AMQP, so with Kafka a batch stage or many concurrent callers matter even more. The number of destinations changes the cost per record little.
 
 <!-- BEGIN benchreport:component:broker-sink -->
 | Component | Per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|
 | Broker sink (NATS): group and publish, 10 subjects | 3.08 µs | 31.2 | 325 k | ±4% |
 | Broker sink (NATS): group and publish, 1 subject | 3.38 µs | 30.1 | 296 k | ±6% |
+| Broker sink (Kafka): group and publish, 10 topics | n/a | n/a | n/a | |
+| Broker sink (AMQP): group and publish, 10 queues | n/a | n/a | n/a | |
 
 | Component | Per event | Allocs per event | Spread |
 |---|---|---|---|
 | Broker sink (NATS): one record (waits for the acknowledgement) | 38.11 µs | 64 | ±5% |
+| Broker sink (Kafka): one record (waits for the acknowledgement) | n/a | n/a | |
+| Broker sink (AMQP): one record (waits for the acknowledgement) | n/a | n/a | |
 
 Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:broker-sink -->
@@ -1261,6 +1302,24 @@ Stores every event durably in a queue on the instance's disk, from which a [Buff
     - An event larger than `max_bytes` by itself is rejected (`422` for OTLP clients), since it can never fit
     - Without a data directory (`tram server --data-dir`), the stream fails to build
     - Metrics of the queue are not recorded yet; a queue that holds events but has no Buffer Source in the instance is logged every 10 minutes
+
+#### Performance
+
+Every commit is synced to disk, so one caller pays a sync per event; concurrent callers share a commit, which raises the throughput several times. Size the volume for its sync latency, not only its capacity, and prefer fewer, larger events, e.g. with a batch stage before the sink.
+
+<!-- BEGIN benchreport:component:buffer-sink -->
+| Component | Per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|
+| Buffer sink (SQLite), one caller | n/a | n/a | n/a | |
+| Buffer sink (SQLite), concurrent callers | n/a | n/a | n/a | |
+
+| Component | Per event | Allocs per event | Spread |
+|---|---|---|---|
+| Buffer sink (SQLite): one record, one caller (waits for the sync) | n/a | n/a | |
+| Buffer sink (SQLite): one record, concurrent callers | n/a | n/a | |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `d060ee2`, 2026-11-18; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+<!-- END benchreport:component:buffer-sink -->
 
 ---
 
