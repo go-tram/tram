@@ -2891,6 +2891,7 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-hub-mapper</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
+<p>The <code>tram</code> container of the instances, and of the drain Jobs, runs as non-root with a read-only root file system, without privilege escalation or capabilities, and with the <code>RuntimeDefault</code> seccomp profile; these settings cannot be changed. Temporary files, e.g. those of SQLite, go to an empty directory mounted at <code>/tmp</code>. <code>podTemplate.spec.securityContext</code> sets the pod-level context, e.g. another <code>fsGroup</code>.</p>
 <p>The Helm chart <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram"><code>charts/tram</code></a> or the kustomization in <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a> deploys the manager with the CRDs and roles, and <code>examples/k8s/examples/</code> holds an Engine and Streams that run on it.</p>
 <p>What the manager creates for an Engine, and how its instances find their Streams:</p>
 <pre class="mermaid"><code>flowchart LR
