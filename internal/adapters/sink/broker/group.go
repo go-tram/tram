@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/cel-go/cel"
+	"cel.dev/cel-go/cel"
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
 	tracespb "go.opentelemetry.io/proto/otlp/trace/v1"
