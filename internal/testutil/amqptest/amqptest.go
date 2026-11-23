@@ -24,6 +24,10 @@ const (
 	amqpPort = "5672/tcp"
 )
 
+// adminUser is the user and password of the container's administrator, for
+// the artemis command line.
+const adminUser = "artemis"
+
 // Broker is a running Artemis.
 type Broker struct {
 	URL       string
@@ -63,7 +67,7 @@ func (b *Broker) CreateQueue(tb testing.TB, name string) {
 	code, out, err := b.container.Exec(context.Background(), []string{
 		"/var/lib/artemis-instance/bin/artemis", "queue", "create",
 		"--name", name, "--address", name, "--anycast", "--durable", "--auto-create-address",
-		"--silent", "--user", "artemis", "--password", "artemis",
+		"--silent", "--user", adminUser, "--password", adminUser,
 	})
 	if err != nil {
 		tb.Fatalf("create queue %s: %v", name, err)
@@ -71,5 +75,24 @@ func (b *Broker) CreateQueue(tb testing.TB, name string) {
 	if code != 0 {
 		output, _ := io.ReadAll(out)
 		tb.Fatalf("create queue %s: exit code %d: %s", name, code, string(output))
+	}
+}
+
+// DeleteQueue deletes the queue and its messages, e.g. after a benchmark
+// that filled it.
+func (b *Broker) DeleteQueue(tb testing.TB, name string) {
+	tb.Helper()
+	code, out, err := b.container.Exec(context.Background(), []string{
+		"/var/lib/artemis-instance/bin/artemis", "queue", "delete",
+		"--name", name, "--removeConsumers", "--autoDeleteAddress",
+		"--silent", "--user", adminUser, "--password", adminUser,
+	})
+	if err != nil {
+		tb.Errorf("delete queue %s: %v", name, err)
+		return
+	}
+	if code != 0 {
+		output, _ := io.ReadAll(out)
+		tb.Errorf("delete queue %s: exit code %d: %s", name, code, string(output))
 	}
 }

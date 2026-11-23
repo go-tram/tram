@@ -736,12 +736,14 @@ func (u *User) Validate() error {
 
 When adding new components:
 
-1. Add to [COMPONENTS.md](COMPONENTS.md)
+1. Add a section to [COMPONENTS.md](COMPONENTS.md), headed `### <Name> Source`, `### <Name> Stage` or `### <Name> Sink` under its group, and a linked row to the group's table of available components
 2. Include:
    - Configuration options
    - Usage examples
    - Behavior description
    - Error cases
+3. The documentation site gives every component a page of its own, derived from that heading, e.g. `### Value Map Stage` becomes `components/stages/value-map.md`. Add it to the navigation in `docs/zensical.toml`; `docs/generate.py` fails until it is there
+4. If the component has a benchmark, add its rows to `tools/benchreport` with a section name, and a `#### Performance` subsection with the markers `<!-- BEGIN benchreport:component:<name> -->` and `<!-- END benchreport:component:<name> -->`, which benchreport fills from the same run as [BENCHMARK.md](BENCHMARK.md). Write tips in that subsection in relative terms, without absolute numbers, which depend on the machine
 
 ---
 

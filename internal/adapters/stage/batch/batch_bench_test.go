@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/stage/batch"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -54,11 +55,13 @@ func BenchmarkBatch(b *testing.B) {
 func benchFlushPerEvent(b *testing.B, shape otlpgen.Shape, event *domain.Event) {
 	batch, _ := newBenchBatch(b, map[string]any{"max_records": shape.Records, "timeout": "1h"})
 	b.ReportAllocs()
+	cpu := benchcpu.Start()
 	for b.Loop() {
 		if err := batch.Notify(b.Context(), event); err != nil {
 			b.Fatal(err)
 		}
 	}
+	cpu.Report(b)
 	b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 }
 
@@ -66,6 +69,7 @@ func benchParallelEvents(b *testing.B, shape otlpgen.Shape, event *domain.Event)
 	batch, sub := newBenchBatch(b, map[string]any{"max_records": 8 * shape.Records, "timeout": "1ms"})
 	b.SetParallelism(8)
 	b.ReportAllocs()
+	cpu := benchcpu.Start()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			if err := batch.Notify(context.Background(), event); err != nil {
@@ -74,6 +78,7 @@ func benchParallelEvents(b *testing.B, shape otlpgen.Shape, event *domain.Event)
 			}
 		}
 	})
+	cpu.Report(b)
 	b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 	b.ReportMetric(float64(b.N)/float64(max(1, sub.batches.Load())), "events/batch")
 }

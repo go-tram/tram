@@ -23,6 +23,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
+	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 )
 
@@ -38,7 +41,7 @@ const (
 )
 
 type options struct {
-	out, input, raw             string
+	out, components, input, raw string
 	count                       int
 	scenarioTime, componentTime string
 }
@@ -46,6 +49,8 @@ type options struct {
 func main() {
 	var opts options
 	flag.StringVar(&opts.out, "out", "BENCHMARK.md", "page to update")
+	flag.StringVar(&opts.components, "components", "COMPONENTS.md",
+		"component documentation whose per-component sections to update")
 	flag.StringVar(&opts.input, "input", "", "use this saved benchmark output instead of running the benchmarks")
 	flag.StringVar(&opts.raw, "raw", "", "save the raw benchmark output to this file")
 	flag.IntVar(&opts.count, "count", 3, "runs per benchmark; the page shows medians")
@@ -91,16 +96,29 @@ func run(ctx context.Context, opts options) error {
 		"components-per-record": renderComponents(results, perRecordComponents(), true),
 		"components-per-event":  renderComponents(results, perEventComponents(), false),
 	}
-	for name, content := range sections {
-		if page, err = replaceSection(page, name, content); err != nil {
-			return err
-		}
-	}
-	//nolint:gosec // BENCHMARK.md is a repository file that everyone may read.
-	if err = os.WriteFile(opts.out, page, pageFilePermissions); err != nil {
+	if err = updatePage(opts.out, page, sections); err != nil {
 		return err
 	}
-	log.Printf("updated %s", opts.out)
+	components, err := os.ReadFile(opts.components)
+	if err != nil {
+		return err
+	}
+	return updatePage(opts.components, components, renderComponentSections(results, env))
+}
+
+// updatePage replaces the sections of page and writes it to path.
+func updatePage(path string, page []byte, sections map[string]string) error {
+	var err error
+	for name, content := range sections {
+		if page, err = replaceSection(page, name, content); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+	}
+	//nolint:gosec // The pages are repository files that everyone may read.
+	if err = os.WriteFile(path, page, pageFilePermissions); err != nil {
+		return err
+	}
+	log.Printf("updated %s", path)
 	return nil
 }
 
@@ -313,6 +331,8 @@ func renderEnvironment(e env, count int, scenarioTime, componentTime string) str
 	fmt.Fprintf(&b, "| CPU | %s |\n", or(e.cpu, "unknown"))
 	fmt.Fprintf(&b, "| Go | %s |\n", e.goVersion)
 	fmt.Fprintf(&b, "| NATS | `%s` in a local container |\n", natstest.Image)
+	fmt.Fprintf(&b, "| Kafka | `%s` in a local container |\n", kafkatest.Image)
+	fmt.Fprintf(&b, "| AMQP | `%s` in a local container |\n", amqptest.Image)
 	fmt.Fprintf(
 		&b,
 		"| Runs | %d per benchmark, medians shown; scenarios `-benchtime=%s`, streams `-benchtime=%s`, components `-benchtime=%s` |\n",
@@ -414,6 +434,14 @@ func sizingRows() []struct{ label, name string } {
 		{
 			"Forwarding: NATS → filter → NATS, 1,000 records per message, 8 workers",
 			"Scenario/nats-filter-nats/concurrency=8/records=1000/resources=10/teams=1",
+		},
+		{
+			"Batched: OTLP → batch → Kafka, 1,000 records per request, 8 callers",
+			"Scenario/otlp-batch-kafka/concurrency=8/records=1000/resources=10/teams=1",
+		},
+		{
+			"Batched: OTLP → batch → AMQP, 1,000 records per request, 8 callers",
+			"Scenario/otlp-batch-amqp/concurrency=8/records=1000/resources=10/teams=1",
 		},
 		{
 			"Unbatched: OTLP → NATS, 1 record per request, 8 callers",
@@ -538,7 +566,10 @@ func streamCount(n int) string {
 	return fmt.Sprintf("%d,%03d", n/thousand, n%thousand)
 }
 
-type component struct{ label, pkg, name string }
+// component is a row of the component tables. section names the section
+// of the component documentation the row also goes to, empty for rows that
+// measure no single component, such as serializing OTLP data.
+type component struct{ label, pkg, name, section string }
 
 const (
 	pkgCore         = "internal/core"
@@ -550,63 +581,209 @@ const (
 	pkgBatch        = "internal/adapters/stage/batch"
 	pkgCELFilter    = "internal/adapters/stage/filter/cel"
 	pkgCELValidator = "internal/adapters/stage/validation/cel"
+	pkgValueMap     = "internal/adapters/stage/valuemap"
+	pkgTransform    = "internal/adapters/stage/transform"
+	pkgEncryption   = "internal/adapters/stage/encryption"
+	pkgDecryption   = "internal/adapters/stage/decryption"
+	pkgBufferSink   = "internal/adapters/sink/buffer"
+	pkgBufferSource = "internal/adapters/source/buffer"
+	pkgOTLPSink     = "internal/adapters/sink/otlp"
 )
 
+// The sections of the component documentation, one per component that has
+// benchmarks, in the order of the documentation.
+const (
+	sectionOTLPSource   = "otlp-source"
+	sectionBrokerSource = "broker-source"
+	sectionFilter       = "filter"
+	sectionValidation   = "validation"
+	sectionBatch        = "batch"
+	sectionEncryption   = "encryption"
+	sectionDecryption   = "decryption"
+	sectionNoop         = "noop"
+	sectionValueMap     = "value-map"
+	sectionTransform    = "transform"
+	sectionBrokerSink   = "broker-sink"
+	sectionBufferSource = "buffer-source"
+	sectionBufferSink   = "buffer-sink"
+	sectionOTLPSink     = "otlp-sink"
+)
+
+func componentSections() []string {
+	return []string{
+		sectionOTLPSource, sectionBrokerSource, sectionBufferSource,
+		sectionFilter, sectionValidation, sectionBatch, sectionEncryption, sectionDecryption,
+		sectionNoop, sectionValueMap, sectionTransform,
+		sectionOTLPSink, sectionBrokerSink, sectionBufferSink,
+	}
+}
+
 func perRecordComponents() []component {
-	return []component{
+	rows := []component{
 		{
 			"Broker sink (NATS): group and publish, 10 subjects",
 			pkgBrokerSink,
-			"Notify/records=1000/resources=10/teams=10",
+			"Notify/records=1000/resources=10/teams=10", sectionBrokerSink,
 		},
 		{
 			"Broker sink (NATS): group and publish, 1 subject",
 			pkgBrokerSink,
-			"Notify/records=1000/resources=10/teams=1",
+			"Notify/records=1000/resources=10/teams=1", sectionBrokerSink,
+		},
+		{
+			"Broker sink (NATS): group and publish, 100 subjects",
+			pkgBrokerSink,
+			"Notify/records=1000/resources=10/teams=100", sectionBrokerSink,
+		},
+		{
+			"Broker sink (NATS): group and publish, 1,000 subjects (a message per record)",
+			pkgBrokerSink,
+			"Notify/records=1000/resources=10/teams=1000", sectionBrokerSink,
 		},
 		{
 			"Serializing OTLP data and back (logs)",
 			pkgDomain,
 			"OTLPDataRoundTrip/logs/records=1000/resources=10/teams=1",
+			"",
 		},
-		{"Broker source (NATS), 1 worker", pkgBrokerSource, "Consume/workers=1/records=1000/resources=10/teams=1"},
-		{"Broker source (NATS), 8 workers", pkgBrokerSource, "Consume/workers=8/records=1000/resources=10/teams=1"},
+		{
+			"Broker source (NATS), 1 worker",
+			pkgBrokerSource,
+			"Consume/workers=1/records=1000/resources=10/teams=1",
+			sectionBrokerSource,
+		},
+		{
+			"Broker source (NATS), 8 workers",
+			pkgBrokerSource,
+			"Consume/workers=8/records=1000/resources=10/teams=1",
+			sectionBrokerSource,
+		},
 		{
 			"OTLP source: decoding a request",
 			pkgOTLPSource,
-			"HandleLogs/records=1000/resources=10/teams=1",
+			"HandleLogs/records=1000/resources=10/teams=1", sectionOTLPSource,
 		},
 		{
 			"filter (CEL), keeping half of the records",
 			pkgCELFilter,
-			"CELFilter/keep-half/records=1000/resources=10/teams=2",
+			"CELFilter/keep-half/records=1000/resources=10/teams=2", sectionFilter,
 		},
 		{
 			"filter (CEL), keeping all records",
 			pkgCELFilter,
-			"CELFilter/keep-all/records=1000/resources=10/teams=2",
+			"CELFilter/keep-all/records=1000/resources=10/teams=2", sectionFilter,
 		},
 		{
 			"validation (CEL), record-level expression",
 			pkgCELValidator,
-			"CELValidator/record-attribute/records=1000/resources=10/teams=1",
+			"CELValidator/record-attribute/records=1000/resources=10/teams=1", sectionValidation,
 		},
 		{
 			"validation (CEL), resource-level expression",
 			pkgCELValidator,
-			"CELValidator/resource-attribute/records=1000/resources=10/teams=1",
+			"CELValidator/resource-attribute/records=1000/resources=10/teams=1", sectionValidation,
 		},
 		{
 			"Record filter helper without CEL",
 			pkgDomain,
 			"Filter/logs/keep-half/records=1000/resources=10/teams=2",
+			"",
 		},
 		{
 			"batch, 8 concurrent callers",
 			pkgBatch,
-			"Batch/parallel-8-events/records=1000/resources=10/teams=1",
+			"Batch/parallel-8-events/records=1000/resources=10/teams=1", sectionBatch,
 		},
-		{"noop stage", pkgCore, "Pipeline/noop/records=1000/resources=10/teams=1"},
+	}
+	return append(append(rows, perRecordDrivers()...), perRecordStages()...)
+}
+
+// perRecordDrivers are the per-record rows of the other drivers and
+// protocols of sources and sinks, next to the NATS and OTLP/HTTP rows.
+func perRecordDrivers() []component {
+	return []component{
+		{"OTLP source over gRPC: request with the client's encoding", pkgOTLPSource,
+			"GRPCExportLogs/records=1000/resources=10/teams=1", sectionOTLPSource},
+		{"Broker source (Kafka), 8 workers", pkgBrokerSource,
+			"ConsumeKafka/workers=8/records=1000/resources=10/teams=1", sectionBrokerSource},
+		{"Broker source (AMQP), 8 workers", pkgBrokerSource,
+			"ConsumeAMQP/workers=8/records=1000/resources=10/teams=1", sectionBrokerSource},
+		{"Buffer source (SQLite), 1 worker", pkgBufferSource,
+			"Consume/workers=1/records=1000/resources=10/teams=1", sectionBufferSource},
+		{"Buffer source (SQLite), 8 workers", pkgBufferSource,
+			"Consume/workers=8/records=1000/resources=10/teams=1", sectionBufferSource},
+		{"OTLP sink: encode and send over loopback", pkgOTLPSink,
+			"Notify/records=1000/resources=10/teams=1", sectionOTLPSink},
+		{"Broker sink (Kafka): group and publish, 10 topics", pkgBrokerSink,
+			"NotifyKafka/records=1000/resources=10/teams=10", sectionBrokerSink},
+		{"Broker sink (AMQP): group and publish, 10 queues", pkgBrokerSink,
+			"NotifyAMQP/records=1000/resources=10/teams=10", sectionBrokerSink},
+		{"Buffer sink (SQLite), one caller", pkgBufferSink,
+			"Notify/serial/records=1000/resources=10/teams=1", sectionBufferSink},
+		{"Buffer sink (SQLite), concurrent callers", pkgBufferSink,
+			"Notify/parallel/records=1000/resources=10/teams=1", sectionBufferSink},
+	}
+}
+
+// perRecordStages are the per-record rows of the stages that transform or
+// annotate records, and of the noop stage as the baseline.
+func perRecordStages() []component {
+	return []component{
+		{
+			"value_map, mapping a record attribute",
+			pkgValueMap,
+			"NotifyLogs/hit/records=1000/resources=10/teams=2",
+			sectionValueMap,
+		},
+		{
+			"value_map, mapping a resource attribute",
+			pkgValueMap,
+			"NotifyLogs/resource-level/records=1000/resources=10/teams=2",
+			sectionValueMap,
+		},
+		{
+			"transform (CEL), one entry statement",
+			pkgTransform,
+			"NotifyLogs/set/records=1000/resources=10/teams=2",
+			sectionTransform,
+		},
+		{
+			"transform (CEL), four entry statements of a normalization",
+			pkgTransform,
+			"NotifyLogs/normalize/records=1000/resources=10/teams=2",
+			sectionTransform,
+		},
+		{
+			"transform (CEL), one resource statement",
+			pkgTransform,
+			"NotifyLogs/resource/records=1000/resources=10/teams=2",
+			sectionTransform,
+		},
+		{
+			"encryption, body only",
+			pkgEncryption,
+			"NotifyLogs/body-only/records=1000/resources=10/teams=2",
+			sectionEncryption,
+		},
+		{
+			"encryption, body and attributes",
+			pkgEncryption,
+			"NotifyLogs/body-plus-attributes/records=1000/resources=10/teams=2",
+			sectionEncryption,
+		},
+		{
+			"decryption, body only",
+			pkgDecryption,
+			"NotifyLogs/body-only/records=1000/resources=10/teams=2",
+			sectionDecryption,
+		},
+		{
+			"decryption, body and attributes",
+			pkgDecryption,
+			"NotifyLogs/body-plus-attributes/records=1000/resources=10/teams=2",
+			sectionDecryption,
+		},
+		{"noop stage", pkgCore, "Pipeline/noop/records=1000/resources=10/teams=1", sectionNoop},
 	}
 }
 
@@ -615,69 +792,126 @@ func perEventComponents() []component {
 		{
 			"Broker sink (NATS): one record (waits for the acknowledgement)",
 			pkgBrokerSink,
-			"Notify/records=1/resources=1/teams=1",
+			"Notify/records=1/resources=1/teams=1", sectionBrokerSink,
 		},
 		{
 			"OTLP source: request with one record",
 			pkgOTLPSource,
-			"HandleLogs/records=1/resources=1/teams=1",
+			"HandleLogs/records=1/resources=1/teams=1", sectionOTLPSource,
 		},
-		{"batch, one caller", pkgBatch, "Batch/flush-per-event/records=1/resources=1/teams=1"},
-		{"Passing an event to 1 child", pkgSourceBase, "NotifySubscribers/children=1"},
-		{"Passing an event to 8 children", pkgSourceBase, "NotifySubscribers/children=8"},
-		{"Each additional noop stage", pkgCore, "Pipeline/noop/records=1/resources=1/teams=1"},
+		{"OTLP source over gRPC: request with one record", pkgOTLPSource,
+			"GRPCExportLogs/records=1/resources=1/teams=1", sectionOTLPSource},
+		{"Broker sink (Kafka): one record (waits for the acknowledgement)", pkgBrokerSink,
+			"NotifyKafka/records=1/resources=1/teams=1", sectionBrokerSink},
+		{"Broker sink (AMQP): one record (waits for the acknowledgement)", pkgBrokerSink,
+			"NotifyAMQP/records=1/resources=1/teams=1", sectionBrokerSink},
+		{"OTLP sink: one record (waits for the answer)", pkgOTLPSink,
+			"Notify/records=1/resources=1/teams=1", sectionOTLPSink},
+		{"Buffer sink (SQLite): one record, one caller (waits for the sync)", pkgBufferSink,
+			"Notify/serial/records=1/resources=1/teams=1", sectionBufferSink},
+		{"Buffer sink (SQLite): one record, concurrent callers", pkgBufferSink,
+			"Notify/parallel/records=1/resources=1/teams=1", sectionBufferSink},
+		{"Buffer source (SQLite): one record, 1 worker", pkgBufferSource,
+			"Consume/workers=1/records=1/resources=1/teams=1", sectionBufferSource},
+		{"batch, one caller", pkgBatch, "Batch/flush-per-event/records=1/resources=1/teams=1", sectionBatch},
+		{"Passing an event to 1 child", pkgSourceBase, "NotifySubscribers/children=1", ""},
+		{"Passing an event to 8 children", pkgSourceBase, "NotifySubscribers/children=8", ""},
+		{"Each additional noop stage", pkgCore, "Pipeline/noop/records=1/resources=1/teams=1", sectionNoop},
 	}
 }
 
 func renderComponents(results map[string]result, components []component, perRecord bool) string {
 	var b strings.Builder
 	if perRecord {
-		b.WriteString("| Component | Per record | Allocs per record | Records/s | Spread |\n|---|---|---|---|---|\n")
+		b.WriteString("| Component | Per record | CPU per record | Allocs per record | Records/s | Spread |\n" +
+			"|---|---|---|---|---|---|\n")
 	} else {
-		b.WriteString("| Component | Per event | Allocs per event | Spread |\n|---|---|---|---|\n")
+		b.WriteString("| Component | Per event | CPU per event | Allocs per event | Spread |\n|---|---|---|---|---|\n")
 	}
 	for _, c := range components {
 		r, ok := results[c.pkg+"|"+c.name]
 		if !ok {
 			if perRecord {
-				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | |\n", c.label)
+				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | n/a | |\n", c.label)
 			} else {
-				fmt.Fprintf(&b, "| %s | n/a | n/a | |\n", c.label)
+				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | |\n", c.label)
 			}
 			continue
 		}
-		ns, allocs := componentCost(results, c, r)
+		cost := componentCost(results, c, r)
 		if perRecord {
 			records := recordsPerOp(c.name)
 			fmt.Fprintf(
 				&b,
-				"| %s | %s | %.1f | %s | %s |\n",
+				"| %s | %s | %s | %.1f | %s | %s |\n",
 				c.label,
-				duration(ns/records),
-				allocs/records,
-				count(records*billion/ns),
+				duration(cost.ns/records),
+				cpuDuration(cost.cpu, records),
+				cost.allocs/records,
+				count(records*billion/cost.ns),
 				spread(r.spread),
 			)
 		} else {
-			fmt.Fprintf(&b, "| %s | %s | %.0f | %s |\n", c.label, duration(ns), allocs, spread(r.spread))
+			fmt.Fprintf(&b, "| %s | %s | %s | %.0f | %s |\n",
+				c.label, duration(cost.ns), cpuDuration(cost.cpu, 1), cost.allocs, spread(r.spread))
 		}
 	}
 	return b.String()
 }
 
-// componentCost returns the time and allocations of a component. The noop
-// stage is measured as a pipeline, so the cost of the direct pipeline is
-// subtracted from it.
-func componentCost(results map[string]result, c component, r result) (float64, float64) {
-	ns, allocs := r.metrics["ns/op"], r.metrics[allocsPerOp]
+// renderComponentSections renders, per section of the component
+// documentation, the rows of that component with a pointer to the
+// environment and to the comparison with other components.
+func renderComponentSections(results map[string]result, e env) map[string]string {
+	sections := map[string]string{}
+	for _, section := range componentSections() {
+		var b strings.Builder
+		if rows := inSection(perRecordComponents(), section); len(rows) > 0 {
+			b.WriteString(renderComponents(results, rows, true))
+		}
+		if rows := inSection(perEventComponents(), section); len(rows) > 0 {
+			if b.Len() > 0 {
+				b.WriteString("\n")
+			}
+			b.WriteString(renderComponents(results, rows, false))
+		}
+		fmt.Fprintf(&b, "\nMeasured on %s, commit `%s`, %s; compare with other components under "+
+			"[Where the Time Goes](BENCHMARK.md#where-the-time-goes).\n", or(e.cpu, "unknown CPU"), e.commit, e.date)
+		sections["component:"+section] = b.String()
+	}
+	return sections
+}
+
+func inSection(components []component, section string) []component {
+	return slices.DeleteFunc(slices.Clone(components), func(c component) bool { return c.section != section })
+}
+
+// cost is what a component takes per operation: wall time, CPU time of the
+// process (0 when the benchmark does not measure it) and allocations.
+type cost struct{ ns, cpu, allocs float64 }
+
+// componentCost returns the costs of a component. The noop stage is measured
+// as a pipeline, so the costs of the direct pipeline are subtracted from it.
+func componentCost(results map[string]result, c component, r result) cost {
+	k := cost{ns: r.metrics["ns/op"], cpu: r.metrics[benchcpu.Unit], allocs: r.metrics[allocsPerOp]}
 	if c.name != "Pipeline/noop/records=1/resources=1/teams=1" {
-		return ns, allocs
+		return k
 	}
 	if direct, found := results[c.pkg+"|Pipeline/direct/records=1/resources=1/teams=1"]; found {
-		ns -= direct.metrics["ns/op"]
-		allocs -= direct.metrics[allocsPerOp]
+		k.ns -= direct.metrics["ns/op"]
+		k.cpu -= direct.metrics[benchcpu.Unit]
+		k.allocs -= direct.metrics[allocsPerOp]
 	}
-	return ns, allocs
+	return k
+}
+
+// cpuDuration formats the CPU time per operation divided by n, or n/a when
+// the benchmark does not measure it.
+func cpuDuration(cpu, n float64) string {
+	if cpu <= 0 {
+		return "n/a"
+	}
+	return duration(cpu / n)
 }
 
 func replaceSection(page []byte, name, content string) ([]byte, error) {

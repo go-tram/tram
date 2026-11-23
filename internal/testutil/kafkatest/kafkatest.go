@@ -76,3 +76,22 @@ func CreateTopic(tb testing.TB, brokers []string, topic string, partitions int32
 	}
 	tb.Fatalf("topic %s did not appear within %s", topic, topicTimeout)
 }
+
+// DeleteTopic deletes topic and the data in it, e.g. after a benchmark that
+// filled it.
+func DeleteTopic(tb testing.TB, brokers []string, topic string) {
+	tb.Helper()
+	cl, err := kgo.NewClient(kgo.SeedBrokers(brokers...))
+	if err != nil {
+		tb.Errorf("connect to Kafka: %v", err)
+		return
+	}
+	defer cl.Close()
+	resp, err := kadm.NewClient(cl).DeleteTopic(context.Background(), topic)
+	if err == nil {
+		err = resp.Err
+	}
+	if err != nil {
+		tb.Errorf("delete topic %s: %v", topic, err)
+	}
+}

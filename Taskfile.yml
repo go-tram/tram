@@ -346,11 +346,12 @@ tasks:
       - benchstat {{.OLD}} {{.NEW}}
 
   bench:report:
-    desc: Run all benchmarks and regenerate BENCHMARK.md (takes several minutes, needs Docker or Podman)
+    desc: Run all benchmarks and regenerate BENCHMARK.md and the Performance sections of COMPONENTS.md (takes about half an hour, needs Docker or Podman)
     summary: |
       Runs tools/benchreport, which runs the benchmarks, writes their results
-      into the generated sections of BENCHMARK.md and saves the raw output to
-      bench.txt. Pass benchreport's flags after --, e.g. `-- -count 5`.
+      into the generated sections of BENCHMARK.md and of COMPONENTS.md and
+      saves the raw output to bench.txt. The broker benchmarks start NATS,
+      Kafka and ActiveMQ Artemis in containers. Pass benchreport's flags after --, e.g. `-- -count 5`.
       Rebuild the page from bench.txt without running the benchmarks again
       with `task bench:report:from-raw`.
     preconditions:
@@ -360,7 +361,7 @@ tasks:
       - '{{.TESTCONTAINERS_ENV}} go run ./tools/benchreport -raw bench.txt {{.CLI_ARGS}}'
 
   bench:report:from-raw:
-    desc: Regenerate BENCHMARK.md from the benchmark output saved in bench.txt
+    desc: Regenerate BENCHMARK.md and the Performance sections of COMPONENTS.md from the benchmark output saved in bench.txt
     preconditions:
       - sh: test -f bench.txt
         msg: bench.txt is missing; run `task bench:report` first

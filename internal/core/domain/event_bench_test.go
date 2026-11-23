@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -46,6 +47,7 @@ func BenchmarkOTLPDataRoundTrip(b *testing.B) {
 func benchRoundTrip(b *testing.B, event *domain.Event, records, size int) {
 	b.SetBytes(int64(size))
 	b.ReportAllocs()
+	cpu := benchcpu.Start()
 	for b.Loop() {
 		sig, encoded, err := event.MarshalOTLPData()
 		if err != nil {
@@ -55,5 +57,6 @@ func benchRoundTrip(b *testing.B, event *domain.Event, records, size int) {
 			b.Fatal(err)
 		}
 	}
+	cpu.Report(b)
 	b.ReportMetric(float64(records*b.N)/b.Elapsed().Seconds(), "records/s")
 }
