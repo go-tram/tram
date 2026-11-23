@@ -1,6 +1,6 @@
 module github.com/go-tram/tram
 
-go 1.27.2
+go 1.27.4
 
 tool (
 	github.com/bufbuild/buf/cmd/buf
@@ -32,6 +32,7 @@ require (
 	github.com/twmb/franz-go v1.22.3
 	github.com/twmb/franz-go/pkg/kadm v1.20.0
 	go.opentelemetry.io/otel v1.47.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.69.0
 	go.opentelemetry.io/otel/metric v1.47.0
 	go.opentelemetry.io/otel/sdk v1.47.0
@@ -39,6 +40,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.11.1
 	golang.org/x/sync v0.25.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20261110000943-09e21b237f2c
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261104224025-d1e00e9f33ab
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
 	k8s.io/api v0.37.2
@@ -185,7 +187,6 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.47.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
@@ -204,7 +205,6 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.52.1-0.20261106145633-d407941a339a // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261104224025-d1e00e9f33ab // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
