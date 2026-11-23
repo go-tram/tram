@@ -31,7 +31,7 @@ Releases before `v0.2.0` are not signed.
 
 Please do not report vulnerabilities in public issues, pull requests or discussions.
 
-Report them privately through GitHub instead: on the [Security tab](https://github.com/GO-TRAM/TRAM/security) of the repository, choose **Report a vulnerability**, or open the [form](https://github.com/GO-TRAM/TRAM/security/advisories/new) directly. Include:
+Report them privately through GitHub instead: on the [Security tab](https://github.com/go-tram/tram/security) of the repository, choose **Report a vulnerability**, or open the [form](https://github.com/go-tram/tram/security/advisories/new) directly. Include:
 
 - the affected version, image tag or commit
 - how TRAM runs: binary, container, Helm chart or manifests

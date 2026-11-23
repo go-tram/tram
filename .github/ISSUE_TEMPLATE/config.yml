@@ -4,5 +4,5 @@ contact_links:
     url: https://gotram.dev/
     about: Guides for streams, components, the HTTP API and the Kubernetes operator.
   - name: Report a security vulnerability
-    url: https://github.com/GO-TRAM/TRAM/security/advisories/new
+    url: https://github.com/go-tram/tram/security/advisories/new
     about: Report vulnerabilities privately, not in a public issue; see SECURITY.md.

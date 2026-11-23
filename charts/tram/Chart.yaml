@@ -9,9 +9,9 @@ type: application
 # which deploy the latest image.
 version: 0.0.0
 appVersion: latest
-home: https://github.com/GO-TRAM/TRAM
+home: https://github.com/go-tram/tram
 sources:
-  - https://github.com/GO-TRAM/TRAM
+  - https://github.com/go-tram/tram
 keywords:
   - opentelemetry
   - otlp
@@ -26,7 +26,7 @@ annotations:
     - name: Documentation
       url: https://gotram.dev/
     - name: Source
-      url: https://github.com/GO-TRAM/TRAM
+      url: https://github.com/go-tram/tram
   artifacthub.io/crds: |
     - kind: Engine
       version: v1alpha1
