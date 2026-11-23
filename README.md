@@ -1,3 +1,7 @@
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/tram)](https://artifacthub.io/packages/search?repo=tram)
+[![Release](https://github.com/go-tram/tram/actions/workflows/release.yml/badge.svg)](https://github.com/go-tram/tram/actions/workflows/release.yml)
+[![CI](https://github.com/go-tram/tram/actions/workflows/ci.yml/badge.svg)](https://github.com/go-tram/tram/actions/workflows/ci.yml)
+
 ![TRAM Logo](docs/assets/TRAM_background.png)
 
 # TRAM: A Lightweight, Extensible Data Pipeline Framework
