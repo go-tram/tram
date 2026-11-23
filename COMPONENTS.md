@@ -127,6 +127,7 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC
 | `delivery_timeout` | string | No | `"8s"` | Maximum time to pass a request on to the stages and sinks, as a Go duration. A request that takes longer is cancelled and answered with `503`, which clients retry |
 | `retry_after` | string | No | `"5s"` | How long clients should wait before retrying a `503`, as a Go duration. Sent as the `Retry-After` header in whole seconds, rounded up |
 | `header_attributes` | object | No | - | Request headers to copy into resource attributes, as header name → attribute key, e.g. `{"X-Tram-Router": "tram.router.id"}`. Over gRPC, the metadata of the same name. See below |
+| `max_request_bytes` | int | No | `20971520` (20 MiB) | Largest request accepted, in bytes, from 1024 to 1073741824 (1 GiB). Applies to the body as sent and after decompression; larger requests are refused with `413` (`ResourceExhausted` over gRPC) before they are decoded. See below |
 
 **Example:**
 
@@ -157,13 +158,26 @@ Receives OpenTelemetry Protocol data over HTTP (OTLP/HTTP), over gRPC (OTLP/gRPC
 
 The header decides the attribute alone: a value the client put into the attribute itself is replaced, and removed when the header is missing or empty. A header with several values is refused (`422`, `InvalidArgument` over gRPC), since it is unclear which one the proxy meant, e.g. when it appended its value to a header the client sent instead of replacing it. The header is only as trustworthy as the way to TRAM: let only the proxy reach the source's port, e.g. with a network policy, and have it replace the header rather than add to it.
 
+**Request size:** `max_request_bytes` keeps requests below what the stream can pass on. A [Broker Sink](#broker-sink) rejects an event with a message larger than the broker accepts (NATS: `max_payload`, 1 MB by default), but only after it has sent the event's other messages, and a [Buffer Sink](#buffer-sink) rejects an event larger than its `max_bytes`. Refusing such requests at the source answers the client with `413` before anything is decoded or sent, so nothing is delivered in part. The limit counts the request's encoding, protobuf or JSON; JSON is larger than the protobuf a sink sends, so without a [Batch Stage](#batch-stage) in between, every message a sink builds from the request stays below it. A batch stage merges requests, so keep its `max_bytes` below the limit downstream as well:
+
+```json
+{
+  "name": "otlp-receiver",
+  "type": "otlp",
+  "spec": {
+    "http_port": 4318,
+    "max_request_bytes": 1000000
+  }
+}
+```
+
 **Responses** (OTLP/HTTP status, OTLP/gRPC code):
 
 | HTTP | gRPC | When |
 |------|------|------|
 | `200` | `OK` | Empty response message in the request's encoding, once all sinks have accepted the data |
 | `422` | `InvalidArgument` | Body cannot be read or parsed, contains a duplicate key, or holds data rejected by a stage or sink (e.g. `validation` with `on_mismatch: reject`) |
-| `413` | `ResourceExhausted` | Body larger than 20 MiB, also after decompression |
+| `413` | `ResourceExhausted` | Body larger than `max_request_bytes` (20 MiB by default), also after decompression |
 | `415` | - | Other content types or encodings |
 | `503` | `Unavailable` | Passing the data on failed or took longer than `delivery_timeout`; sent with a `Retry-After` header over HTTP and a `RetryInfo` detail over gRPC, both from `retry_after`. The only status OTLP clients retry — the only answer the request itself did not cause |
 
@@ -177,7 +191,7 @@ The header decides the attribute alone: a value the client put into the attribut
     - The default `delivery_timeout` is below the 10s that OpenTelemetry SDK exporters wait by default, so they get the `503` before they give up. `batch` and `delay` stages have to leave time for it, see [Hold Times](#hold-times). Raise it for pipelines that take longer, e.g. with a `delay` stage or slow sinks, and for clients that wait longer, like the OpenTelemetry Collector (30s by default). A batch that is already being sent when the timeout expires is still awaited, since it holds data of other requests too
     - A request may take up to 1 minute to send, which leaves time for large bodies on slow connections
     - The ports are opened when the stream is created, so a port that is already in use fails the stream creation. An update that keeps the source keeps its ports open
-    - Over gRPC, it serves the OTLP `LogsService`, `MetricsService` and `TraceService`, without TLS. Messages may be compressed with gzip; the 20 MiB limit applies to the decompressed message
+    - Over gRPC, it serves the OTLP `LogsService`, `MetricsService` and `TraceService`, without TLS. Messages may be compressed with gzip; `max_request_bytes` applies to the decompressed message
     - Partial success is not used: a request is accepted or refused as a whole, over both protocols
     - Header names in `header_attributes` are matched regardless of case. Two headers may not set the same attribute
 

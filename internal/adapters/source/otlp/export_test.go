@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	MaxBodyBytes           = maxBodyBytes
+	MaxBodyBytes           = defaultMaxRequestBytes
 	DefaultDeliveryTimeout = defaultDeliveryTimeout
 	MaxPairwiseKeys        = maxPairwiseKeys
 )
@@ -32,6 +32,7 @@ func NewWithoutListener(src *base.Source[Spec], deliveryTimeout time.Duration) *
 		deliveryTimeout:      deliveryTimeout,
 		responseWriteTimeout: responseWriteTimeout,
 		retryAfter:           retryAfterHeader(defaultRetryAfter),
+		maxRequestBytes:      defaultMaxRequestBytes,
 	}
 }
 

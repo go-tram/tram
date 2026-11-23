@@ -37,7 +37,9 @@ const (
 
 const (
 	shutdownTimeout = 5 * time.Second
-	maxBodyBytes    = 20 << 20
+	// defaultMaxRequestBytes is the size limit of a request without
+	// max_request_bytes.
+	defaultMaxRequestBytes = 20 << 20
 
 	readHeaderTimeout = 5 * time.Second
 	readTimeout       = time.Minute
@@ -81,6 +83,9 @@ type OTLP struct {
 	retryDelay time.Duration
 	// headers are the header_attributes of the spec, in a fixed order.
 	headers []headerMapping
+	// maxRequestBytes limits the size of a request, compressed and
+	// decompressed.
+	maxRequestBytes int
 }
 
 func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) (*OTLP, error) {
@@ -101,6 +106,10 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 	if err != nil {
 		return nil, err
 	}
+	maxRequestBytes := base.Spec().MaxRequestBytes
+	if maxRequestBytes == 0 {
+		maxRequestBytes = defaultMaxRequestBytes
+	}
 
 	o := &OTLP{
 		Source:               base,
@@ -110,6 +119,7 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 		retryAfter:           retryAfterHeader(retryAfter),
 		retryDelay:           retryAfter,
 		headers:              headers,
+		maxRequestBytes:      maxRequestBytes,
 	}
 
 	if port := base.Spec().HTTPPort; port != 0 {
@@ -257,7 +267,7 @@ func (o *OTLP) receive(
 		return "", http.StatusUnsupportedMediaType, "Unsupported content type"
 	}
 
-	body, request, err := readBody(w, r)
+	body, request, err := o.readBody(w, r)
 	if err != nil {
 		_, maxBytesExceeded := errors.AsType[*http.MaxBytesError](err)
 		switch {
@@ -323,8 +333,12 @@ func requestContentType(r *http.Request) (string, bool) {
 	}
 }
 
-func readBody(w http.ResponseWriter, r *http.Request) ([]byte, *domain.Request, error) {
-	wire := &countingReader{r: http.MaxBytesReader(w, r.Body, maxBodyBytes)}
+// readBody reads the body of r, decompressed; it fails with errBodyTooLarge or
+// an [*http.MaxBytesError] where the body, compressed or decompressed, is larger
+// than o.maxRequestBytes.
+func (o *OTLP) readBody(w http.ResponseWriter, r *http.Request) ([]byte, *domain.Request, error) {
+	limit := o.maxRequestBytes
+	wire := &countingReader{r: http.MaxBytesReader(w, r.Body, int64(limit))}
 	var body io.Reader = wire
 	request := &domain.Request{Encoding: encodingIdentity}
 
@@ -342,11 +356,11 @@ func readBody(w http.ResponseWriter, r *http.Request) ([]byte, *domain.Request, 
 		return nil, nil, errUnsupportedEncoding
 	}
 
-	data, err := io.ReadAll(io.LimitReader(body, maxBodyBytes+1))
+	data, err := io.ReadAll(io.LimitReader(body, int64(limit)+1))
 	if err != nil {
 		return nil, nil, err
 	}
-	if len(data) > maxBodyBytes {
+	if len(data) > limit {
 		return nil, nil, errBodyTooLarge
 	}
 	request.WireBytes, request.DecodedBytes = wire.n, len(data)

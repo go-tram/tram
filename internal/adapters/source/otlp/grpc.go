@@ -35,10 +35,10 @@ import (
 // newGRPCServer serves the OTLP/gRPC services of o. It answers like the HTTP
 // side, in gRPC's terms: Unavailable with RetryInfo where HTTP answers 503,
 // the only code OTLP clients retry; InvalidArgument where it answers 422; and
-// ResourceExhausted for messages larger than the HTTP body limit.
+// ResourceExhausted for messages larger than max_request_bytes.
 func newGRPCServer(o *OTLP) *grpc.Server {
 	server := grpc.NewServer(
-		grpc.MaxRecvMsgSize(maxBodyBytes),
+		grpc.MaxRecvMsgSize(o.maxRequestBytes),
 		grpc.StatsHandler(sizeHandler{}),
 		grpc.KeepaliveParams(keepalive.ServerParameters{MaxConnectionIdle: idleTimeout}),
 	)
