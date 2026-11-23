@@ -654,9 +654,14 @@ func drainJobOf(
 							"--watch-namespace=" + engine.Namespace,
 							"--data-dir=" + drainMountPath,
 						},
-						Resources:    resources,
-						VolumeMounts: []corev1.VolumeMount{{Name: volumeName, MountPath: drainMountPath}},
+						Resources: resources,
+						VolumeMounts: []corev1.VolumeMount{
+							{Name: volumeName, MountPath: drainMountPath},
+							{Name: tmpVolumeName, MountPath: tmpMountPath},
+						},
 						SecurityContext: &corev1.SecurityContext{
+							RunAsNonRoot:             new(true),
+							ReadOnlyRootFilesystem:   new(true),
 							AllowPrivilegeEscalation: new(false),
 							Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
 							SeccompProfile: &corev1.SeccompProfile{
@@ -671,6 +676,7 @@ func drainJobOf(
 								ClaimName: ClaimName(engine.Name, ordinal),
 							},
 						},
+						tmpVolume(),
 					},
 				},
 			},
@@ -680,6 +686,12 @@ func drainJobOf(
 		return nil, err
 	}
 	return job, nil
+}
+
+// tmpVolume is the empty directory for temporary files, which the read-only
+// root file system of the containers cannot hold.
+func tmpVolume() corev1.Volume {
+	return corev1.Volume{Name: tmpVolumeName, EmptyDir: &corev1.EmptyDirVolumeSource{}}
 }
 
 // drainResourcesOf are spec.storage.drainResources, or small requests with
