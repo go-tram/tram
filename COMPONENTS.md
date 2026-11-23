@@ -188,15 +188,15 @@ Each request costs a fixed amount on top of its records, so small requests are e
 <!-- BEGIN benchreport:component:otlp-source -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| OTLP source: decoding a request | 1.52 µs | 1.94 µs | 34.3 | 656 k | ±5% |
-| OTLP source over gRPC: request with the client's encoding | 2.60 µs | 2.97 µs | 34.4 | 384 k | ±2% |
+| OTLP source: decoding a request | 1.46 µs | 1.86 µs | 34.3 | 683 k | ±9% |
+| OTLP source over gRPC: request with the client's encoding | 2.51 µs | 2.90 µs | 34.4 | 398 k | ±2% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| OTLP source: request with one record | 5.57 µs | 8.65 µs | 85 | ±23% ⚠️ |
-| OTLP source over gRPC: request with one record | 32.35 µs | 42.75 µs | 235 | ±20% ⚠️ |
+| OTLP source: request with one record | 5.47 µs | 8.50 µs | 85 | ±13% ⚠️ |
+| OTLP source over gRPC: request with one record | 25.46 µs | 33.95 µs | 235 | ±40% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:otlp-source -->
 
 ### Broker Source
@@ -297,12 +297,12 @@ Workers process messages in parallel; more `workers` lower the cost per record u
 <!-- BEGIN benchreport:component:broker-source -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| Broker source (NATS), 1 worker | 1.62 µs | 2.37 µs | 34.2 | 617 k | ±6% |
-| Broker source (NATS), 8 workers | 270.6 ns | 2.45 µs | 34.2 | 3.69 M | ±1% |
-| Broker source (Kafka), 8 workers | 257.3 ns | 2.08 µs | 34.2 | 3.89 M | ±4% |
-| Broker source (AMQP), 8 workers | 275.5 ns | 2.57 µs | 34.3 | 3.63 M | ±1% |
+| Broker source (NATS), 1 worker | 1.61 µs | 2.35 µs | 34.2 | 620 k | ±4% |
+| Broker source (NATS), 8 workers | 271.1 ns | 2.45 µs | 34.2 | 3.69 M | ±2% |
+| Broker source (Kafka), 8 workers | 260.7 ns | 2.08 µs | 34.2 | 3.84 M | ±4% |
+| Broker source (AMQP), 8 workers | 277.0 ns | 2.57 µs | 34.3 | 3.61 M | ±1% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:broker-source -->
 
 ---
@@ -357,14 +357,14 @@ Every delivered event is removed from the queue, which writes to disk too, so si
 <!-- BEGIN benchreport:component:buffer-source -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| Buffer source (SQLite), 1 worker | 1.66 µs | 3.25 µs | 34.3 | 601 k | ±6% |
-| Buffer source (SQLite), 8 workers | 356.5 ns | 2.75 µs | 34.3 | 2.81 M | ±2% |
+| Buffer source (SQLite), 1 worker | 1.64 µs | 3.29 µs | 34.3 | 609 k | ±1% |
+| Buffer source (SQLite), 8 workers | 357.0 ns | 2.81 µs | 34.3 | 2.80 M | ±1% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| Buffer source (SQLite): one record, 1 worker | 68.25 µs | 80.18 µs | 111 | ±45% ⚠️ |
+| Buffer source (SQLite): one record, 1 worker | 67.68 µs | 79.69 µs | 111 | ±18% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:buffer-source -->
 
 ## 🔧 Stages
@@ -478,10 +478,10 @@ The expression runs once per log record, data point or span. Put filters early i
 <!-- BEGIN benchreport:component:filter -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| filter (CEL), keeping half of the records | 1.77 µs | 2.12 µs | 16.6 | 564 k | ±11% ⚠️ |
-| filter (CEL), keeping all records | 823.6 ns | 996.8 ns | 8.0 | 1.21 M | ±18% ⚠️ |
+| filter (CEL), keeping half of the records | 1.70 µs | 2.05 µs | 16.6 | 587 k | ±14% ⚠️ |
+| filter (CEL), keeping all records | 767.2 ns | 938.6 ns | 8.0 | 1.30 M | ±32% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:filter -->
 
 ### Validation Stage
@@ -580,10 +580,10 @@ An expression that only looks at resources is far cheaper than one that walks ev
 <!-- BEGIN benchreport:component:validation -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| validation (CEL), record-level expression | 1.13 µs | 1.36 µs | 9.1 | 885 k | ±6% |
-| validation (CEL), resource-level expression | 14.8 ns | 17.5 ns | 0.1 | 67.63 M | ±7% |
+| validation (CEL), record-level expression | 1.14 µs | 1.38 µs | 9.1 | 873 k | ±3% |
+| validation (CEL), resource-level expression | 13.5 ns | 16.1 ns | 0.1 | 74.24 M | ±41% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:validation -->
 
 ### Batch Stage
@@ -632,13 +632,13 @@ Batching costs little per record and lowers the fixed costs per event of everyth
 <!-- BEGIN benchreport:component:batch -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| batch, 8 concurrent callers | 0.5 ns | 2.6 ns | 0.0 | 2.10 G | ±7% |
+| batch, 8 concurrent callers | 0.5 ns | 2.6 ns | 0.0 | 2.10 G | ±6% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| batch, one caller | 1.41 µs | 2.12 µs | 15 | ±11% ⚠️ |
+| batch, one caller | 1.42 µs | 2.15 µs | 15 | ±13% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:batch -->
 
 ### Delay Stage
@@ -784,10 +784,10 @@ Every encrypted attribute adds work on top of the body; encrypt only the attribu
 <!-- BEGIN benchreport:component:encryption -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| encryption, body only | 389.2 ns | 778.8 ns | 15.0 | 2.57 M | ±7% |
-| encryption, body and attributes | 1.55 µs | 2.68 µs | 55.0 | 647 k | ±1% |
+| encryption, body only | 369.7 ns | 740.6 ns | 15.0 | 2.71 M | ±4% |
+| encryption, body and attributes | 1.50 µs | 2.63 µs | 55.0 | 666 k | ±7% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:encryption -->
 
 ### Decryption Stage
@@ -905,10 +905,10 @@ Every decrypted attribute adds work on top of the body; decrypt only what the de
 <!-- BEGIN benchreport:component:decryption -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| decryption, body only | 263.9 ns | 446.0 ns | 7.0 | 3.79 M | ±2% |
-| decryption, body and attributes | 1.08 µs | 1.74 µs | 37.0 | 922 k | ±1% |
+| decryption, body only | 278.6 ns | 469.4 ns | 7.0 | 3.59 M | ±2% |
+| decryption, body and attributes | 1.12 µs | 1.78 µs | 37.0 | 892 k | ±5% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:decryption -->
 
 ### No-op Stage
@@ -936,13 +936,13 @@ The baseline cost of a stage: what passing an event through one more stage costs
 <!-- BEGIN benchreport:component:noop -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| noop stage | 1.1 ns | 1.4 ns | 0.0 | 942.51 M | ±9% |
+| noop stage | 1.0 ns | 1.3 ns | 0.0 | 1.01 G | ±1% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| Each additional noop stage | 471.0 ns | 617.1 ns | 7 | ±12% ⚠️ |
+| Each additional noop stage | 484.4 ns | 633.0 ns | 7 | ±4% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:noop -->
 
 ### Value Map Stage
@@ -1007,10 +1007,10 @@ Mapping a resource attribute runs once per resource instead of once per record, 
 <!-- BEGIN benchreport:component:value-map -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| value_map, mapping a record attribute | 121.2 ns | 289.9 ns | 5.0 | 8.25 M | ±5% |
-| value_map, mapping a resource attribute | 133.6 ns | 302.0 ns | 5.0 | 7.49 M | ±15% ⚠️ |
+| value_map, mapping a record attribute | 122.8 ns | 296.8 ns | 5.0 | 8.15 M | ±1% |
+| value_map, mapping a resource attribute | 127.8 ns | 310.8 ns | 5.0 | 7.82 M | ±5% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:value-map -->
 
 ### Transform Stage
@@ -1128,6 +1128,13 @@ The node metrics framework counts records and durations only, not failed stateme
 Entry statements are evaluated once per log record, data point or span, and every additional one adds its evaluation, while scope and resource statements are evaluated once per scope and resource. The rows are measured on the shapes of the [Value Map Stage](#value-map-stage) benchmark, so the two stages compare.
 
 <!-- BEGIN benchreport:component:transform -->
+| Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
+|---|---|---|---|---|---|
+| transform (CEL), one entry statement | 622.7 ns | 1.03 µs | 13.1 | 1.61 M | ±9% |
+| transform (CEL), four entry statements of a normalization | 850.6 ns | 1.40 µs | 18.1 | 1.18 M | ±22% ⚠️ |
+| transform (CEL), one resource statement | 88.9 ns | 230.0 ns | 3.2 | 11.25 M | ±7% |
+
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:transform -->
 
 ---
@@ -1272,13 +1279,13 @@ Every request waits for the destination's answer, which dominates small events; 
 <!-- BEGIN benchreport:component:otlp-sink -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| OTLP sink: encode and send over loopback | 1.02 µs | 1.20 µs | 0.1 | 976 k | ±6% |
+| OTLP sink: encode and send over loopback | 963.2 ns | 1.12 µs | 0.1 | 1.04 M | ±11% ⚠️ |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| OTLP sink: one record (waits for the answer) | 25.41 µs | 39.81 µs | 89 | ±19% ⚠️ |
+| OTLP sink: one record (waits for the answer) | 25.32 µs | 39.91 µs | 89 | ±10% |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:otlp-sink -->
 
 ### Broker Sink
@@ -1368,20 +1375,20 @@ Every message waits for the broker's acknowledgement, which dominates small even
 <!-- BEGIN benchreport:component:broker-sink -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| Broker sink (NATS): group and publish, 10 subjects | 3.18 µs | 4.31 µs | 31.2 | 315 k | ±8% |
-| Broker sink (NATS): group and publish, 1 subject | 3.29 µs | 4.07 µs | 30.1 | 304 k | ±13% ⚠️ |
-| Broker sink (NATS): group and publish, 100 subjects | 3.98 µs | 5.76 µs | 37.2 | 251 k | ±6% |
-| Broker sink (NATS): group and publish, 1,000 subjects (a message per record) | 6.13 µs | 9.09 µs | 61.1 | 163 k | ±1% |
-| Broker sink (Kafka): group and publish, 10 topics | 13.62 µs | 5.18 µs | 31.2 | 73 k | ±9% |
-| Broker sink (AMQP): group and publish, 10 queues | 3.31 µs | 4.71 µs | 31.2 | 302 k | ±25% ⚠️ |
+| Broker sink (NATS): group and publish, 10 subjects | 3.25 µs | 4.40 µs | 31.2 | 307 k | ±3% |
+| Broker sink (NATS): group and publish, 1 subject | 3.09 µs | 3.81 µs | 30.1 | 324 k | ±10% |
+| Broker sink (NATS): group and publish, 100 subjects | 3.99 µs | 5.72 µs | 37.2 | 251 k | ±3% |
+| Broker sink (NATS): group and publish, 1,000 subjects (a message per record) | 6.23 µs | 9.18 µs | 61.1 | 161 k | ±3% |
+| Broker sink (Kafka): group and publish, 10 topics | 13.72 µs | 5.12 µs | 31.2 | 73 k | ±10% ⚠️ |
+| Broker sink (AMQP): group and publish, 10 queues | 3.53 µs | 4.92 µs | 31.2 | 283 k | ±4% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| Broker sink (NATS): one record (waits for the acknowledgement) | 36.60 µs | 25.91 µs | 63 | ±3% |
-| Broker sink (Kafka): one record (waits for the acknowledgement) | 11.0 ms | 255.26 µs | 81 | ±14% ⚠️ |
-| Broker sink (AMQP): one record (waits for the acknowledgement) | 77.62 µs | 51.19 µs | 67 | ±100% ⚠️ |
+| Broker sink (NATS): one record (waits for the acknowledgement) | 37.55 µs | 27.10 µs | 63 | ±1% |
+| Broker sink (Kafka): one record (waits for the acknowledgement) | 10.7 ms | 200.84 µs | 82 | ±18% ⚠️ |
+| Broker sink (AMQP): one record (waits for the acknowledgement) | 78.00 µs | 52.91 µs | 67 | ±110% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:broker-sink -->
 
 ### Buffer Sink
@@ -1432,15 +1439,15 @@ Every commit is synced to disk, so one caller pays a sync per event; concurrent 
 <!-- BEGIN benchreport:component:buffer-sink -->
 | Component | Per record | CPU per record | Allocs per record | Records/s | Spread |
 |---|---|---|---|---|---|
-| Buffer sink (SQLite), one caller | 1.16 µs | 1.28 µs | 0.0 | 864 k | ±6% |
-| Buffer sink (SQLite), concurrent callers | 149.0 ns | 1.49 µs | 0.0 | 6.71 M | ±1% |
+| Buffer sink (SQLite), one caller | 1.08 µs | 1.20 µs | 0.0 | 922 k | ±17% ⚠️ |
+| Buffer sink (SQLite), concurrent callers | 145.8 ns | 1.50 µs | 0.0 | 6.86 M | ±2% |
 
 | Component | Per event | CPU per event | Allocs per event | Spread |
 |---|---|---|---|---|
-| Buffer sink (SQLite): one record, one caller (waits for the sync) | 26.55 µs | 30.20 µs | 45 | ±14% ⚠️ |
-| Buffer sink (SQLite): one record, concurrent callers | 6.50 µs | 13.26 µs | 27 | ±5% |
+| Buffer sink (SQLite): one record, one caller (waits for the sync) | 31.00 µs | 35.19 µs | 44 | ±31% ⚠️ |
+| Buffer sink (SQLite): one record, concurrent callers | 6.52 µs | 13.43 µs | 27 | ±13% ⚠️ |
 
-Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `05fafcc`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
+Measured on 13th Gen Intel(R) Core(TM) i7-13700K, commit `79dd4fb`, 2026-11-23; compare with other components under [Where the Time Goes](BENCHMARK.md#where-the-time-goes).
 <!-- END benchreport:component:buffer-sink -->
 
 ---
