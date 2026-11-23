@@ -316,6 +316,26 @@ def add_component_pages():
             SECTIONS["COMPONENTS.md"][title] = (page, UNWRAP)
 
 
+DECISIONS = "development/decisions"
+
+
+def add_decision_pages():
+    """Gives the index of docs/adr/ and every record in it a page under
+    development/decisions/, titled by the record's first heading: a new record
+    gets its page without changing this script; check_nav makes sure it is in
+    the navigation."""
+    adr = REPO / "docs" / "adr"
+    for path in [adr / "README.md", *sorted(adr.glob("[0-9][0-9][0-9][0-9]-*.md"))]:
+        title = next(
+            HEADING.match(line)[2]
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if HEADING.match(line)
+        )
+        page = f"{DECISIONS}/{'index' if path.name == 'README.md' else path.stem}.md"
+        TITLES[page] = title
+        SECTIONS[path.relative_to(REPO).as_posix()] = {title: (page, UNWRAP)}
+
+
 def nav_pages(entries):
     """The pages a Zensical nav lists, at any depth."""
     pages = set()
@@ -338,6 +358,7 @@ def check_nav():
 
 def main():
     add_component_pages()
+    add_decision_pages()
     check_nav()
     chunks, anchors = split_all()
     clean()
