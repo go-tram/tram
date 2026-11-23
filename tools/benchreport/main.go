@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 )
@@ -435,6 +436,14 @@ func sizingRows() []struct{ label, name string } {
 			"Scenario/nats-filter-nats/concurrency=8/records=1000/resources=10/teams=1",
 		},
 		{
+			"Batched: OTLP → batch → Kafka, 1,000 records per request, 8 callers",
+			"Scenario/otlp-batch-kafka/concurrency=8/records=1000/resources=10/teams=1",
+		},
+		{
+			"Batched: OTLP → batch → AMQP, 1,000 records per request, 8 callers",
+			"Scenario/otlp-batch-amqp/concurrency=8/records=1000/resources=10/teams=1",
+		},
+		{
 			"Unbatched: OTLP → NATS, 1 record per request, 8 callers",
 			"Scenario/otlp-nats/concurrency=8/records=1/resources=1/teams=1",
 		},
@@ -620,6 +629,16 @@ func perRecordComponents() []component {
 			"Notify/records=1000/resources=10/teams=1", sectionBrokerSink,
 		},
 		{
+			"Broker sink (NATS): group and publish, 100 subjects",
+			pkgBrokerSink,
+			"Notify/records=1000/resources=10/teams=100", sectionBrokerSink,
+		},
+		{
+			"Broker sink (NATS): group and publish, 1,000 subjects (a message per record)",
+			pkgBrokerSink,
+			"Notify/records=1000/resources=10/teams=1000", sectionBrokerSink,
+		},
+		{
 			"Serializing OTLP data and back (logs)",
 			pkgDomain,
 			"OTLPDataRoundTrip/logs/records=1000/resources=10/teams=1",
@@ -784,34 +803,37 @@ func perEventComponents() []component {
 func renderComponents(results map[string]result, components []component, perRecord bool) string {
 	var b strings.Builder
 	if perRecord {
-		b.WriteString("| Component | Per record | Allocs per record | Records/s | Spread |\n|---|---|---|---|---|\n")
+		b.WriteString("| Component | Per record | CPU per record | Allocs per record | Records/s | Spread |\n" +
+			"|---|---|---|---|---|---|\n")
 	} else {
-		b.WriteString("| Component | Per event | Allocs per event | Spread |\n|---|---|---|---|\n")
+		b.WriteString("| Component | Per event | CPU per event | Allocs per event | Spread |\n|---|---|---|---|---|\n")
 	}
 	for _, c := range components {
 		r, ok := results[c.pkg+"|"+c.name]
 		if !ok {
 			if perRecord {
-				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | |\n", c.label)
+				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | n/a | |\n", c.label)
 			} else {
-				fmt.Fprintf(&b, "| %s | n/a | n/a | |\n", c.label)
+				fmt.Fprintf(&b, "| %s | n/a | n/a | n/a | |\n", c.label)
 			}
 			continue
 		}
-		ns, allocs := componentCost(results, c, r)
+		cost := componentCost(results, c, r)
 		if perRecord {
 			records := recordsPerOp(c.name)
 			fmt.Fprintf(
 				&b,
-				"| %s | %s | %.1f | %s | %s |\n",
+				"| %s | %s | %s | %.1f | %s | %s |\n",
 				c.label,
-				duration(ns/records),
-				allocs/records,
-				count(records*billion/ns),
+				duration(cost.ns/records),
+				cpuDuration(cost.cpu, records),
+				cost.allocs/records,
+				count(records*billion/cost.ns),
 				spread(r.spread),
 			)
 		} else {
-			fmt.Fprintf(&b, "| %s | %s | %.0f | %s |\n", c.label, duration(ns), allocs, spread(r.spread))
+			fmt.Fprintf(&b, "| %s | %s | %s | %.0f | %s |\n",
+				c.label, duration(cost.ns), cpuDuration(cost.cpu, 1), cost.allocs, spread(r.spread))
 		}
 	}
 	return b.String()
@@ -844,19 +866,32 @@ func inSection(components []component, section string) []component {
 	return slices.DeleteFunc(slices.Clone(components), func(c component) bool { return c.section != section })
 }
 
-// componentCost returns the time and allocations of a component. The noop
-// stage is measured as a pipeline, so the cost of the direct pipeline is
-// subtracted from it.
-func componentCost(results map[string]result, c component, r result) (float64, float64) {
-	ns, allocs := r.metrics["ns/op"], r.metrics[allocsPerOp]
+// cost is what a component takes per operation: wall time, CPU time of the
+// process (0 when the benchmark does not measure it) and allocations.
+type cost struct{ ns, cpu, allocs float64 }
+
+// componentCost returns the costs of a component. The noop stage is measured
+// as a pipeline, so the costs of the direct pipeline are subtracted from it.
+func componentCost(results map[string]result, c component, r result) cost {
+	k := cost{ns: r.metrics["ns/op"], cpu: r.metrics[benchcpu.Unit], allocs: r.metrics[allocsPerOp]}
 	if c.name != "Pipeline/noop/records=1/resources=1/teams=1" {
-		return ns, allocs
+		return k
 	}
 	if direct, found := results[c.pkg+"|Pipeline/direct/records=1/resources=1/teams=1"]; found {
-		ns -= direct.metrics["ns/op"]
-		allocs -= direct.metrics[allocsPerOp]
+		k.ns -= direct.metrics["ns/op"]
+		k.cpu -= direct.metrics[benchcpu.Unit]
+		k.allocs -= direct.metrics[allocsPerOp]
 	}
-	return ns, allocs
+	return k
+}
+
+// cpuDuration formats the CPU time per operation divided by n, or n/a when
+// the benchmark does not measure it.
+func cpuDuration(cpu, n float64) string {
+	if cpu <= 0 {
+		return "n/a"
+	}
+	return duration(cpu / n)
 }
 
 func replaceSection(page []byte, name, content string) ([]byte, error) {

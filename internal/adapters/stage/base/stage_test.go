@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/stage/base"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 )
 
 type noopSubscriber struct{}
@@ -38,9 +39,11 @@ func BenchmarkNotifySubscribers(b *testing.B) {
 
 		b.Run(fmt.Sprintf("children=%d", children), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				_ = stage.NotifySubscribers(ctx, event)
 			}
+			cpu.Report(b)
 		})
 	}
 }

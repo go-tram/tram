@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/sink/buffer"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -48,16 +49,19 @@ func BenchmarkNotify(b *testing.B) {
 		b.Run("serial/"+shape.String(), func(b *testing.B) {
 			sink := newBenchSink(b)
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				if err := sink.Notify(b.Context(), event); err != nil {
 					b.Fatal(err)
 				}
 			}
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 		})
 		b.Run("parallel/"+shape.String(), func(b *testing.B) {
 			sink := newBenchSink(b)
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			b.RunParallel(func(pb *testing.PB) {
 				for pb.Next() {
 					if err := sink.Notify(b.Context(), event); err != nil {
@@ -66,6 +70,7 @@ func BenchmarkNotify(b *testing.B) {
 					}
 				}
 			})
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 		})
 	}

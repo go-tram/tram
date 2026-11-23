@@ -14,6 +14,8 @@ Absolute numbers depend on the machine, its load and the network to NATS, so tre
 - **Records/s per core:** how many records one fully used CPU core can process, derived from the CPU per record. This is the figure for sizing, as TRAM is stateless and scales horizontally.
 - **Records/s:** the throughput actually measured on this machine. It is also limited by the number of callers and by NATS.
 - **Latency:** time from sending an OTLP request until TRAM answered it. TRAM answers once all sinks accepted the data, so it includes publishing to NATS.
+- **Per record / per event (components):** wall time of one caller. For components that wait, such as sinks waiting for a broker's acknowledgement or a disk sync, it includes the wait.
+- **CPU per record / per event (components):** CPU time of the whole process during the measurement, divided by the records or events. It is the cost to size with when TRAM, not the broker, is the limit. It includes the garbage collector, which runs on other cores, so it can exceed the wall time; it excludes the brokers in their containers.
 - **Spread:** range of the runs relative to the median. Values above 10% are flagged with ⚠️ and are less reliable.
 
 ## Environment

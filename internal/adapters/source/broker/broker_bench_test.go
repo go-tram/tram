@@ -23,6 +23,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/source/broker"
 	"github.com/go-tram/tram/internal/core/domain"
 	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
@@ -102,6 +103,7 @@ func consume(b *testing.B, js jetstream.JetStream, url, name string, workers, re
 
 	b.ReportAllocs()
 	b.ResetTimer()
+	cpu := benchcpu.Start()
 	stopped := make(chan error, 1)
 	go func() { stopped <- src.Run(ctx) }()
 	select {
@@ -109,6 +111,7 @@ func consume(b *testing.B, js jetstream.JetStream, url, name string, workers, re
 	case <-time.After(time.Minute):
 		b.Fatalf("received %d of %d records", counter.records.Load(), counter.want)
 	}
+	cpu.Report(b)
 	b.StopTimer()
 
 	_ = src.Stop()
@@ -256,6 +259,7 @@ func consumeWith(b *testing.B, spec map[string]any, records int) {
 	ctx := context.Background()
 	b.ReportAllocs()
 	b.ResetTimer()
+	cpu := benchcpu.Start()
 	stopped := make(chan error, 1)
 	go func() { stopped <- src.Run(ctx) }()
 	select {
@@ -263,6 +267,7 @@ func consumeWith(b *testing.B, spec map[string]any, records int) {
 	case <-time.After(time.Minute):
 		b.Fatalf("received %d of %d records", counter.records.Load(), counter.want)
 	}
+	cpu.Report(b)
 	b.StopTimer()
 
 	_ = src.Stop()

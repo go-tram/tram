@@ -1243,7 +1243,7 @@ With `partition`, the sink computes a partition per record from a key, e.g. the 
 
 #### Performance
 
-Every message waits for the broker's acknowledgement, which dominates small events; put a batch stage before the sink, so fewer, larger messages are published. The drivers differ most there; in the benchmarks, a single Kafka publish waits much longer than one to NATS or AMQP, so with Kafka a batch stage or many concurrent callers matter even more. The number of destinations changes the cost per record little.
+Every message waits for the broker's acknowledgement, which dominates small events; put a batch stage before the sink, so fewer, larger messages are published. The drivers differ most there; in the benchmarks, a single Kafka publish waits much longer than one to NATS or AMQP, so with Kafka a batch stage or many concurrent callers matter even more. Up to about ten destinations per event change the cost per record little; with hundreds, e.g. when a stream routes a batch to many tenants, messages get small and the cost per record grows several times, up to a message per record. Batch per destination where possible, or route to fewer, coarser destinations first.
 
 <!-- BEGIN benchreport:component:broker-sink -->
 | Component | Per record | Allocs per record | Records/s | Spread |

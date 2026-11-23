@@ -29,6 +29,8 @@ import (
 	"github.com/go-tram/tram/internal/adapters/stage"
 	"github.com/go-tram/tram/internal/core"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
@@ -38,6 +40,9 @@ type scenario struct {
 	source string
 	teams  int
 	build  func(e *env) ([]domain.StageSpec, []domain.SinkSpec)
+	// sizingOnly runs the scenario only with the shape and concurrency of
+	// the sizing table, to compare brokers without the full matrix.
+	sizingOnly bool
 }
 
 func scenarios() []scenario {
@@ -55,10 +60,7 @@ func scenarios() []scenario {
 			source: "otlp",
 			teams:  1,
 			build: func(e *env) ([]domain.StageSpec, []domain.SinkSpec) {
-				return []domain.StageSpec{{
-					Name: "batch", Type: "batch", From: "in",
-					Spec: map[string]any{"max_records": float64(batchMaxRecords), "timeout": batchTimeout},
-				}}, []domain.SinkSpec{e.natsSink("out", "batch")}
+				return []domain.StageSpec{batchStage()}, []domain.SinkSpec{e.natsSink("out", "batch")}
 			},
 		},
 		{
@@ -74,6 +76,24 @@ func scenarios() []scenario {
 					e.natsSink("out-a", "team-zero"),
 					e.natsSink("out-b", "other-teams"),
 				}
+			},
+		},
+		{
+			name:       "otlp-batch-kafka",
+			source:     "otlp",
+			teams:      1,
+			sizingOnly: true,
+			build: func(e *env) ([]domain.StageSpec, []domain.SinkSpec) {
+				return []domain.StageSpec{batchStage()}, []domain.SinkSpec{e.kafkaSink("out", "batch")}
+			},
+		},
+		{
+			name:       "otlp-batch-amqp",
+			source:     "otlp",
+			teams:      1,
+			sizingOnly: true,
+			build: func(e *env) ([]domain.StageSpec, []domain.SinkSpec) {
+				return []domain.StageSpec{batchStage()}, []domain.SinkSpec{e.amqpSink("out", "batch")}
 			},
 		},
 		{
@@ -93,7 +113,18 @@ func scenarios() []scenario {
 const (
 	batchMaxRecords = 1000
 	batchTimeout    = "10ms"
+
+	// The shape and concurrency of the sizing table.
+	sizingRecords     = 1000
+	sizingConcurrency = 8
 )
+
+func batchStage() domain.StageSpec {
+	return domain.StageSpec{
+		Name: "batch", Type: "batch", From: "in",
+		Spec: map[string]any{"max_records": float64(batchMaxRecords), "timeout": batchTimeout},
+	}
+}
 
 func concurrencies() []int {
 	return []int{1, 4, 8}
@@ -120,14 +151,20 @@ func BenchmarkScenario(b *testing.B) {
 		b.Fatal(err)
 	}
 
+	brokers := &otherBrokers{kafka: kafkatest.Start(b), amqp: amqptest.Start(b)}
+
 	var runs atomic.Int64
 	for _, sc := range scenarios() {
 		for _, concurrency := range concurrencies() {
 			for _, shape := range shapes() {
+				if sc.sizingOnly && (concurrency != sizingConcurrency || shape.Records != sizingRecords) {
+					continue
+				}
 				shape.Teams = sc.teams
 				name := fmt.Sprintf("%s/concurrency=%d/%s", sc.name, concurrency, shape)
 				b.Run(name, func(b *testing.B) {
 					e := newEnv(b, natsURL, js, &runs)
+					e.brokers = brokers
 					switch sc.source {
 					case "otlp":
 						benchmarkOTLP(b, e, sc, shape, concurrency)
@@ -146,6 +183,44 @@ type env struct {
 	js      jetstream.JetStream
 	prefix  string
 	streams []string
+	brokers *otherBrokers
+}
+
+// otherBrokers are the brokers besides NATS, for the scenarios that compare
+// them.
+type otherBrokers struct {
+	kafka []string
+	amqp  *amqptest.Broker
+}
+
+// kafkaSink is a broker sink with the Kafka driver to a topic of its own,
+// which is deleted with its data after the benchmark.
+func (e *env) kafkaSink(name, from string) domain.SinkSpec {
+	topic := e.prefix + "-" + name
+	kafkatest.CreateTopic(e.b, e.brokers.kafka, topic, 1)
+	e.b.Cleanup(func() { kafkatest.DeleteTopic(e.b, e.brokers.kafka, topic) })
+	seeds := make([]any, len(e.brokers.kafka))
+	for i, s := range e.brokers.kafka {
+		seeds[i] = s
+	}
+	return domain.SinkSpec{Name: name, Type: "broker", From: from, Spec: map[string]any{
+		"driver":      "kafka",
+		"kafka":       map[string]any{"brokers": seeds},
+		"destination": map[string]any{"logs": fmt.Sprintf("'%s'", topic)},
+	}}
+}
+
+// amqpSink is a broker sink with the AMQP driver to a queue of its own,
+// which is deleted with its messages after the benchmark.
+func (e *env) amqpSink(name, from string) domain.SinkSpec {
+	queue := e.prefix + "." + name
+	e.brokers.amqp.CreateQueue(e.b, queue)
+	e.b.Cleanup(func() { e.brokers.amqp.DeleteQueue(e.b, queue) })
+	return domain.SinkSpec{Name: name, Type: "broker", From: from, Spec: map[string]any{
+		"driver":      "amqp",
+		"amqp":        map[string]any{"url": e.brokers.amqp.URL},
+		"destination": map[string]any{"logs": fmt.Sprintf("'%s'", queue)},
+	}}
 }
 
 func newEnv(b *testing.B, natsURL string, js jetstream.JetStream, runs *atomic.Int64) *env {

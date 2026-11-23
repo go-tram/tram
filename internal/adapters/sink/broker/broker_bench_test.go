@@ -18,6 +18,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/sink/broker"
 	"github.com/go-tram/tram/internal/core/domain"
 	"github.com/go-tram/tram/internal/testutil/amqptest"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/kafkatest"
 	"github.com/go-tram/tram/internal/testutil/natstest"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
@@ -43,7 +44,13 @@ func BenchmarkNotify(b *testing.B) {
 	}); err != nil {
 		b.Fatal(err)
 	}
-	benchmarkNotify(b, map[string]any{"driver": "nats", "nats": map[string]any{"url": url}}, "'bench.' + ")
+	// Many subjects per event, as when a stream routes the records of a
+	// batch to hundreds of tenants: with 1,000, every record is a message.
+	fanOut := []otlpgen.Shape{
+		{Records: 1000, Resources: 10, Teams: 100, Attributes: 4},
+		{Records: 1000, Resources: 10, Teams: 1000, Attributes: 4},
+	}
+	benchmarkNotify(b, map[string]any{"driver": "nats", "nats": map[string]any{"url": url}}, "'bench.' + ", fanOut...)
 }
 
 // Publishes to Kafka through the Kafka driver, one topic per team.
@@ -70,9 +77,9 @@ func BenchmarkNotifyAMQP(b *testing.B) {
 }
 
 // benchmarkNotify measures the sink with the driver spec on the shapes of all
-// brokers; prefix is the CEL expression that starts each destination, which
+// brokers and the extra ones; prefix is the CEL expression that starts each destination, which
 // ends with the record's team.
-func benchmarkNotify(b *testing.B, driverSpec map[string]any, prefix string) {
+func benchmarkNotify(b *testing.B, driverSpec map[string]any, prefix string, extra ...otlpgen.Shape) {
 	b.Helper()
 	v := validator.New(validator.WithRequiredStructEnabled())
 	shapes := []otlpgen.Shape{
@@ -81,6 +88,7 @@ func benchmarkNotify(b *testing.B, driverSpec map[string]any, prefix string) {
 		{Records: 1000, Resources: 10, Teams: 1, Attributes: 4},
 		{Records: 1000, Resources: 10, Teams: benchTeams, Attributes: 4},
 	}
+	shapes = append(shapes, extra...)
 	for _, shape := range shapes {
 		spec := map[string]any{"destination": map[string]any{
 			"logs": prefix + "logs.resource_logs[0].scope_logs[0].log_records[0].attributes.get_attr('team')",
@@ -99,11 +107,13 @@ func benchmarkNotify(b *testing.B, driverSpec map[string]any, prefix string) {
 		event := &domain.Event{Logs: otlpgen.Logs(shape)}
 		b.Run(shape.String(), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				if notifyErr := sink.Notify(b.Context(), event); notifyErr != nil {
 					b.Fatal(notifyErr)
 				}
 			}
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 			b.ReportMetric(float64(shape.Teams*b.N)/b.Elapsed().Seconds(), "messages/s")
 		})

@@ -19,6 +19,7 @@ import (
 	sinkbuffer "github.com/go-tram/tram/internal/adapters/sink/buffer"
 	"github.com/go-tram/tram/internal/adapters/source/buffer"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -91,6 +92,7 @@ func consume(b *testing.B, workers int, shape otlpgen.Shape) {
 
 	b.ReportAllocs()
 	b.ResetTimer()
+	cpu := benchcpu.Start()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	stopped := make(chan error, 1)
@@ -100,6 +102,7 @@ func consume(b *testing.B, workers int, shape otlpgen.Shape) {
 	case <-time.After(time.Minute):
 		b.Fatalf("received %d of %d records", counter.records.Load(), counter.want)
 	}
+	cpu.Report(b)
 	b.StopTimer()
 
 	_ = src.Stop()

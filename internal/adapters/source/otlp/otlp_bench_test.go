@@ -18,6 +18,7 @@ import (
 	"github.com/go-tram/tram/internal/adapters/source/base"
 	"github.com/go-tram/tram/internal/adapters/source/otlp"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -47,6 +48,7 @@ func BenchmarkHandleLogs(b *testing.B) {
 		b.Run(shape.String(), func(b *testing.B) {
 			b.SetBytes(int64(len(body)))
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				w := httptest.NewRecorder()
 				otlp.HandleLogs(o, w, httptest.NewRequest(http.MethodPost, "/v1/logs", bytes.NewReader(body)))
@@ -54,6 +56,7 @@ func BenchmarkHandleLogs(b *testing.B) {
 					b.Fatalf("status %d", w.Code)
 				}
 			}
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 		})
 	}

@@ -18,6 +18,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/source/base"
 	"github.com/go-tram/tram/internal/adapters/source/otlp"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -49,11 +50,13 @@ func BenchmarkGRPCExportLogs(b *testing.B) {
 
 		b.Run(shape.String(), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				if _, exportErr := client.Export(b.Context(), request); exportErr != nil {
 					b.Fatal(exportErr)
 				}
 			}
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 		})
 	}

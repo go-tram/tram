@@ -16,6 +16,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/sink/otlp"
 	"github.com/go-tram/tram/internal/core/domain"
+	"github.com/go-tram/tram/internal/testutil/benchcpu"
 	"github.com/go-tram/tram/internal/testutil/otlpgen"
 )
 
@@ -45,11 +46,13 @@ func BenchmarkNotify(b *testing.B) {
 
 		b.Run(shape.String(), func(b *testing.B) {
 			b.ReportAllocs()
+			cpu := benchcpu.Start()
 			for b.Loop() {
 				if notifyErr := sink.Notify(b.Context(), event); notifyErr != nil {
 					b.Fatal(notifyErr)
 				}
 			}
+			cpu.Report(b)
 			b.ReportMetric(float64(shape.Records*b.N)/b.Elapsed().Seconds(), "records/s")
 		})
 	}
