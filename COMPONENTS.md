@@ -1083,7 +1083,7 @@ flowchart LR
 
 Within a signal, the resource statements run first, then the scope statements, then the entry statements, each group in the order of the list. Keys go in single or double quotes.
 
-**Functions:** besides standard CEL, expressions have the [string functions](https://github.com/google/cel-go/blob/master/ext/README.md#strings) of CEL, e.g. `split`, `replace`, `lowerAscii`, `substring`, `trim`, and `attr(attributes, 'key')`, which returns the value of an attribute: a string, bool, int, double or bytes, or `null` if it is missing. Arrays and key-value lists are returned as their OTLP `AnyValue`.
+**Functions:** besides standard CEL, expressions have the [string functions](https://github.com/cel-expr/cel-go/blob/master/ext/README.md#strings) of CEL, e.g. `split`, `replace`, `lowerAscii`, `substring`, `trim`, and `attr(attributes, 'key')`, which returns the value of an attribute: a string, bool, int, double or bytes, or `null` if it is missing. Arrays and key-value lists are returned as their OTLP `AnyValue`.
 
 **Example:** derive the environment from the namespace, drop a secret, follow the semantic conventions and keep notes short:
 
