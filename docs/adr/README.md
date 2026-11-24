@@ -13,13 +13,14 @@ This directory records the decisions that shape TRAM, as Architecture Decision R
 | [0007](0007-synchronous-delivery-and-backpressure.md) | Synchronous delivery and backpressure | Accepted |
 | [0008](0008-requests-accepted-or-refused-as-a-whole.md) | Requests are accepted or refused as a whole | Accepted |
 | [0009](0009-no-authentication-in-tram.md) | No authentication or authorization in TRAM | Accepted |
-| [0010](0010-one-stream-state-last-write-wins.md) | One set of streams, the last write wins | Accepted |
+| [0010](0010-one-stream-state-last-write-wins.md) | One set of streams, the last write wins | Superseded by 0018 |
 | [0011](0011-transform-stage.md) | Transform stage with a CEL driver, attributes only | Accepted |
 | [0012](0012-object-storage-sink.md) | Object storage sink with S3 as its first driver | Accepted, not built |
 | [0013](0013-value-map-driver.md) | A driver for value_map only when needed | Proposed |
 | [0014](0014-releases-from-conventional-commits.md) | Releases from Conventional Commits | Accepted |
 | [0015](0015-persistence-between-streams.md) | Streams keep nothing on disk; buffers connect two streams | Accepted |
 | [0016](0016-request-size-limit-at-the-source.md) | Limit the request size at the source, decompressed | Accepted |
+| [0018](0018-resources-own-their-streams.md) | Stream resources own their streams | Accepted |
 
 ## Writing a Record
 
