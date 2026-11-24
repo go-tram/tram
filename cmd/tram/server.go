@@ -36,6 +36,7 @@ type serverOptions struct {
 	watchNamespaces   []string
 	engine            string
 	enableFileSync    bool
+	adminEndpoint     string
 	pprofEndpoint     string
 	dataDir           string
 }
@@ -61,6 +62,9 @@ func newServerCmd(logger *slog.Logger) *cobra.Command {
 	flags.StringSliceVar(&opts.watchNamespaces, "watch-namespace", nil,
 		"Namespaces whose Stream resources the operator runs, comma-separated (default all)")
 	flags.StringVar(&opts.engine, "engine", "", "Engine whose Stream resources the operator runs")
+	flags.StringVar(&opts.adminEndpoint, "admin-endpoint", "localhost:50052",
+		"Endpoint of the admin API (gRPC and HTTP), which shows the events of running streams, "+
+			"e.g. to tram tap; empty disables it")
 	flags.StringVar(&opts.pprofEndpoint, "pprof-endpoint", "",
 		"Endpoint serving the Go profiles under /debug/pprof/, e.g. localhost:6060 (default disabled)")
 	flags.StringVar(
@@ -103,6 +107,12 @@ func runServer(ctx context.Context, logger *slog.Logger, opts serverOptions) (er
 	}
 
 	eg, driversCtx := errgroup.WithContext(ctx)
+
+	if opts.adminEndpoint != "" {
+		eg.Go(func() error {
+			return api.NewAdmin(opts.adminEndpoint, c, c, logger).Run(driversCtx)
+		})
+	}
 
 	if opts.pprofEndpoint != "" {
 		eg.Go(func() error {
