@@ -7,7 +7,7 @@ package api
 
 import (
 	"github.com/go-tram/tram/internal/core/domain"
-	v1 "github.com/go-tram/tram/pkg/gen/go/api/proto/stream/v1"
+	v1 "github.com/go-tram/tram/pkg/gen/go/tram/v1"
 )
 
 func ToStatus(err error) error {

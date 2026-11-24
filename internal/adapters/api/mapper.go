@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/go-tram/tram/internal/core/domain"
-	v1 "github.com/go-tram/tram/pkg/gen/go/api/proto/stream/v1"
+	v1 "github.com/go-tram/tram/pkg/gen/go/tram/v1"
 )
 
 func pbStreamToStreamSpec(req *v1.Stream) domain.StreamSpec {

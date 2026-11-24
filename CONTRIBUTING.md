@@ -118,7 +118,7 @@ go generate ./...
 
 When updating the API:
 
-1. Modify the `.proto` files in `api/proto/stream/v1/`
+1. Modify the `.proto` files in `api/proto/tram/v1/`
 2. Regenerate code:
    ```bash
    go generate ./...
@@ -132,7 +132,7 @@ When updating the API:
 ```
 tram/
 ├── api/
-│   ├── proto/stream/v1/stream.proto  # API definition
+│   ├── proto/tram/v1/                # API definition (stream.proto, tap.proto)
 │   └── swagger/                      # Generated OpenAPI description
 ├── cmd/tram/                         # CLI entry point and `tram server`
 ├── internal/                         # Private application code
@@ -151,7 +151,7 @@ tram/
 │   ├── e2e/                          # End-to-end pipeline tests
 │   ├── scenario/                     # End-to-end pipeline benchmarks
 │   └── testutil/                     # Test helpers: OTLP payloads (otlpgen), broker containers (natstest, kafkatest, amqptest), tcpproxy
-├── pkg/gen/go/api/proto/stream/v1/   # Generated protobuf, gRPC and gateway code
+├── pkg/gen/go/tram/v1/               # Generated protobuf, gRPC and gateway code
 ├── examples/                            # Example configurations: config/, k8s/, nats/
 ├── tools/benchreport/                # Generates BENCHMARK.md
 ├── docs/adr/                         # Architecture Decision Records

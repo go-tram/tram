@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/proto/stream/v1/stream.proto
+// source: tram/v1/stream.proto
 
-package v1
+package tramv1
 
 import (
 	context "context"
@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StreamService_PutStream_FullMethodName    = "/api.proto.stream.v1.StreamService/PutStream"
-	StreamService_GetStream_FullMethodName    = "/api.proto.stream.v1.StreamService/GetStream"
-	StreamService_DeleteStream_FullMethodName = "/api.proto.stream.v1.StreamService/DeleteStream"
-	StreamService_ListStreams_FullMethodName  = "/api.proto.stream.v1.StreamService/ListStreams"
+	StreamService_PutStream_FullMethodName    = "/tram.v1.StreamService/PutStream"
+	StreamService_GetStream_FullMethodName    = "/tram.v1.StreamService/GetStream"
+	StreamService_DeleteStream_FullMethodName = "/tram.v1.StreamService/DeleteStream"
+	StreamService_ListStreams_FullMethodName  = "/tram.v1.StreamService/ListStreams"
 )
 
 // StreamServiceClient is the client API for StreamService service.
@@ -210,7 +210,7 @@ func _StreamService_ListStreams_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StreamService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.proto.stream.v1.StreamService",
+	ServiceName: "tram.v1.StreamService",
 	HandlerType: (*StreamServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -231,5 +231,5 @@ var StreamService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/stream/v1/stream.proto",
+	Metadata: "tram/v1/stream.proto",
 }
