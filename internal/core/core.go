@@ -36,6 +36,8 @@ type Core struct {
 	sinkFactory   ports.Factory[domain.SinkSpec, domain.Sink]
 	watchers      map[*watcher]struct{}
 	metrics       *metrics
+	// taps is nil in a test run, which nothing taps.
+	taps *taps
 
 	minRestartDelay time.Duration
 	maxRestartDelay time.Duration
@@ -91,6 +93,7 @@ func New(
 		sinkFactory:   sinkFactory,
 		watchers:      map[*watcher]struct{}{},
 		metrics:       m,
+		taps:          newTaps(),
 
 		minRestartDelay: minRestartDelay,
 		maxRestartDelay: maxRestartDelay,
@@ -135,6 +138,7 @@ func (c *Core) UpsertResolvedStream(
 			return nil, errors.Join(domain.ErrStreamBuildFailed, err)
 		}
 		c.logger.InfoContext(ctx, "Replaced stages and sinks of stream", slog.String("stream", spec.Name))
+		c.taps.retain(spec.Name, tree)
 		c.notify(domain.StreamSpecWatchEventTypeUpsert, spec)
 		return &c.streams[spec.Name].spec, nil
 	}
@@ -162,6 +166,7 @@ func (c *Core) UpsertResolvedStream(
 	} else {
 		c.runStream(tree, spec, 0)
 	}
+	c.taps.retain(spec.Name, tree)
 	c.notify(domain.StreamSpecWatchEventTypeUpsert, spec)
 
 	return &c.streams[spec.Name].spec, nil
@@ -203,6 +208,7 @@ func (c *Core) DeleteStream(ctx context.Context, name string) error {
 	}
 
 	delete(c.streams, name)
+	c.taps.end(name, fmt.Errorf("%w: %s was deleted", domain.ErrStreamNotFound, name))
 	c.notify(domain.StreamSpecWatchEventTypeDelete, stream.spec)
 	c.logger.InfoContext(ctx, "Deleted stream", slog.String("stream", name))
 
@@ -236,6 +242,7 @@ func (c *Core) Close() error {
 	defer c.mutex.Unlock()
 
 	c.closed = true
+	c.taps.endAll(domain.ErrCoreClosed)
 
 	for name, stream := range c.streams {
 		c.logger.InfoContext(c.ctx, "Stopping stream", slog.String("stream", name))

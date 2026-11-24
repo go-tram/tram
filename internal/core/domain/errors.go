@@ -36,4 +36,6 @@ var (
 	ErrNodeNotSubscriber    = errors.New("node is not a subscriber")
 	ErrPortUnavailable      = errors.New("port unavailable")
 	ErrEventRejected        = errors.New("event rejected")
+	ErrComponentNotFound    = errors.New("component not found")
+	ErrInvalidTapOptions    = errors.New("tap options are invalid")
 )
