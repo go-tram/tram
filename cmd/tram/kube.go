@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -38,59 +40,47 @@ import (
 // commands run on each of them, to follow scaling and rollouts.
 const podPollInterval = 2 * time.Second
 
-// kubeTarget is TRAM pods in Kubernetes: the pods of an Engine, or the pods a
-// label selector selects.
+// kubeTarget is TRAM pods in Kubernetes: the pods of an Engine, the pods a
+// label selector selects, or the pods of the Engines that run Stream.
 type kubeTarget struct {
-	Engine     string `json:"engine,omitempty"`
-	Selector   string `json:"selector,omitempty"`
-	Namespace  string `json:"namespace,omitempty"`
-	Context    string `json:"kube-context,omitempty"`
-	Kubeconfig string `json:"kubeconfig,omitempty"`
-	AdminPort  int    `json:"admin-port,omitempty"`
-}
-
-func (k kubeTarget) String() string {
-	s := "pods " + k.Selector
-	if k.Engine != "" {
-		s = "engine " + k.Engine
-	}
-	if k.Namespace != "" {
-		s += " in namespace " + k.Namespace
-	}
-	if k.Context != "" {
-		s += " of kube context " + k.Context
-	}
-	return s
-}
-
-// with returns k with the fields of flags that are set.
-func (k kubeTarget) with(flags kubeTarget) kubeTarget {
-	if flags.Namespace != "" {
-		k.Namespace = flags.Namespace
-	}
-	if flags.Context != "" {
-		k.Context = flags.Context
-	}
-	if flags.Kubeconfig != "" {
-		k.Kubeconfig = flags.Kubeconfig
-	}
-	if flags.AdminPort != 0 {
-		k.AdminPort = flags.AdminPort
-	}
-	return k
+	Engine     string
+	Selector   string
+	Namespace  string
+	Context    string
+	Kubeconfig string
+	AdminPort  int
+	// Stream is the stream a command is about, <namespace>.<name> for the
+	// stream of a Stream resource; empty if none.
+	Stream string
 }
 
 // kubeConnector reaches TRAM pods through port forwards, as kubectl
 // port-forward does, so it needs the same permissions: get and list pods and
-// create pods/portforward, and get Engines for an Engine.
+// create pods/portforward, and get and list Engines and Streams to find the
+// pods of a stream.
 type kubeConnector struct {
-	target    kubeTarget
 	config    *rest.Config
 	clientset kubernetes.Interface
+	dynamic   dynamic.Interface
 	namespace string
 	selector  labels.Selector
-	port      int
-	errOut    io.Writer
+	// what is the target in messages, e.g. "engine telemetry".
+	what string
+	// adminPort is --admin-port, 0 for the port of each pod's Engine;
+	// enginePorts holds those ports by Engine.
+	adminPort   int
+	enginePorts map[string]int
+	errOut      io.Writer
+}
+
+func engineResource() schema.GroupVersionResource {
+	return schema.GroupVersionResource{
+		Group: tramv1alpha1.GroupVersion.Group, Version: tramv1alpha1.GroupVersion.Version, Resource: "engines",
+	}
+}
+
+func streamResource() schema.GroupVersionResource {
+	return schema.GroupVersionResource{Group: tramv1alpha1.GroupVersion.Group, Version: "v1", Resource: "streams"}
 }
 
 func newKubeConnector(ctx context.Context, t kubeTarget, errOut io.Writer) (*kubeConnector, error) {
@@ -106,74 +96,150 @@ func newKubeConnector(ctx context.Context, t kubeTarget, errOut io.Writer) (*kub
 	if err != nil {
 		return nil, fmt.Errorf("kubeconfig: %w", err)
 	}
-	namespace := t.Namespace
-	if namespace == "" {
-		if namespace, _, err = clientConfig.Namespace(); err != nil {
-			return nil, fmt.Errorf("kubeconfig: %w", err)
-		}
+	k := &kubeConnector{config: config, adminPort: t.AdminPort, enginePorts: map[string]int{}, errOut: errOut}
+	if k.clientset, err = kubernetes.NewForConfig(config); err != nil {
+		return nil, err
 	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
+	if k.dynamic, err = dynamic.NewForConfig(config); err != nil {
 		return nil, err
 	}
 
-	k := &kubeConnector{
-		target: t, config: config, clientset: clientset, namespace: namespace, port: t.AdminPort, errOut: errOut,
+	// The stream of a Stream resource names its namespace.
+	streamNamespace, streamName, isResource := strings.Cut(t.Stream, ".")
+	k.namespace = t.Namespace
+	switch {
+	case k.namespace != "":
+	case t.Engine == "" && t.Selector == "" && isResource:
+		k.namespace = streamNamespace
+	default:
+		if k.namespace, _, err = clientConfig.Namespace(); err != nil {
+			return nil, fmt.Errorf("kubeconfig: %w", err)
+		}
 	}
-	if t.Engine != "" {
-		if err = k.fromEngine(ctx); err != nil {
+
+	if t.Selector != "" {
+		if k.selector, err = labels.Parse(t.Selector); err != nil {
+			return nil, fmt.Errorf("selector %q: %w", t.Selector, err)
+		}
+		k.what = "pods " + t.Selector
+	} else {
+		engines, enginesErr := k.engines(ctx, t.Engine, streamName, isResource)
+		if enginesErr != nil {
+			return nil, enginesErr
+		}
+		if err = k.selectEngines(ctx, engines); err != nil {
 			return nil, err
 		}
-	} else if k.selector, err = labels.Parse(t.Selector); err != nil {
-		return nil, fmt.Errorf("selector %q: %w", t.Selector, err)
 	}
-	if k.port == 0 {
-		k.port = tramv1alpha1.DefaultAdminPort
-	}
+	k.what += " in namespace " + k.namespace
 	return k, nil
 }
 
-// fromEngine selects the pods of the Engine and takes its admin port.
-func (k *kubeConnector) fromEngine(ctx context.Context) error {
-	client, err := dynamic.NewForConfig(k.config)
+// engines finds the Engines to talk to: the one named, those the Stream
+// resource of the stream names, or the only Engine of the namespace.
+func (k *kubeConnector) engines(ctx context.Context, engine, stream string, isResource bool) ([]string, error) {
+	if engine != "" {
+		return []string{engine}, nil
+	}
+	if isResource {
+		resource, err := k.dynamic.Resource(streamResource()).
+			Namespace(k.namespace).
+			Get(ctx, stream, metav1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("stream resource %s in namespace %s: %w; name the pods with --engine or --selector",
+				stream, k.namespace, err)
+		}
+		refs, _, _ := unstructured.NestedSlice(resource.Object, "spec", "engineRefs")
+		var names []string
+		for _, ref := range refs {
+			if name, _, _ := unstructured.NestedString(asObject(ref), "name"); name != "" {
+				names = append(names, name)
+			}
+		}
+		if len(names) == 0 {
+			return nil, fmt.Errorf("stream resource %s in namespace %s names no Engine", stream, k.namespace)
+		}
+		return names, nil
+	}
+	list, err := k.dynamic.Resource(engineResource()).Namespace(k.namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("engines in namespace %s: %w", k.namespace, err)
+	}
+	var names []string
+	for _, item := range list.Items {
+		names = append(names, item.GetName())
+	}
+	switch len(names) {
+	case 1:
+		return names, nil
+	case 0:
+		return nil, fmt.Errorf("no Engine in namespace %s; name the pods with --selector", k.namespace)
+	default:
+		slices.Sort(names)
+		return nil, fmt.Errorf("several Engines in namespace %s (%s): choose one with --engine",
+			k.namespace, strings.Join(names, ", "))
+	}
+}
+
+func asObject(value any) map[string]any {
+	object, _ := value.(map[string]any)
+	return object
+}
+
+// selectEngines selects the pods of engines and takes their admin ports.
+func (k *kubeConnector) selectEngines(ctx context.Context, engines []string) error {
+	for _, name := range engines {
+		engine, err := k.dynamic.Resource(engineResource()).Namespace(k.namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return fmt.Errorf("engine %s in namespace %s: %w", name, k.namespace, err)
+		}
+		port := tramv1alpha1.DefaultAdminPort
+		if p, found, _ := unstructured.NestedInt64(engine.Object, "spec", "runtime", "api", "adminPort"); found {
+			port = int(p)
+		}
+		k.enginePorts[name] = port
+	}
+	requirement, err := labels.NewRequirement(tramv1alpha1.EngineLabel, selection.In, engines)
 	if err != nil {
 		return err
 	}
-	engines := schema.GroupVersionResource{
-		Group: tramv1alpha1.GroupVersion.Group, Version: tramv1alpha1.GroupVersion.Version, Resource: "engines",
-	}
-	engine, err := client.Resource(engines).Namespace(k.namespace).Get(ctx, k.target.Engine, metav1.GetOptions{})
-	if err != nil {
-		return fmt.Errorf("engine %s in namespace %s: %w", k.target.Engine, k.namespace, err)
-	}
-	if k.port == 0 {
-		port, found, _ := unstructured.NestedInt64(engine.Object, "spec", "runtime", "api", "adminPort")
-		if found {
-			k.port = int(port)
-		}
-	}
-	k.selector = labels.SelectorFromSet(labels.Set{tramv1alpha1.EngineLabel: k.target.Engine})
+	k.selector = labels.NewSelector().Add(*requirement)
+	k.what = "engine " + strings.Join(engines, ", ")
 	return nil
 }
 
 func (k *kubeConnector) many() bool { return true }
 
+// readyPod is a ready pod of the target with the port of its admin API.
+type readyPod struct {
+	name string
+	port int
+}
+
 // pods lists the ready pods of the target, sorted by name.
-func (k *kubeConnector) pods(ctx context.Context) ([]string, error) {
+func (k *kubeConnector) pods(ctx context.Context) ([]readyPod, error) {
 	list, err := k.clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: k.selector.String(),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("list pods of %s: %w", k.target, err)
+		return nil, fmt.Errorf("list pods of %s: %w", k.what, err)
 	}
-	var names []string
+	var pods []readyPod
 	for _, pod := range list.Items {
-		if ready(&pod) {
-			names = append(names, pod.Name)
+		if !ready(&pod) {
+			continue
 		}
+		port := k.adminPort
+		if port == 0 {
+			port = k.enginePorts[pod.Labels[tramv1alpha1.EngineLabel]]
+		}
+		if port == 0 {
+			port = tramv1alpha1.DefaultAdminPort
+		}
+		pods = append(pods, readyPod{name: pod.Name, port: port})
 	}
-	slices.Sort(names)
-	return names, nil
+	slices.SortFunc(pods, func(a, b readyPod) int { return strings.Compare(a.name, b.name) })
+	return pods, nil
 }
 
 func ready(pod *corev1.Pod) bool {
@@ -194,7 +260,7 @@ func (k *kubeConnector) one(ctx context.Context) (instance, func(), error) {
 		return instance{}, nil, err
 	}
 	if len(pods) == 0 {
-		return instance{}, nil, fmt.Errorf("no ready pods of %s", k.target)
+		return instance{}, nil, fmt.Errorf("no ready pods of %s", k.what)
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	in, err := k.connectPod(ctx, pods[0])
@@ -243,13 +309,13 @@ type podRuns struct {
 }
 
 // update starts the runs of new pods and stops those of pods that are gone.
-func (p *podRuns) update(ctx context.Context, pods []string) {
+func (p *podRuns) update(ctx context.Context, pods []readyPod) {
 	for _, pod := range pods {
-		if _, ok := p.running[pod]; ok {
+		if _, ok := p.running[pod.name]; ok {
 			continue
 		}
 		podCtx, stop := context.WithCancel(ctx)
-		p.running[pod] = stop
+		p.running[pod.name] = stop
 		p.wg.Go(func() {
 			defer stop()
 			if err := p.k.run(podCtx, pod, p.fn); err != nil {
@@ -258,25 +324,25 @@ func (p *podRuns) update(ctx context.Context, pods []string) {
 		})
 	}
 	for pod, stop := range p.running {
-		if !slices.Contains(pods, pod) {
+		if !slices.ContainsFunc(pods, func(r readyPod) bool { return r.name == pod }) {
 			stop()
 			delete(p.running, pod)
 			_, _ = fmt.Fprintf(p.k.errOut, "pod %s is gone\n", pod)
 		}
 	}
 	if len(p.running) == 0 && !p.waiting {
-		_, _ = fmt.Fprintf(p.k.errOut, "waiting for ready pods of %s\n", p.k.target)
+		_, _ = fmt.Fprintf(p.k.errOut, "waiting for ready pods of %s\n", p.k.what)
 	}
 	p.waiting = len(p.running) == 0
 }
 
 // run calls fn for pod. A pod that cannot be reached is reported and skipped:
 // it may be going away.
-func (k *kubeConnector) run(ctx context.Context, pod string, fn func(context.Context, instance) error) error {
+func (k *kubeConnector) run(ctx context.Context, pod readyPod, fn func(context.Context, instance) error) error {
 	in, err := k.connectPod(ctx, pod)
 	if err != nil {
 		if ctx.Err() == nil {
-			_, _ = fmt.Fprintf(k.errOut, "pod %s: %v\n", pod, err)
+			_, _ = fmt.Fprintf(k.errOut, "pod %s: %v\n", pod.name, err)
 		}
 		return nil
 	}
@@ -286,7 +352,7 @@ func (k *kubeConnector) run(ctx context.Context, pod string, fn func(context.Con
 
 // connectPod forwards a local port to the admin port of pod until ctx ends
 // and connects to it.
-func (k *kubeConnector) connectPod(ctx context.Context, pod string) (instance, error) {
+func (k *kubeConnector) connectPod(ctx context.Context, pod readyPod) (instance, error) {
 	address, err := k.forward(ctx, pod)
 	if err != nil {
 		return instance{}, err
@@ -295,12 +361,12 @@ func (k *kubeConnector) connectPod(ctx context.Context, pod string) (instance, e
 	if err != nil {
 		return instance{}, err
 	}
-	return instance{name: pod, conn: conn}, nil
+	return instance{name: pod.name, conn: conn}, nil
 }
 
-func (k *kubeConnector) forward(ctx context.Context, pod string) (string, error) {
+func (k *kubeConnector) forward(ctx context.Context, pod readyPod) (string, error) {
 	url := k.clientset.CoreV1().RESTClient().Post().
-		Resource("pods").Namespace(k.namespace).Name(pod).SubResource("portforward").URL()
+		Resource("pods").Namespace(k.namespace).Name(pod.name).SubResource("portforward").URL()
 	transport, upgrader, err := spdy.RoundTripperFor(k.config)
 	if err != nil {
 		return "", err
@@ -316,7 +382,7 @@ func (k *kubeConnector) forward(ctx context.Context, pod string) (string, error)
 	stop := make(chan struct{})
 	readyCh := make(chan struct{})
 	forwarder, err := portforward.NewOnAddresses(dialer, []string{"127.0.0.1"},
-		[]string{"0:" + strconv.Itoa(k.port)}, stop, readyCh, io.Discard, io.Discard)
+		[]string{"0:" + strconv.Itoa(pod.port)}, stop, readyCh, io.Discard, io.Discard)
 	if err != nil {
 		return "", err
 	}
@@ -325,7 +391,7 @@ func (k *kubeConnector) forward(ctx context.Context, pod string) (string, error)
 	select {
 	case <-readyCh:
 	case err = <-errs:
-		return "", fmt.Errorf("port-forward to %s: %w", pod, err)
+		return "", fmt.Errorf("port-forward to %s: %w", pod.name, err)
 	case <-ctx.Done():
 		close(stop)
 		return "", ctx.Err()
@@ -333,7 +399,7 @@ func (k *kubeConnector) forward(ctx context.Context, pod string) (string, error)
 	context.AfterFunc(ctx, func() { close(stop) })
 	ports, err := forwarder.GetPorts()
 	if err != nil || len(ports) == 0 {
-		return "", fmt.Errorf("port-forward to %s: no local port: %w", pod, err)
+		return "", fmt.Errorf("port-forward to %s: no local port: %w", pod.name, err)
 	}
 	return "127.0.0.1:" + strconv.Itoa(int(ports[0].Local)), nil
 }

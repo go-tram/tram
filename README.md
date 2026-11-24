@@ -507,29 +507,29 @@ The `tram` binary is the server and its command-line interface. The commands tha
 | `tram validate <files>` | Check stream files without running them | – |
 | `tram test <file>` | Run the test cases of a stream file, see [Test Cases](#test-cases) | – |
 | `tram list` | List the components and their drivers | – |
-| `tram context` | Manage the targets of the commands above | – |
 
 ### Where the CLI Connects
 
-A command that talks to a server finds its target in this order:
+A command that talks to a server finds its target in this order; the CLI has no configuration of its own:
 
-1. `--engine <name>` or `--selector <labels>`: TRAM pods in Kubernetes, see below
+1. `--kube`, `--engine <name>` or `--selector <labels>`: TRAM pods in Kubernetes, see below
 2. `--admin-endpoint <host:port>`
-3. `--context <name>`, a context of the tram config
-4. `TRAM_ADMIN_ENDPOINT`, then `TRAM_CONTEXT`
-5. the current context of the tram config
-6. `localhost:50052`
+3. `TRAM_KUBE=1` (Kubernetes) or `TRAM_ADMIN_ENDPOINT`
+4. `localhost:50052`
 
-Contexts name targets, like the contexts of kubectl. The config is `$TRAM_CONFIG`, or `tram/config.yaml` in the user's config directory (`~/.config/tram` on Linux, `~/Library/Application Support/tram` on macOS):
+**Kubernetes**: the CLI reaches the pods itself, as `kubectl port-forward` does, through the kubeconfig: its current context and namespace, or `--kube-context`, `-n` and `--kubeconfig`, as with kubectl. Which pods:
+
+- `--kube`: the pods of the Engines that run the stream. A stream of a `Stream` resource is named `<namespace>.<name>`, so the CLI reads the resource and takes the Engines of its `spec.engineRefs`, in that namespace. A command about no stream, like `tram stream list`, takes the only Engine of the namespace
+- `--engine <name>`: the pods of that Engine
+- `--selector <labels>`: the pods with those labels, e.g. TRAM pods without an Engine
 
 ```bash
-tram context add local --admin-endpoint localhost:50052
-tram context add prod --engine telemetry -n observability --kube-context prod
-tram context use prod
-tram context list
+tram tap observability.logs --kube        # the Engines of the Stream resource logs
+tram stream list --kube -n observability  # the only Engine of the namespace
+export TRAM_KUBE=1                        # --kube for every command
 ```
 
-**Kubernetes**: with `--engine` or `--selector`, the CLI reaches the pods itself, as `kubectl port-forward` does, with the kubeconfig (`--kubeconfig`, `--kube-context`, `-n`; the defaults as with kubectl). For an Engine it takes the pods labeled with it and the admin port of its spec; for a selector, `--admin-port` (default `50052`). It needs the permissions of a port forward: `get` and `list` on `pods`, `create` on `pods/portforward`, and `get` on `engines` for an Engine. Every pod runs every stream, so reading commands ask one of them, and `tram tap` taps all of them. Commands that change streams are refused there: the streams of those pods come from `Stream` resources or the file sync, which would undo a change, and a change through the API would reach one pod only.
+The CLI takes the admin port of each Engine's spec, and for a selector `--admin-port` (default `50052`). It needs the permissions of a port forward: `get` and `list` on `pods`, `create` on `pods/portforward`, and `get` and `list` on `engines` and `streams`. Every pod runs every stream, so reading commands ask one of them, and `tram tap` taps all of them. Commands that change streams are refused there: the streams of those pods come from `Stream` resources or the file sync, which would undo a change, and a change through the API would reach one pod only.
 
 ### Managing Streams
 
@@ -573,7 +573,7 @@ Error: 1 of 2 stream files are invalid
 tram tap my-stream                                # every component
 tram tap my-stream --component loki --rate 10     # one component, at most 10 events per second
 tram tap my-stream -o json --limit 100 > events.ndjson
-tram tap my-stream --engine telemetry -n observability   # every pod of an Engine
+tram tap observability.logs --kube                       # every pod that runs it
 ```
 
 ```
@@ -589,7 +589,7 @@ tram tap my-stream --engine telemetry -n observability   # every pod of an Engin
 - **What it shows**: a copy of each event at the source and every stage, as they passed it on, and at every sink, as it received it, with whether the sink took it, its error otherwise, and how long it took. `--component` taps one of them
 - **It never changes or slows down the stream**: the tap is not part of the stream's spec, so no stream is rebuilt and no configuration source sees a change. Events the tap cannot take in time, or beyond `--rate`, are dropped and reported on stderr (`dropped 12 events`), never held
 - **It follows the stream**: the tap keeps running when the stream is updated or restarts, and ends when the stream is deleted or the tapped component is removed
-- **It taps every pod**: with several replicas, e.g. of an Engine, every pod runs every stream and gets its share of the data. With `--engine` or `--selector`, `tram tap` taps all pods, shows the pod of every event (`"pod"` in JSON), and follows scaling and rollouts; `--rate` and `--limit` count for all of them together. A tap through `kubectl port-forward deploy/...` sees only the pod the forward picked
+- **It taps every pod**: with several replicas, e.g. of an Engine, every pod runs every stream and gets its share of the data. With `--kube`, `--engine` or `--selector`, `tram tap` taps all pods, shows the pod of every event (`"pod"` in JSON), and follows scaling and rollouts; `--rate` and `--limit` count for all of them together. A tap through `kubectl port-forward deploy/...` sees only the pod the forward picked
 - **Where it connects**: the [admin API](#admin-api) of the server over gRPC, see [Where the CLI Connects](#where-the-cli-connects). `-o json` writes one `TapStreamResponse` per line, in the JSON mapping of Protobuf: like OTLP/JSON, but with trace and span IDs in base64 instead of hex
 
 Over HTTP, the admin API streams the same events, one JSON object per line:

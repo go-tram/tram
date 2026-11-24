@@ -48,9 +48,9 @@ func newStreamCmd() *cobra.Command {
 admin API. Stream files are the files of the file sync and tram test: a bare
 stream object or {"stream": {...}}; tram stream get writes one.
 
-In Kubernetes, --engine or --selector read from one of the pods, which all
-run the same streams; apply and delete are refused there, since the streams
-come from Stream resources.`,
+In Kubernetes, with --kube, --engine or --selector, they read from one of
+the pods, which all run the same streams; apply and delete are refused
+there, since the streams come from Stream resources.`,
 	}
 	addTargetFlags(cmd, &target)
 	cmd.AddCommand(
@@ -69,17 +69,39 @@ func withStreams(
 	cmd *cobra.Command,
 	target *targetFlags,
 	write bool,
+	stream string,
 	fn func(context.Context, v1.StreamServiceClient) error,
 ) error {
-	t, err := target.resolve()
+	t, err := resolveFor(cmd, target, write)
 	if err != nil {
 		return err
 	}
+	return connectStreams(cmd, t, stream, fn)
+}
+
+// resolveFor resolves the target of a command; write refuses a target in
+// Kubernetes.
+func resolveFor(cmd *cobra.Command, target *targetFlags, write bool) (target, error) {
+	t, err := target.resolve()
+	if err != nil {
+		return t, err
+	}
 	if write && t.kube != nil {
-		return errWriteInKubernetes
+		return t, errWriteInKubernetes
 	}
 	cmd.SilenceUsage = true
-	c, err := t.connect(cmd.Context(), cmd.ErrOrStderr())
+	return t, nil
+}
+
+// connectStreams calls fn with a client of the StreamService of one
+// instance of t; stream is the stream the call is about, empty if none.
+func connectStreams(
+	cmd *cobra.Command,
+	t target,
+	stream string,
+	fn func(context.Context, v1.StreamServiceClient) error,
+) error {
+	c, err := t.connect(cmd.Context(), stream, cmd.ErrOrStderr())
 	if err != nil {
 		return err
 	}
@@ -89,6 +111,38 @@ func withStreams(
 	}
 	defer closeConn()
 	return fn(cmd.Context(), v1.NewStreamServiceClient(in.conn))
+}
+
+// forStreamFiles calls fn for every stream file of paths, with a client of
+// an instance that runs its stream. The errors of the files are joined.
+func forStreamFiles(
+	cmd *cobra.Command,
+	target *targetFlags,
+	write bool,
+	paths []string,
+	fn func(context.Context, v1.StreamServiceClient, string) error,
+) error {
+	t, err := resolveFor(cmd, target, write)
+	if err != nil {
+		return err
+	}
+	files, err := streamFiles(paths)
+	if err != nil {
+		return err
+	}
+	var errs []error
+	for _, file := range files {
+		spec, loadErr := testrun.LoadStream(file)
+		if loadErr == nil {
+			loadErr = connectStreams(cmd, t, spec.Name, func(ctx context.Context, client v1.StreamServiceClient) error {
+				return fn(ctx, client, file)
+			})
+		}
+		if loadErr != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", file, loadErr))
+		}
+	}
+	return errors.Join(errs...)
 }
 
 // streamError makes the status of a call readable.
@@ -113,7 +167,7 @@ func newStreamListCmd(target *targetFlags) *cobra.Command {
 			if output != outputText && output != outputJSON {
 				return fmt.Errorf("invalid --output %q: use %s or %s", output, outputText, outputJSON)
 			}
-			return withStreams(cmd, target, false, func(ctx context.Context, client v1.StreamServiceClient) error {
+			return withStreams(cmd, target, false, "", func(ctx context.Context, client v1.StreamServiceClient) error {
 				resp, err := client.ListStreams(ctx, &v1.ListStreamsRequest{})
 				if err != nil {
 					return streamError(err)
@@ -150,13 +204,19 @@ func newStreamGetCmd(target *targetFlags) *cobra.Command {
 		Short: "Write a stream as a stream file",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return withStreams(cmd, target, false, func(ctx context.Context, client v1.StreamServiceClient) error {
-				resp, err := client.GetStream(ctx, &v1.GetStreamRequest{Name: args[0]})
-				if err != nil {
-					return streamError(err)
-				}
-				return writeIndented(cmd.OutOrStdout(), streamFile(api.StreamFromPB(resp.GetStream())))
-			})
+			return withStreams(
+				cmd,
+				target,
+				false,
+				args[0],
+				func(ctx context.Context, client v1.StreamServiceClient) error {
+					resp, err := client.GetStream(ctx, &v1.GetStreamRequest{Name: args[0]})
+					if err != nil {
+						return streamError(err)
+					}
+					return writeIndented(cmd.OutOrStdout(), streamFile(api.StreamFromPB(resp.GetStream())))
+				},
+			)
 		},
 	}
 }
@@ -167,7 +227,7 @@ func newStreamDeleteCmd(target *targetFlags) *cobra.Command {
 		Short: "Delete streams",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return withStreams(cmd, target, true, func(ctx context.Context, client v1.StreamServiceClient) error {
+			return withStreams(cmd, target, true, "", func(ctx context.Context, client v1.StreamServiceClient) error {
 				var errs []error
 				for _, name := range args {
 					if _, err := client.DeleteStream(ctx, &v1.DeleteStreamRequest{Name: name}); err != nil {
@@ -201,27 +261,15 @@ file sync reads it, its *.json files.`,
   tram stream apply -f stream.json --dry-run`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return withStreams(
-				cmd,
-				target,
-				!opts.dryRun,
-				func(ctx context.Context, client v1.StreamServiceClient) error {
-					files, err := streamFiles(opts.files)
+			return forStreamFiles(cmd, target, !opts.dryRun, opts.files,
+				func(ctx context.Context, client v1.StreamServiceClient, file string) error {
+					line, err := applyFile(ctx, client, file, opts.dryRun)
 					if err != nil {
 						return err
 					}
-					var errs []error
-					for _, file := range files {
-						line, applyErr := applyFile(ctx, client, file, opts.dryRun)
-						if applyErr != nil {
-							errs = append(errs, fmt.Errorf("%s: %w", file, applyErr))
-							continue
-						}
-						_, _ = fmt.Fprintln(cmd.OutOrStdout(), line)
-					}
-					return errors.Join(errs...)
-				},
-			)
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), line)
+					return nil
+				})
 		},
 	}
 	cmd.Flags().StringSliceVarP(&opts.files, "filename", "f", nil, "Stream files or directories of them")
@@ -287,21 +335,12 @@ func newStreamDiffCmd(target *targetFlags) *cobra.Command {
 unified diff of their stream files, and what applying them would do.`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			paths, err := streamFiles(files)
-			if err != nil {
-				return err
-			}
 			// diff plans with a dry run, which changes nothing, so it is
 			// allowed in Kubernetes too.
-			return withStreams(cmd, target, false, func(ctx context.Context, client v1.StreamServiceClient) error {
-				var errs []error
-				for _, file := range paths {
-					if diffErr := diffFile(ctx, cmd.OutOrStdout(), client, file); diffErr != nil {
-						errs = append(errs, fmt.Errorf("%s: %w", file, diffErr))
-					}
-				}
-				return errors.Join(errs...)
-			})
+			return forStreamFiles(cmd, target, false, files,
+				func(ctx context.Context, client v1.StreamServiceClient, file string) error {
+					return diffFile(ctx, cmd.OutOrStdout(), client, file)
+				})
 		},
 	}
 	cmd.Flags().StringSliceVarP(&files, "filename", "f", nil, "Stream files or directories of them")

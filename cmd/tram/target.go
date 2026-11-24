@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -20,14 +21,14 @@ import (
 const (
 	defaultAdminEndpoint = "localhost:50052"
 	adminEndpointEnv     = "TRAM_ADMIN_ENDPOINT"
-	contextEnv           = "TRAM_CONTEXT"
+	kubeEnv              = "TRAM_KUBE"
 )
 
-// targetFlags are the flags of the commands that talk to a server: where its
-// admin API is, directly, through a context, or as pods in Kubernetes.
+// targetFlags are the flags of the commands that talk to a server: the
+// address of its admin API, or TRAM pods in Kubernetes.
 type targetFlags struct {
 	adminEndpoint string
-	context       string
+	kubeOn        bool
 	kube          kubeTarget
 }
 
@@ -35,18 +36,20 @@ func addTargetFlags(cmd *cobra.Command, f *targetFlags) {
 	flags := cmd.PersistentFlags()
 	flags.StringVar(&f.adminEndpoint, "admin-endpoint", "",
 		"Admin API of the TRAM server (env "+adminEndpointEnv+", default "+defaultAdminEndpoint+")")
-	flags.StringVar(&f.context, "context", "", "Context of the tram config to use (env "+contextEnv+")")
-	flags.StringVar(&f.kube.Engine, "engine", "", "Kubernetes: the Engine whose pods to talk to")
+	flags.BoolVar(&f.kubeOn, "kube", false,
+		"Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env "+
+			kubeEnv+")")
+	flags.StringVar(&f.kube.Engine, "engine", "", "Kubernetes: talk to the pods of this Engine")
 	flags.StringVarP(&f.kube.Selector, "selector", "l", "",
-		"Kubernetes: label selector of the TRAM pods to talk to, instead of an Engine")
-	flags.StringVarP(
-		&f.kube.Namespace,
-		"namespace",
-		"n",
+		"Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine")
+	flags.StringVarP(&f.kube.Namespace, "namespace", "n", "",
+		"Kubernetes: namespace (default the stream's, or the kubeconfig's)")
+	flags.StringVar(
+		&f.kube.Context,
+		"kube-context",
 		"",
-		"Kubernetes: namespace of the pods (default the kubeconfig's)",
+		"Kubernetes: context of the kubeconfig (default its current one)",
 	)
-	flags.StringVar(&f.kube.Context, "kube-context", "", "Kubernetes: context of the kubeconfig to use")
 	flags.StringVar(&f.kube.Kubeconfig, "kubeconfig", "", "Kubernetes: kubeconfig file (default as kubectl)")
 	flags.IntVar(&f.kube.AdminPort, "admin-port", 0,
 		"Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)")
@@ -58,69 +61,64 @@ type target struct {
 	kube    *kubeTarget
 }
 
-// resolve finds the target. Flags come first, then the environment, then the
-// context: --engine or --selector, --admin-endpoint, --context,
-// TRAM_ADMIN_ENDPOINT, TRAM_CONTEXT, the current context of the tram config,
-// and at last localhost:50052. The other Kubernetes flags refine a target in
-// Kubernetes, e.g. -n the namespace of the context's Engine.
+// resolve finds the target: --kube, --engine or --selector, then
+// --admin-endpoint, then TRAM_KUBE or TRAM_ADMIN_ENDPOINT, and at last
+// localhost:50052. The cluster and namespace come from the kubeconfig, as
+// with kubectl.
 func (f *targetFlags) resolve() (target, error) {
-	t, err := f.base()
+	kubeFlags := f.kubeOn || f.kube.Engine != "" || f.kube.Selector != ""
+	if f.kube.Engine != "" && f.kube.Selector != "" {
+		return target{}, errors.New("set --engine or --selector, not both")
+	}
+	switch {
+	case kubeFlags && f.adminEndpoint != "":
+		return target{}, errors.New("set --admin-endpoint or a target in Kubernetes, not both")
+	case kubeFlags:
+		return f.kubeTarget(), nil
+	case f.adminEndpoint != "":
+		return f.addressTarget(f.adminEndpoint)
+	}
+
+	kubeOn, err := kubeFromEnv()
 	if err != nil {
 		return target{}, err
 	}
-	if t.kube != nil {
-		kube := t.kube.with(f.kube)
-		t.kube = &kube
-	} else if f.kube.Namespace != "" || f.kube.Context != "" || f.kube.Kubeconfig != "" || f.kube.AdminPort != 0 {
+	endpoint := os.Getenv(adminEndpointEnv)
+	switch {
+	case kubeOn && endpoint != "":
+		return target{}, fmt.Errorf("set %s or %s, not both", kubeEnv, adminEndpointEnv)
+	case kubeOn:
+		return f.kubeTarget(), nil
+	case endpoint != "":
+		return f.addressTarget(endpoint)
+	default:
+		return f.addressTarget(defaultAdminEndpoint)
+	}
+}
+
+func (f *targetFlags) kubeTarget() target {
+	kube := f.kube
+	return target{kube: &kube}
+}
+
+func (f *targetFlags) addressTarget(address string) (target, error) {
+	if f.kube.Namespace != "" || f.kube.Context != "" || f.kube.Kubeconfig != "" || f.kube.AdminPort != 0 {
 		return target{}, errors.New("-n, --kube-context, --kubeconfig and --admin-port need a target in Kubernetes: " +
-			"set --engine or --selector, or use a context with one")
+			"set --kube, --engine or --selector")
 	}
-	return t, nil
+	return target{address: address}, nil
 }
 
-func (f *targetFlags) base() (target, error) {
-	if f.kube.Engine != "" || f.kube.Selector != "" {
-		if f.kube.Engine != "" && f.kube.Selector != "" {
-			return target{}, errors.New("set --engine or --selector, not both")
-		}
-		return target{kube: &kubeTarget{Engine: f.kube.Engine, Selector: f.kube.Selector}}, nil
+func kubeFromEnv() (bool, error) {
+	value := os.Getenv(kubeEnv)
+	if value == "" {
+		return false, nil
 	}
-	if f.adminEndpoint != "" {
-		return target{address: f.adminEndpoint}, nil
-	}
-	if f.context != "" {
-		return contextTarget(f.context)
-	}
-	if endpoint := os.Getenv(adminEndpointEnv); endpoint != "" {
-		return target{address: endpoint}, nil
-	}
-	if name := os.Getenv(contextEnv); name != "" {
-		return contextTarget(name)
-	}
-	cfg, err := loadConfig()
+	on, err := strconv.ParseBool(value)
 	if err != nil {
-		return target{}, err
+		return false, fmt.Errorf("%s=%q is no boolean, e.g. 1 or true", kubeEnv, value)
 	}
-	if cfg.CurrentContext != "" {
-		return contextTarget(cfg.CurrentContext)
-	}
-	return target{address: defaultAdminEndpoint}, nil
-}
-
-func contextTarget(name string) (target, error) {
-	cfg, err := loadConfig()
-	if err != nil {
-		return target{}, err
-	}
-	c, ok := cfg.Contexts[name]
-	if !ok {
-		return target{}, fmt.Errorf("no context %q in %s; see tram context list", name, configPath())
-	}
-	if c.Kubernetes != nil {
-		kube := *c.Kubernetes
-		return target{kube: &kube}, nil
-	}
-	return target{address: c.AdminEndpoint}, nil
+	return on, nil
 }
 
 // instance is one TRAM server of a target; name is its pod, empty for an
@@ -142,9 +140,14 @@ type connector interface {
 	many() bool
 }
 
-func (t target) connect(ctx context.Context, errOut io.Writer) (connector, error) {
+// connect reaches the target. stream is the stream the command is about,
+// empty if none: in Kubernetes without --engine or --selector, the pods are
+// those of the Engines its Stream resource names.
+func (t target) connect(ctx context.Context, stream string, errOut io.Writer) (connector, error) {
 	if t.kube != nil {
-		return newKubeConnector(ctx, *t.kube, errOut)
+		kube := *t.kube
+		kube.Stream = stream
+		return newKubeConnector(ctx, kube, errOut)
 	}
 	return addressConnector(t.address), nil
 }

@@ -27,7 +27,7 @@ A tap is not part of the spec. The core keeps the taps of each stream by name, a
 - A tap shows what passed, not everything: a busy stream drops most events for a slow tap, so a tap is for looking, not for collecting data; a sink is for that
 - TRAM still has no authentication ([0009](0009-no-authentication-in-tram.md)): whoever reaches the admin endpoint reads the data of every stream. Its default on `localhost` keeps it closed until someone opens it; `--admin-endpoint=""` turns it off
 - Shutting down ends open taps right away instead of waiting for them
-- A tap sees one instance: with several replicas, each pod runs every stream with its share of the data, and a tap shows that pod's share. `tram tap --engine` taps all pods of an Engine at once: the CLI forwards a port to each pod, merges their taps and follows scaling and rollouts
+- A tap sees one instance: with several replicas, each pod runs every stream with its share of the data, and a tap shows that pod's share. `tram tap --kube` taps all pods that run the stream at once, the Engines its `Stream` resource names: the CLI forwards a port to each pod, merges their taps and follows scaling and rollouts
 - A stage's own state is invisible to a tap: it shows what the stage passed on, e.g. a batch after its flush, not what it holds
 
 ## Alternatives

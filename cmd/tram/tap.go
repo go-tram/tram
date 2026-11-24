@@ -54,13 +54,16 @@ The tap keeps running when the stream is replaced, and ends when the stream
 is deleted or the tapped component is removed. It talks to the admin API of
 the server (tram server --admin-endpoint, localhost:50052 by default).
 
-In Kubernetes, --engine or --selector tap every pod: every pod runs the
-stream with its share of the data. The CLI forwards a port to each pod, as
-kubectl port-forward does, follows scaling and rollouts, and shows the pod of
-every event. --rate and --limit count for all pods together.`,
+In Kubernetes, --kube taps every pod of the Engines the stream's Stream
+resource names, from the kubeconfig's current context; --engine or
+--selector name the pods instead. Every pod runs the stream with its share
+of the data. The CLI forwards a port to each pod, as kubectl port-forward
+does, follows scaling and rollouts, and shows the pod of every event.
+--rate and --limit count for all pods together.`,
 		Example: `  tram tap my-stream
   tram tap my-stream --component loki --rate 10
   tram tap my-stream --output json --limit 100 > events.ndjson
+  tram tap observability.logs --kube         # the Stream resource logs in observability
   tram tap my-stream --engine telemetry -n observability`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -73,7 +76,7 @@ every event. --rate and --limit count for all pods together.`,
 			}
 			// From here on, errors come from the server, not from the usage.
 			cmd.SilenceUsage = true
-			c, err := t.connect(cmd.Context(), cmd.ErrOrStderr())
+			c, err := t.connect(cmd.Context(), args[0], cmd.ErrOrStderr())
 			if err != nil {
 				return err
 			}
