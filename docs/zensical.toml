@@ -8,8 +8,8 @@
 site_name = "TRAM"
 site_description = "A lightweight, extensible pipeline framework for logs, metrics and traces"
 site_url = "https://gotram.dev/"
-repo_url = "https://github.com/GO-TRAM/TRAM"
-repo_name = "GO-TRAM/TRAM"
+repo_url = "https://github.com/go-tram/tram"
+repo_name = "go-tram/tram"
 
 docs_dir = "content"
 site_dir = "site"
@@ -148,7 +148,7 @@ repo = "simple/github"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/github"
-link = "https://github.com/GO-TRAM/TRAM"
+link = "https://github.com/go-tram/tram"
 name = "TRAM on GitHub"
 
 [project.markdown_extensions]

@@ -15,7 +15,7 @@ The changes of every TRAM release, newest first.
 """
 body = """
 {%- macro remote_url() -%}
-  https://github.com/GO-TRAM/TRAM
+  https://github.com/go-tram/tram
 {%- endmacro -%}
 {% if version -%}
 ## [{{ version }}]({{ self::remote_url() }}/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
@@ -35,7 +35,7 @@ body = """
 trim = true
 footer = ""
 postprocessors = [
-  { pattern = '\(#(\d+)\)', replace = "([#${1}](https://github.com/GO-TRAM/TRAM/pull/${1}))" },
+  { pattern = '\(#(\d+)\)', replace = "([#${1}](https://github.com/go-tram/tram/pull/${1}))" },
 ]
 
 [git]
