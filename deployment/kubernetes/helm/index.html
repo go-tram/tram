@@ -175,13 +175,13 @@
     
     <div class="md-header__source">
       
-        <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/go-tram/tram" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
   </div>
   <div class="md-source__repository">
-    GO-TRAM/TRAM
+    go-tram/tram
   </div>
 </a>
       
@@ -407,13 +407,13 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/GO-TRAM/TRAM" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/go-tram/tram" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
   </div>
   <div class="md-source__repository">
-    GO-TRAM/TRAM
+    go-tram/tram
   </div>
 </a>
     </div>
@@ -2917,13 +2917,13 @@
 
 
 <h1 id="helm-chart">Helm Chart<a class="headerlink" href="#helm-chart" title="Permanent link">&para;</a></h1>
-<p>Deploys <code>tram manager</code>, which runs every <code>Engine</code> resource as a Deployment (or StatefulSet) of TRAM instances in the Engine's namespace, and the <code>Engine</code> and <code>Stream</code> CRDs. Engines and Streams are resources you create, not part of the chart; see <a href="../engines/">Engines</a> and the examples in <a href="https://github.com/GO-TRAM/TRAM/blob/main/examples/k8s/examples"><code>examples/k8s/examples/</code></a>.</p>
+<p>Deploys <code>tram manager</code>, which runs every <code>Engine</code> resource as a Deployment (or StatefulSet) of TRAM instances in the Engine's namespace, and the <code>Engine</code> and <code>Stream</code> CRDs. Engines and Streams are resources you create, not part of the chart; see <a href="../engines/">Engines</a> and the examples in <a href="https://github.com/go-tram/tram/blob/main/examples/k8s/examples"><code>examples/k8s/examples/</code></a>.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <p>Every release publishes the chart to <code>oci://ghcr.io/go-tram/charts/tram</code>, with the release's version as both the chart version and the app version:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>helm<span class="w"> </span>install<span class="w"> </span>tram<span class="w"> </span>oci://ghcr.io/go-tram/charts/tram<span class="w"> </span>--namespace<span class="w"> </span>tram-system<span class="w"> </span>--create-namespace
 </code></pre></div>
 <p>Without <code>--version</code>, Helm installs the latest release; add e.g. <code>--version 0.0.19</code> to pin one.</p>
-<p>The chart is attached to the <a href="https://github.com/GO-TRAM/TRAM/releases">GitHub Release</a> as <code>tram-&lt;version&gt;.tgz</code> as well. From the repository, the chart has the version <code>0.0.0</code> and deploys the image <code>latest</code>, which is the latest release:</p>
+<p>The chart is attached to the <a href="https://github.com/go-tram/tram/releases">GitHub Release</a> as <code>tram-&lt;version&gt;.tgz</code> as well. From the repository, the chart has the version <code>0.0.0</code> and deploys the image <code>latest</code>, which is the latest release:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>helm<span class="w"> </span>install<span class="w"> </span>tram<span class="w"> </span>charts/tram<span class="w"> </span>--namespace<span class="w"> </span>tram-system<span class="w"> </span>--create-namespace
 </code></pre></div>
 <p>Then create an Engine and a Stream that runs on it:</p>
@@ -2987,10 +2987,10 @@
 </table>
 <p><code>&lt;fullname&gt;</code> is the release name, with <code>-tram</code> appended unless the release name contains <code>tram</code>; <code>fullnameOverride</code> replaces it. The ClusterRoles and CRDs are cluster-wide and have fixed names, so install the chart once per cluster.</p>
 <h2 id="generated-templates">Generated Templates<a class="headerlink" href="#generated-templates" title="Permanent link">&para;</a></h2>
-<p>The CRDs in <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram/crds"><code>crds/</code></a> and the ClusterRoles in <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram/templates/tram-manager/rbac"><code>templates/tram-manager/rbac/</code></a> are generated by controller-gen from the <code>//go:generate</code> directives in <a href="https://github.com/GO-TRAM/TRAM/blob/main/internal/adapters/k8scrd/operator.go"><code>internal/adapters/k8scrd/operator.go</code></a>, which write the same files to <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests"><code>manifests/</code></a>. Do not edit them by hand; run <code>task generate</code>. The other templates are written by hand.</p>
+<p>The CRDs in <a href="https://github.com/go-tram/tram/blob/main/charts/tram/crds"><code>crds/</code></a> and the ClusterRoles in <a href="https://github.com/go-tram/tram/blob/main/charts/tram/templates/tram-manager/rbac"><code>templates/tram-manager/rbac/</code></a> are generated by controller-gen from the <code>//go:generate</code> directives in <a href="https://github.com/go-tram/tram/blob/main/internal/adapters/k8scrd/operator.go"><code>internal/adapters/k8scrd/operator.go</code></a>, which write the same files to <a href="https://github.com/go-tram/tram/blob/main/manifests"><code>manifests/</code></a>. Do not edit them by hand; run <code>task generate</code>. The other templates are written by hand.</p>
 <h2 id="crds">CRDs<a class="headerlink" href="#crds" title="Permanent link">&para;</a></h2>
-<p>The CRDs are in Helm's <a href="https://github.com/GO-TRAM/TRAM/blob/main/charts/tram/crds"><code>crds/</code></a> directory, so Helm handles them apart from the templates: <code>helm install</code> creates them if they do not exist yet, while <code>helm upgrade</code> neither creates nor updates them and <code>helm uninstall</code> leaves them. <code>helm template</code> leaves them out unless you pass <code>--include-crds</code>.</p>
-<p>If you manage the CRDs yourself, e.g. from <a href="https://github.com/GO-TRAM/TRAM/blob/main/manifests/crds"><code>manifests/crds/</code></a>, install the chart without them with <code>--skip-crds</code>, or <code>skipCrds: true</code> in the Helm source of an Argo CD Application.</p>
+<p>The CRDs are in Helm's <a href="https://github.com/go-tram/tram/blob/main/charts/tram/crds"><code>crds/</code></a> directory, so Helm handles them apart from the templates: <code>helm install</code> creates them if they do not exist yet, while <code>helm upgrade</code> neither creates nor updates them and <code>helm uninstall</code> leaves them. <code>helm template</code> leaves them out unless you pass <code>--include-crds</code>.</p>
+<p>If you manage the CRDs yourself, e.g. from <a href="https://github.com/go-tram/tram/blob/main/manifests/crds"><code>manifests/crds/</code></a>, install the chart without them with <code>--skip-crds</code>, or <code>skipCrds: true</code> in the Helm source of an Argo CD Application.</p>
 <p>Since <code>helm upgrade</code> does not touch the CRDs, apply the ones of the new version before upgrading the chart, server-side, as they are too large for a client-side apply:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>helm<span class="w"> </span>show<span class="w"> </span>crds<span class="w"> </span>oci://ghcr.io/go-tram/charts/tram<span class="w"> </span>--version<span class="w"> </span>&lt;version&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>--server-side<span class="w"> </span>--force-conflicts<span class="w"> </span>-f<span class="w"> </span>-
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>helm<span class="w"> </span>upgrade<span class="w"> </span>tram<span class="w"> </span>oci://ghcr.io/go-tram/charts/tram<span class="w"> </span>--version<span class="w"> </span>&lt;version&gt;<span class="w"> </span>--namespace<span class="w"> </span>tram-system
@@ -3245,7 +3245,7 @@
     
     
     
-    <a href="https://github.com/GO-TRAM/TRAM" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+    <a href="https://github.com/go-tram/tram" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
     </a>
   
