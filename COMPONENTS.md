@@ -26,8 +26,8 @@ flowchart LR
 | [`filter`](#filter-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`transform`](#transform-stage) | stage | `cel` | per signal | – | – | ✓ |
 | [`value_map`](#value-map-stage) | stage | – | all | – | – | ✓ |
-| [`encryption`](#encryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
-| [`decryption`](#decryption-stage) | stage | `local`, `stackitkms` | logs | – | – | ✓ `local` |
+| [`encryption`](#encryption-stage) | stage | `local`, `stackit-kms` | logs | – | – | ✓ `local` |
+| [`decryption`](#decryption-stage) | stage | `local`, `stackit-kms` | logs | – | – | ✓ `local` |
 | [`batch`](#batch-stage) | stage | – | all | up to `timeout` | – | ✓ |
 | [`delay`](#delay-stage) | stage | – | all | for `delay` | – | – |
 | [`noop`](#no-op-stage) | stage | – | all | – | – | ✓ |
