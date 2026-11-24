@@ -36,6 +36,7 @@ nav = [
       { "Getting Started" = "guide/getting-started.md" },
       { "Streams" = "guide/streams.md" },
       { "Testing Streams" = "guide/testing.md" },
+      { "Command-Line Interface" = "guide/cli.md" },
       { "Sending Data to TRAM" = "guide/sending-data.md" },
       { "HTTP API" = "guide/api.md" },
       { "Security" = "guide/security.md" },
@@ -109,6 +110,7 @@ nav = [
           { "0014: Releases From Conventional Commits" = "development/decisions/0014-releases-from-conventional-commits.md" },
           { "0015: Streams Keep Nothing on Disk; Buffers Connect Two Streams" = "development/decisions/0015-persistence-between-streams.md" },
           { "0016: Limit the Request Size at the Source, Decompressed" = "development/decisions/0016-request-size-limit-at-the-source.md" },
+          { "0019: Tap Running Streams in the Core, Outside Their Spec" = "development/decisions/0019-tap-running-streams.md" },
       ] },
   ] },
 ]
