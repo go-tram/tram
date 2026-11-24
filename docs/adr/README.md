@@ -20,6 +20,7 @@ This directory records the decisions that shape TRAM, as Architecture Decision R
 | [0014](0014-releases-from-conventional-commits.md) | Releases from Conventional Commits | Accepted |
 | [0015](0015-persistence-between-streams.md) | Streams keep nothing on disk; buffers connect two streams | Accepted |
 | [0016](0016-request-size-limit-at-the-source.md) | Limit the request size at the source, decompressed | Accepted |
+| [0017](0017-parallel-stream-operations.md) | Operations on different streams run in parallel | Accepted |
 
 ## Writing a Record
 
