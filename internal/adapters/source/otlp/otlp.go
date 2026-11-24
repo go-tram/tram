@@ -89,6 +89,36 @@ type OTLP struct {
 }
 
 func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) (*OTLP, error) {
+	o, err := newOTLP(source, validator, logger)
+	if err != nil {
+		return nil, err
+	}
+	if port := o.Spec().HTTPPort; port != 0 {
+		if o.httpListener, err = listen(port); err != nil {
+			return nil, err
+		}
+		o.httpServer = o.newHTTPServer()
+	}
+	if port := o.Spec().GRPCPort; port != 0 {
+		if o.grpcListener, err = listen(port); err != nil {
+			if o.httpListener != nil {
+				_ = o.httpListener.Close()
+			}
+			return nil, err
+		}
+		o.grpcServer = newGRPCServer(o)
+	}
+	return o, nil
+}
+
+// Check validates source like New, without opening its ports.
+func Check(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) error {
+	_, err := newOTLP(source, validator, logger)
+	return err
+}
+
+// newOTLP is New without the listeners.
+func newOTLP(source domain.SourceSpec, validator *validator.Validate, logger *slog.Logger) (*OTLP, error) {
 	base, err := base.New[Spec](source.Name, source.Spec, validator)
 	if err != nil {
 		return nil, err
@@ -120,22 +150,6 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 		retryDelay:           retryAfter,
 		headers:              headers,
 		maxRequestBytes:      maxRequestBytes,
-	}
-
-	if port := base.Spec().HTTPPort; port != 0 {
-		if o.httpListener, err = listen(port); err != nil {
-			return nil, err
-		}
-		o.httpServer = o.newHTTPServer()
-	}
-	if port := base.Spec().GRPCPort; port != 0 {
-		if o.grpcListener, err = listen(port); err != nil {
-			if o.httpListener != nil {
-				_ = o.httpListener.Close()
-			}
-			return nil, err
-		}
-		o.grpcServer = newGRPCServer(o)
 	}
 	return o, nil
 }

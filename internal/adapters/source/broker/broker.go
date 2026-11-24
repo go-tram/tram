@@ -44,6 +44,22 @@ func New(source domain.SourceSpec, validator *validator.Validate, logger *slog.L
 	return newSource(source, validator, logger, drivers.NewSubscriberFactory(validator))
 }
 
+// Check validates source like New, without connecting to the broker.
+func Check(source domain.SourceSpec, validator *validator.Validate) error {
+	generic, opts, drv, err := driver.Split(source.Spec, drivers.NewSubscriberFactory(validator))
+	if err != nil {
+		return err
+	}
+	b, err := base.New[Spec](source.Name, generic, validator)
+	if err != nil {
+		return err
+	}
+	if opts, err = expandPartition(b.Spec(), opts); err != nil {
+		return err
+	}
+	return drv.CheckSubscriber(opts)
+}
+
 // newSource is [New] with the drivers to resolve the spec's `driver` from, so
 // tests can inject the in-memory driver; see export_test.go.
 func newSource(

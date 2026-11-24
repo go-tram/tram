@@ -62,3 +62,22 @@ func (f *Factory) New(spec domain.SourceSpec, _ string) (domain.Source, error) {
 		return nil, fmt.Errorf("%w: %q", domain.ErrInvalidSourceType, spec.Type)
 	}
 }
+
+// Check validates spec like New, without contacting external systems or
+// opening ports: a broker source only checks its options, an OTLP source does
+// not listen, every other source is created and stopped again. A buffer
+// source opens its queue in the factory's data directory, so check with a
+// data directory of its own.
+func (f *Factory) Check(spec domain.SourceSpec) error {
+	switch spec.Type {
+	case broker.Type:
+		return broker.Check(spec, f.validator)
+	case otlp.Type:
+		return otlp.Check(spec, f.validator, f.logger)
+	}
+	s, err := f.New(spec, "")
+	if err != nil {
+		return err
+	}
+	return s.Stop()
+}

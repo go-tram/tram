@@ -55,6 +55,16 @@ func (d *Driver) NewSubscriber(
 	return newSubscriber(spec, cfg, logger)
 }
 
+func (d *Driver) CheckPublisher(opts map[string]any) error {
+	_, err := parse(d.validator, opts, &PublisherSpec{})
+	return err
+}
+
+func (d *Driver) CheckSubscriber(opts map[string]any) error {
+	_, err := parse(d.validator, opts, &SubscriberSpec{})
+	return err
+}
+
 func parse[T any](v *validator.Validate, opts map[string]any, spec *T) (*T, error) {
 	spec, err := domain.ParseSpec(opts, spec)
 	if err != nil {
