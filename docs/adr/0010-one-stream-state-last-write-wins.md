@@ -1,6 +1,6 @@
 # 0010: One Set of Streams, the Last Write Wins
 
-- **Status:** Accepted
+- **Status:** Superseded by [0018](0018-resources-own-their-streams.md)
 
 ## Context
 
