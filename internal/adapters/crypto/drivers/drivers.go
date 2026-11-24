@@ -31,6 +31,11 @@ func (Factory) Driver(name string) (crypto.Driver, error) {
 	case stackitkms.Name:
 		return stackitkms.New(), nil
 	default:
-		return nil, driver.Unknown(name, local.Name, stackitkms.Name)
+		return nil, driver.Unknown(name, Names()...)
 	}
+}
+
+// Names are the names of the drivers.
+func Names() []string {
+	return []string{local.Name, stackitkms.Name}
 }

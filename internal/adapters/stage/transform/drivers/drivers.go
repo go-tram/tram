@@ -25,6 +25,11 @@ func (Factory) Driver(name string) (statements.Driver, error) {
 	case cel.Name:
 		return cel.New(), nil
 	default:
-		return nil, driver.Unknown(name, cel.Name)
+		return nil, driver.Unknown(name, Names()...)
 	}
+}
+
+// Names are the names of the drivers.
+func Names() []string {
+	return []string{cel.Name}
 }

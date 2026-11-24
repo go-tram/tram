@@ -65,6 +65,11 @@ func newDriver(validator *validator.Validate, name string) (broker.Driver, error
 	case nats.Name:
 		return nats.New(validator), nil
 	default:
-		return nil, driver.Unknown(name, amqp.Name, kafka.Name, nats.Name)
+		return nil, driver.Unknown(name, Names()...)
 	}
+}
+
+// Names are the names of the drivers.
+func Names() []string {
+	return []string{amqp.Name, kafka.Name, nats.Name}
 }

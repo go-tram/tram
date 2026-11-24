@@ -36,7 +36,7 @@ func (f *Factory) Driver(name string) (buffer.Driver, error) {
 	case sqlite.Name:
 		return sqlite.New(f.validator, f.dataDir), nil
 	default:
-		return nil, driver.Unknown(name, sqlite.Name)
+		return nil, driver.Unknown(name, Names()...)
 	}
 }
 
@@ -44,4 +44,9 @@ func (f *Factory) Driver(name string) (buffer.Driver, error) {
 // directory.
 func (f *Factory) All() []buffer.Driver {
 	return []buffer.Driver{sqlite.New(f.validator, f.dataDir)}
+}
+
+// Names are the names of the drivers.
+func Names() []string {
+	return []string{sqlite.Name}
 }
