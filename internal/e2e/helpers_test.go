@@ -163,7 +163,7 @@ func newEmptyPipeline(t *testing.T, in domain.SourceSpec) *pipeline {
 		stage.NewFactory(discard()),
 		p.sinks,
 	)
-	t.Cleanup(func() { _ = p.core.Close() })
+	t.Cleanup(func() { _ = p.core.Close(context.Background()) })
 	return p
 }
 
