@@ -43,12 +43,9 @@ const podPollInterval = 2 * time.Second
 // kubeTarget is TRAM pods in Kubernetes: the pods of an Engine, the pods a
 // label selector selects, or the pods of the Engines that run Stream.
 type kubeTarget struct {
-	Engine     string
-	Selector   string
-	Namespace  string
-	Context    string
-	Kubeconfig string
-	AdminPort  int
+	Engine    string
+	Selector  string
+	AdminPort int
 	// Stream is the stream a command is about, <namespace>.<name> for the
 	// stream of a Stream resource; empty if none.
 	Stream string
@@ -83,15 +80,18 @@ func streamResource() schema.GroupVersionResource {
 	return schema.GroupVersionResource{Group: tramv1alpha1.GroupVersion.Group, Version: "v1", Resource: "streams"}
 }
 
-func newKubeConnector(ctx context.Context, t kubeTarget, errOut io.Writer) (*kubeConnector, error) {
+// newKubeConnector reaches the pods of t in the cluster of clientConfig, the
+// kubeconfig with the flags of kubectl.
+func newKubeConnector(
+	ctx context.Context,
+	t kubeTarget,
+	clientConfig clientcmd.ClientConfig,
+	errOut io.Writer,
+) (*kubeConnector, error) {
 	// client-go logs lost connections of port forwards through klog; the
 	// connector reports what matters itself.
 	klog.SetLogger(logr.Discard())
 
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	rules.ExplicitPath = t.Kubeconfig
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		rules, &clientcmd.ConfigOverrides{CurrentContext: t.Context})
 	config, err := clientConfig.ClientConfig()
 	if err != nil {
 		return nil, fmt.Errorf("kubeconfig: %w", err)
@@ -104,17 +104,15 @@ func newKubeConnector(ctx context.Context, t kubeTarget, errOut io.Writer) (*kub
 		return nil, err
 	}
 
-	// The stream of a Stream resource names its namespace.
+	// The stream of a Stream resource names its namespace; -n wins.
 	streamNamespace, streamName, isResource := strings.Cut(t.Stream, ".")
-	k.namespace = t.Namespace
-	switch {
-	case k.namespace != "":
-	case t.Engine == "" && t.Selector == "" && isResource:
+	namespace, explicit, err := clientConfig.Namespace()
+	if err != nil {
+		return nil, fmt.Errorf("kubeconfig: %w", err)
+	}
+	k.namespace = namespace
+	if !explicit && t.Engine == "" && t.Selector == "" && isResource {
 		k.namespace = streamNamespace
-	default:
-		if k.namespace, _, err = clientConfig.Namespace(); err != nil {
-			return nil, fmt.Errorf("kubeconfig: %w", err)
-		}
 	}
 
 	if t.Selector != "" {

@@ -36,7 +36,7 @@ type tapOptions struct {
 	limit     int
 }
 
-func newTapCmd() *cobra.Command {
+func newTapCmd(plugin bool) *cobra.Command {
 	var opts tapOptions
 	var target targetFlags
 	cmd := &cobra.Command{
@@ -83,7 +83,7 @@ does, follows scaling and rollouts, and shows the pod of every event.
 			return runTap(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr(), opts, args[0], c, t)
 		},
 	}
-	addTargetFlags(cmd, &target)
+	addTargetFlags(cmd, &target, plugin)
 	flags := cmd.Flags()
 	flags.StringVar(&opts.component, "component", "", "Source, stage or sink to tap (default all)")
 	flags.Float64Var(&opts.rate, "rate", 0, "Most events per second to show; more are dropped (default no limit)")

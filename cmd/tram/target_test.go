@@ -6,8 +6,10 @@
 package main
 
 import (
+	"log/slog"
 	"testing"
 
+	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
@@ -53,10 +55,21 @@ func TestTargetPrecedence(t *testing.T) {
 			want:  target{address: "flag:1"},
 		},
 		{
-			name:  "--kube over TRAM_ADMIN_ENDPOINT, with the Kubernetes flags",
-			flags: targetFlags{kubeOn: true, kube: kubeTarget{Namespace: "obs", Context: "prod"}},
+			name:  "--kube over TRAM_ADMIN_ENDPOINT",
+			flags: targetFlags{kubeOn: true, kube: kubeTarget{AdminPort: 6000}},
 			env:   map[string]string{adminEndpointEnv: "env:1"},
-			want:  target{kube: &kubeTarget{Namespace: "obs", Context: "prod"}},
+			want:  target{kube: &kubeTarget{AdminPort: 6000}},
+		},
+		{
+			name:  "Kubernetes by default as a kubectl plugin",
+			flags: targetFlags{plugin: true},
+			want:  target{kube: &kubeTarget{}},
+		},
+		{
+			name:  "TRAM_ADMIN_ENDPOINT over the default of the plugin",
+			flags: targetFlags{plugin: true},
+			env:   map[string]string{adminEndpointEnv: "env:1"},
+			want:  target{address: "env:1"},
 		},
 		{
 			name:  "--engine means Kubernetes",
@@ -75,7 +88,7 @@ func TestTargetPrecedence(t *testing.T) {
 		},
 		{
 			name:    "Kubernetes flags without Kubernetes",
-			flags:   targetFlags{kube: kubeTarget{Namespace: "obs"}},
+			flags:   targetFlags{kube: kubeTarget{AdminPort: 6000}},
 			wantErr: "need a target in Kubernetes",
 		},
 	}
@@ -95,6 +108,47 @@ func TestTargetPrecedence(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
+}
+
+func TestKubectlFlags(t *testing.T) {
+	t.Parallel()
+
+	flags := pflag.NewFlagSet("test", pflag.ContinueOnError)
+	config := addKubeconfigFlags(flags)
+	require.False(t, config.set())
+	require.NoError(t, flags.Parse([]string{"--context", "prod", "-n", "obs", "--kubeconfig", "/dev/null"}))
+	assert.True(t, config.set())
+	assert.Equal(t, "prod", config.overrides.CurrentContext)
+	assert.Equal(t, "obs", config.overrides.Context.Namespace)
+	assert.Equal(t, "/dev/null", config.rules.ExplicitPath)
+
+	_, err := (&targetFlags{config: config}).resolve()
+	require.ErrorContains(t, err, "need a target in Kubernetes", "-n without Kubernetes")
+	got, err := (&targetFlags{config: config, kubeOn: true}).resolve()
+	require.NoError(t, err)
+	assert.Same(t, config, got.config)
+}
+
+func TestPluginHasOnlyTheCommandsOfTheCLI(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, isPlugin("/usr/local/bin/kubectl-tram"))
+	assert.False(t, isPlugin("/usr/local/bin/tram"))
+
+	root := newRootCmdFor(slog.New(slog.DiscardHandler), &slog.LevelVar{}, true)
+	var names []string
+	for _, c := range root.Commands() {
+		names = append(names, c.Name())
+	}
+	assert.Subset(t, names, []string{"tap", "stream", "validate", "list", "test"})
+	for _, server := range []string{"server", "manager", "drain"} {
+		assert.NotContains(t, names, server)
+	}
+	assert.Equal(t, "kubectl tram", root.DisplayName())
+	tap, _, err := root.Find([]string{"tap"})
+	require.NoError(t, err)
+	assert.Nil(t, tap.Flag("kube"), "Kubernetes is the default")
+	assert.NotNil(t, tap.Flag("context"))
 }
 
 func engineObject(namespace, name string, adminPort int64) *unstructured.Unstructured {

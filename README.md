@@ -517,7 +517,7 @@ A command that talks to a server finds its target in this order; the CLI has no 
 3. `TRAM_KUBE=1` (Kubernetes) or `TRAM_ADMIN_ENDPOINT`
 4. `localhost:50052`
 
-**Kubernetes**: the CLI reaches the pods itself, as `kubectl port-forward` does, through the kubeconfig: its current context and namespace, or `--kube-context`, `-n` and `--kubeconfig`, as with kubectl. Which pods:
+**Kubernetes**: the CLI reaches the pods itself, as `kubectl port-forward` does, through the kubeconfig: its current context and namespace, or the flags of kubectl, like `--context`, `-n`, `--kubeconfig`, `--cluster` and `--user`. Which pods:
 
 - `--kube`: the pods of the Engines that run the stream. A stream of a `Stream` resource is named `<namespace>.<name>`, so the CLI reads the resource and takes the Engines of its `spec.engineRefs`, in that namespace. A command about no stream, like `tram stream list`, takes the only Engine of the namespace
 - `--engine <name>`: the pods of that Engine
@@ -530,6 +530,23 @@ export TRAM_KUBE=1                        # --kube for every command
 ```
 
 The CLI takes the admin port of each Engine's spec, and for a selector `--admin-port` (default `50052`). It needs the permissions of a port forward: `get` and `list` on `pods`, `create` on `pods/portforward`, and `get` and `list` on `engines` and `streams`. Every pod runs every stream, so reading commands ask one of them, and `tram tap` taps all of them. Commands that change streams are refused there: the streams of those pods come from `Stream` resources or the file sync, which would undo a change, and a change through the API would reach one pod only.
+
+### As a kubectl Plugin
+
+Named `kubectl-tram`, the binary is a kubectl plugin: `kubectl tram` runs it. Then Kubernetes is the default target, `--kube` is implied, and it has only the commands of the CLI, not `server`, `manager` or `drain`:
+
+```bash
+ln -s "$(command -v tram)" /usr/local/bin/kubectl-tram
+kubectl tram tap observability.logs
+kubectl tram stream list -n observability --context prod
+```
+
+`--admin-endpoint` or `TRAM_ADMIN_ENDPOINT` still choose an address. For completion, kubectl calls `kubectl_complete-tram`:
+
+```bash
+printf '#!/bin/sh\nkubectl tram __complete "$@"\n' > /usr/local/bin/kubectl_complete-tram
+chmod +x /usr/local/bin/kubectl_complete-tram
+```
 
 ### Managing Streams
 

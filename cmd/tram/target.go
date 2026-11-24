@@ -14,8 +14,10 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
@@ -30,41 +32,79 @@ type targetFlags struct {
 	adminEndpoint string
 	kubeOn        bool
 	kube          kubeTarget
+	// config holds the flags of kubectl for the kubeconfig, e.g. --context
+	// and -n; nil in tests.
+	config *kubeconfigFlags
+	// plugin makes Kubernetes the default: the CLI runs as kubectl tram.
+	plugin bool
 }
 
-func addTargetFlags(cmd *cobra.Command, f *targetFlags) {
+func addTargetFlags(cmd *cobra.Command, f *targetFlags, plugin bool) {
+	f.plugin = plugin
 	flags := cmd.PersistentFlags()
 	flags.StringVar(&f.adminEndpoint, "admin-endpoint", "",
 		"Admin API of the TRAM server (env "+adminEndpointEnv+", default "+defaultAdminEndpoint+")")
-	flags.BoolVar(&f.kubeOn, "kube", false,
-		"Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env "+
-			kubeEnv+")")
+	if !plugin {
+		flags.BoolVar(&f.kubeOn, "kube", false,
+			"Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env "+
+				kubeEnv+")")
+	}
 	flags.StringVar(&f.kube.Engine, "engine", "", "Kubernetes: talk to the pods of this Engine")
 	flags.StringVarP(&f.kube.Selector, "selector", "l", "",
 		"Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine")
-	flags.StringVarP(&f.kube.Namespace, "namespace", "n", "",
-		"Kubernetes: namespace (default the stream's, or the kubeconfig's)")
-	flags.StringVar(
-		&f.kube.Context,
-		"kube-context",
-		"",
-		"Kubernetes: context of the kubeconfig (default its current one)",
-	)
-	flags.StringVar(&f.kube.Kubeconfig, "kubeconfig", "", "Kubernetes: kubeconfig file (default as kubectl)")
 	flags.IntVar(&f.kube.AdminPort, "admin-port", 0,
 		"Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)")
+	f.config = addKubeconfigFlags(flags)
+}
+
+// kubeconfigFlags are the flags of kubectl for the kubeconfig, e.g.
+// --kubeconfig, --context and -n, with the same meaning.
+type kubeconfigFlags struct {
+	rules     *clientcmd.ClientConfigLoadingRules
+	overrides clientcmd.ConfigOverrides
+}
+
+func addKubeconfigFlags(flags *pflag.FlagSet) *kubeconfigFlags {
+	k := &kubeconfigFlags{rules: clientcmd.NewDefaultClientConfigLoadingRules()}
+	flags.StringVar(&k.rules.ExplicitPath, clientcmd.RecommendedConfigPathFlag, "",
+		"Path to the kubeconfig file (default as kubectl)")
+	clientcmd.BindOverrideFlags(&k.overrides, flags, clientcmd.RecommendedConfigOverrideFlags(""))
+	return k
+}
+
+// clientConfig is the kubeconfig with the flags; nil flags are the defaults.
+func (k *kubeconfigFlags) clientConfig() clientcmd.ClientConfig {
+	if k == nil {
+		k = &kubeconfigFlags{rules: clientcmd.NewDefaultClientConfigLoadingRules()}
+	}
+	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(k.rules, &k.overrides)
+}
+
+// set reports whether one of the flags that choose the cluster, user or
+// namespace was given.
+func (k *kubeconfigFlags) set() bool {
+	if k == nil {
+		return false
+	}
+	o := k.overrides
+	return k.rules.ExplicitPath != "" || o.CurrentContext != "" || o.Context.Namespace != "" ||
+		o.Context.Cluster != "" || o.Context.AuthInfo != "" || o.ClusterInfo.Server != "" ||
+		o.AuthInfo.Token != "" || o.AuthInfo.Impersonate != ""
 }
 
 // target is where a command goes: an address or pods in Kubernetes.
 type target struct {
 	address string
 	kube    *kubeTarget
+	// config is the kubeconfig of a target in Kubernetes, with the flags of
+	// kubectl; nil for the default.
+	config *kubeconfigFlags
 }
 
 // resolve finds the target: --kube, --engine or --selector, then
 // --admin-endpoint, then TRAM_KUBE or TRAM_ADMIN_ENDPOINT, and at last
-// localhost:50052. The cluster and namespace come from the kubeconfig, as
-// with kubectl.
+// localhost:50052, or Kubernetes for kubectl tram. The cluster and namespace
+// come from the kubeconfig and the flags of kubectl.
 func (f *targetFlags) resolve() (target, error) {
 	kubeFlags := f.kubeOn || f.kube.Engine != "" || f.kube.Selector != ""
 	if f.kube.Engine != "" && f.kube.Selector != "" {
@@ -91,6 +131,8 @@ func (f *targetFlags) resolve() (target, error) {
 		return f.kubeTarget(), nil
 	case endpoint != "":
 		return f.addressTarget(endpoint)
+	case f.plugin:
+		return f.kubeTarget(), nil
 	default:
 		return f.addressTarget(defaultAdminEndpoint)
 	}
@@ -98,13 +140,15 @@ func (f *targetFlags) resolve() (target, error) {
 
 func (f *targetFlags) kubeTarget() target {
 	kube := f.kube
-	return target{kube: &kube}
+	return target{kube: &kube, config: f.config}
 }
 
 func (f *targetFlags) addressTarget(address string) (target, error) {
-	if f.kube.Namespace != "" || f.kube.Context != "" || f.kube.Kubeconfig != "" || f.kube.AdminPort != 0 {
-		return target{}, errors.New("-n, --kube-context, --kubeconfig and --admin-port need a target in Kubernetes: " +
-			"set --kube, --engine or --selector")
+	if f.kube.AdminPort != 0 || f.config.set() {
+		return target{}, errors.New(
+			"the flags of kubectl like -n, --context and --kubeconfig, and --admin-port, need a " +
+				"target in Kubernetes: set --kube, --engine or --selector",
+		)
 	}
 	return target{address: address}, nil
 }
@@ -147,7 +191,7 @@ func (t target) connect(ctx context.Context, stream string, errOut io.Writer) (c
 	if t.kube != nil {
 		kube := *t.kube
 		kube.Stream = stream
-		return newKubeConnector(ctx, kube, errOut)
+		return newKubeConnector(ctx, kube, t.config.clientConfig(), errOut)
 	}
 	return addressConnector(t.address), nil
 }

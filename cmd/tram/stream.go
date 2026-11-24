@@ -39,7 +39,7 @@ var errWriteInKubernetes = errors.New("streams of pods in Kubernetes come from S
 // diffContext is the number of unchanged lines around a change in a diff.
 const diffContext = 3
 
-func newStreamCmd() *cobra.Command {
+func newStreamCmd(plugin bool) *cobra.Command {
 	var target targetFlags
 	cmd := &cobra.Command{
 		Use:   "stream",
@@ -52,7 +52,7 @@ In Kubernetes, with --kube, --engine or --selector, they read from one of
 the pods, which all run the same streams; apply and delete are refused
 there, since the streams come from Stream resources.`,
 	}
-	addTargetFlags(cmd, &target)
+	addTargetFlags(cmd, &target, plugin)
 	cmd.AddCommand(
 		newStreamListCmd(&target),
 		newStreamGetCmd(&target),

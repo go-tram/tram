@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -46,13 +48,28 @@ const logo = `
 func main() {
 	level := &slog.LevelVar{}
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level}))
-	if err := newRootCmd(logger, level).Execute(); err != nil {
+	if err := newRootCmdFor(logger, level, isPlugin(os.Args[0])).Execute(); err != nil {
 		logger.Error("Tram stopped with an error", slog.Any("error", err))
 		os.Exit(1)
 	}
 }
 
+// pluginPrefix starts the name of a kubectl plugin: kubectl runs
+// kubectl-tram for kubectl tram.
+const pluginPrefix = "kubectl-"
+
+// isPlugin reports whether the binary runs as a kubectl plugin, by its name.
+func isPlugin(arg0 string) bool {
+	return strings.HasPrefix(filepath.Base(arg0), pluginPrefix)
+}
+
 func newRootCmd(logger *slog.Logger, level *slog.LevelVar) *cobra.Command {
+	return newRootCmdFor(logger, level, false)
+}
+
+// newRootCmdFor is the root command; as a kubectl plugin, it has only the
+// commands of the CLI, and Kubernetes is their default target.
+func newRootCmdFor(logger *slog.Logger, level *slog.LevelVar, plugin bool) *cobra.Command {
 	var logLevel string
 	root := &cobra.Command{
 		PersistentPreRunE: func(*cobra.Command, []string) error {
@@ -71,13 +88,26 @@ backends.`,
 		},
 	}
 	root.PersistentFlags().StringVar(&logLevel, "log-level", "info", "Log level: debug, info, warn or error")
-	root.AddCommand(newServerCmd(logger))
-	root.AddCommand(newManagerCmd(logger))
+	if plugin {
+		root.Annotations = map[string]string{cobra.CommandDisplayNameAnnotation: "kubectl tram"}
+		// kubectl completes plugins through kubectl_complete-tram, which
+		// calls the hidden __complete; a completion command would not work.
+		root.CompletionOptions.DisableDefaultCmd = true
+		root.Short = "Tap, check and inspect the TRAM streams of a Kubernetes cluster"
+		root.Long = `Tap, check and inspect the TRAM streams of a Kubernetes cluster.
+
+The commands talk to the TRAM pods that run a stream, with the kubeconfig and
+the flags of kubectl, e.g. --context and -n. A stream of a Stream resource
+is named <namespace>.<name>.`
+	} else {
+		root.AddCommand(newServerCmd(logger))
+		root.AddCommand(newManagerCmd(logger))
+		root.AddCommand(newDrainCmd(logger))
+	}
 	root.AddCommand(newTestCmd(logger))
-	root.AddCommand(newDrainCmd(logger))
-	root.AddCommand(newTapCmd())
+	root.AddCommand(newTapCmd(plugin))
 	root.AddCommand(newValidateCmd())
 	root.AddCommand(newListCmd())
-	root.AddCommand(newStreamCmd())
+	root.AddCommand(newStreamCmd(plugin))
 	return root
 }
