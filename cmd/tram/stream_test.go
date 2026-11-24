@@ -9,6 +9,7 @@ import (
 	"context"
 	"log/slog"
 	"net"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -100,4 +101,25 @@ func TestStreamWritesAreRefusedInKubernetes(t *testing.T) {
 		_, err := runCmd(t, args...)
 		require.ErrorIs(t, err, errWriteInKubernetes, args)
 	}
+}
+
+func TestStreamDiffShowsWhyApplyingWouldFail(t *testing.T) {
+	t.Parallel()
+
+	addr := serveAdmin(t)
+	var lc net.ListenConfig
+	taken, err := lc.Listen(t.Context(), "tcp", ":0")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = taken.Close() })
+	port := strconv.Itoa(taken.Addr().(*net.TCPAddr).Port)
+
+	file := writeFile(t, t.TempDir(), "otlp.json", `{"name": "otlp",
+  "source": {"name": "in", "type": "otlp", "spec": {"http_port": `+port+`}},
+  "sinks": [{"name": "out", "type": "debug", "from": "in"}]}`)
+
+	out, err := runCmd(t, "stream", "diff", "-f", file, "--admin-endpoint", addr)
+	require.ErrorIs(t, err, errApplyWouldFail)
+	assert.Contains(t, out, "otlp: applying would fail:\n  ")
+	assert.Contains(t, out, "port unavailable")
+	assert.Contains(t, out, `+    "name": "otlp",`, "the diff is shown anyway")
 }

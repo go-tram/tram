@@ -26,6 +26,10 @@ import (
 	v1 "github.com/go-tram/tram/pkg/gen/go/tram/v1"
 )
 
+// errApplyWouldFail is what diff returns for a stream that applying would
+// not build; diff writes the reason.
+var errApplyWouldFail = errors.New("applying would fail")
+
 // errWriteInKubernetes refuses changes to pods in Kubernetes: their streams
 // come from Stream resources or a file sync, which would undo the change, and
 // a change through the API reaches one pod only.
@@ -329,10 +333,6 @@ func diffFile(ctx context.Context, out io.Writer, client v1.StreamServiceClient,
 	if err != nil {
 		return err
 	}
-	planned, err := client.PutStream(ctx, &v1.PutStreamRequest{Stream: api.StreamToPB(spec), DryRun: true})
-	if err != nil {
-		return streamError(err)
-	}
 	if exists && running == wanted {
 		_, _ = fmt.Fprintf(out, "%s: unchanged\n", spec.Name)
 		return nil
@@ -346,6 +346,17 @@ func diffFile(ctx context.Context, out io.Writer, client v1.StreamServiceClient,
 	})
 	if err != nil {
 		return err
+	}
+	// The dry run builds what applying would build: a stream that cannot
+	// be built still shows its diff, with the reason applying would fail.
+	planned, err := client.PutStream(ctx, &v1.PutStreamRequest{Stream: api.StreamToPB(spec), DryRun: true})
+	if status.Code(err) == codes.InvalidArgument {
+		_, _ = fmt.Fprintf(out, "%s: applying would fail:\n%s\n%s",
+			spec.Name, indent(status.Convert(err).Message()), diff)
+		return errApplyWouldFail
+	}
+	if err != nil {
+		return streamError(err)
 	}
 	_, _ = fmt.Fprintf(out, "%s: would be %s\n%s", spec.Name, describePlan(planned.GetPlan(), exists), diff)
 	return nil
