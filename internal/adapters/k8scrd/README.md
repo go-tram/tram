@@ -73,6 +73,7 @@ spec:
     api:
       httpPort: 8080                # --http-endpoint, also serves /metrics; default 8080
       grpcPort: 50051               # --grpc-endpoint; default 50051
+      adminPort: 50052              # --admin-endpoint on the pod's localhost, e.g. for tram tap; default 50052
     pprof:                          # optional, --pprof-endpoint on the pod's localhost
       port: 6060
   podTemplate:                      # pod-level settings only

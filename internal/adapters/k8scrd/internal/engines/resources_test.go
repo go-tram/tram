@@ -88,6 +88,7 @@ func TestBuildResourcesDefaults(t *testing.T) {
 		"--log-level=info",
 		"--http-endpoint=0.0.0.0:8080",
 		"--grpc-endpoint=0.0.0.0:50051",
+		"--admin-endpoint=127.0.0.1:50052",
 		"--enable-k8s-operator",
 		"--engine=telemetry-hub-mapper",
 		"--watch-namespace=tram-nats-13",
@@ -197,6 +198,7 @@ func TestBuildResourcesFromSpec(t *testing.T) {
 		"--log-level=debug",
 		"--http-endpoint=0.0.0.0:9080",
 		"--grpc-endpoint=0.0.0.0:9051",
+		"--admin-endpoint=127.0.0.1:50052",
 		"--pprof-endpoint=127.0.0.1:6060",
 		"--enable-k8s-operator",
 		"--engine=telemetry-hub-mapper",
@@ -206,7 +208,7 @@ func TestBuildResourcesFromSpec(t *testing.T) {
 		{Name: "http", ContainerPort: 9080, Protocol: corev1.ProtocolTCP},
 		{Name: "grpc", ContainerPort: 9051, Protocol: corev1.ProtocolTCP},
 		{Name: otlpHTTP, ContainerPort: 4318, Protocol: corev1.ProtocolTCP},
-	}, container.Ports, "pprof stays internal")
+	}, container.Ports, "admin and pprof stay internal")
 
 	service := typed[corev1.Service](t, res.Service())
 	assert.Equal(t, corev1.ServiceTypeLoadBalancer, service.Spec.Type)
@@ -214,7 +216,7 @@ func TestBuildResourcesFromSpec(t *testing.T) {
 	for _, p := range service.Spec.Ports {
 		names = append(names, p.Name)
 	}
-	assert.Equal(t, []string{"http", "grpc", otlpHTTP}, names, "pprof is not exposed")
+	assert.Equal(t, []string{"http", "grpc", otlpHTTP}, names, "admin and pprof are not exposed")
 
 	require.NotNil(t, res.HPA())
 	hpa := typed[autoscalingv2.HorizontalPodAutoscaler](t, res.HPA())
@@ -261,6 +263,12 @@ func TestBuildResourcesRejectsInvalidEngines(t *testing.T) {
 	pprof.Spec.Runtime.Pprof = &tramv1alpha1.PprofSpec{Port: 50051}
 	_, err = engines.BuildResources(pprof, "tram", managerRole, nil)
 	require.ErrorIs(t, err, engines.ErrInvalidEngine)
+
+	admin := testEngine()
+	admin.Spec.Ports = []tramv1alpha1.EnginePort{{Name: otlpHTTP, Port: 50052}}
+	_, err = engines.BuildResources(admin, "tram", managerRole, nil)
+	require.ErrorIs(t, err, engines.ErrInvalidEngine)
+	require.ErrorContains(t, err, "admin and otlp-http both use 50052")
 }
 
 func TestOwnsReplicas(t *testing.T) {

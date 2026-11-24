@@ -157,8 +157,16 @@ type DisruptionBudgetSpec struct {
 	MaxUnavailable *intstr.IntOrString `json:"maxUnavailable,omitempty"`
 }
 
+const (
+	// EngineLabel labels the pods of an Engine with its name.
+	EngineLabel = "tram.io/engine"
+	// DefaultAdminPort is the port of the admin API of an Engine's pods
+	// without spec.runtime.api.adminPort.
+	DefaultAdminPort = 50052
+)
+
 // EnginePort is a port the HTTP sources of the Engine's Streams may listen on.
-// +kubebuilder:validation:XValidation:rule="!(self.name in ['http', 'grpc', 'pprof'])",message="http, grpc and pprof are reserved for the ports of the Tram process"
+// +kubebuilder:validation:XValidation:rule="!(self.name in ['http', 'grpc', 'admin', 'pprof'])",message="http, grpc, admin and pprof are reserved for the ports of the Tram process"
 type EnginePort struct {
 	// Name of the port in the container and the Service.
 	// +kubebuilder:validation:MaxLength=15
@@ -204,6 +212,13 @@ type APISpec struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=65535
 	GRPCPort int32 `json:"grpcPort,omitempty"`
+	// AdminPort is the port of --admin-endpoint, the admin API, e.g. for
+	// tram tap. It is bound to the pod's localhost and not exposed: reach it
+	// with kubectl port-forward. Defaults to 50052.
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	AdminPort int32 `json:"adminPort,omitempty"`
 }
 
 // PprofSpec sets the port of --pprof-endpoint.
