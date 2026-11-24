@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/go-tram/tram/internal/core/domain"
 	"github.com/go-tram/tram/internal/ports"
@@ -40,6 +41,10 @@ const (
 	// failureLogInterval bounds how often a stream that keeps failing is
 	// logged, so hundreds of them do not flood the log on every retry.
 	failureLogInterval = time.Minute
+	// syncWorkers bounds how many streams a sync applies or deletes at once.
+	// Building a stream can take long, e.g. while its sinks connect to a
+	// broker, so a directory with many streams loads in parallel.
+	syncWorkers = 8
 )
 
 type ConfigSync struct {
@@ -291,6 +296,8 @@ func (c *ConfigSync) deleteRemovedStreams(
 	files map[string]Stream,
 	unreadable map[string]struct{},
 ) {
+	var g errgroup.Group
+	g.SetLimit(syncWorkers)
 	for _, stream := range configured {
 		if _, ok := files[stream.Name]; ok {
 			continue
@@ -300,24 +307,43 @@ func (c *ConfigSync) deleteRemovedStreams(
 				slog.String("stream", stream.Name))
 			continue
 		}
-		c.logger.DebugContext(ctx, "Deleting stream", slog.String("stream", stream.Name))
-		if err := c.core.DeleteStream(ctx, stream.Name); err != nil && !errors.Is(err, domain.ErrStreamNotFound) {
-			c.logger.ErrorContext(
-				ctx,
-				"Could not delete stream",
-				slog.String("stream", stream.Name),
-				slog.Any("error", err),
-			)
-		}
+		g.Go(func() error {
+			c.logger.DebugContext(ctx, "Deleting stream", slog.String("stream", stream.Name))
+			if err := c.core.DeleteStream(ctx, stream.Name); err != nil && !errors.Is(err, domain.ErrStreamNotFound) {
+				c.logger.ErrorContext(
+					ctx,
+					"Could not delete stream",
+					slog.String("stream", stream.Name),
+					slog.Any("error", err),
+				)
+			}
+			return nil
+		})
 	}
+	_ = g.Wait()
 }
 
-// applyStreamFiles applies every stream file and returns how many could not
-// be applied. Must be called with syncMu held.
+// applyStreamFiles applies every stream file, up to syncWorkers at once, and
+// returns how many could not be applied. Must be called with syncMu held.
 func (c *ConfigSync) applyStreamFiles(ctx context.Context, files map[string]Stream) int {
-	unapplied := 0
+	errs := make(map[string]error, len(files))
+	var mu sync.Mutex
+	var g errgroup.Group
+	g.SetLimit(syncWorkers)
 	for name, file := range files {
-		if err := c.apply(ctx, name, file); err != nil {
+		g.Go(func() error {
+			err := c.apply(ctx, name, file)
+			mu.Lock()
+			errs[name] = err
+			mu.Unlock()
+			return nil
+		})
+	}
+	_ = g.Wait()
+
+	unapplied := 0
+	for name, err := range errs {
+		if err != nil {
 			unapplied++
 			c.logFailure(ctx, name, err)
 			continue

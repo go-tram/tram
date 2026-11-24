@@ -286,6 +286,11 @@ func TestCloseDuringUpsertStopsEverything(t *testing.T) {
 
 	closed := make(chan error, 1)
 	go func() { closed <- c.Close(context.Background()) }()
+	// Open the gate only once Close refuses new operations, so the upsert
+	// finishes while the core is closing.
+	require.Eventually(t, func() bool {
+		return errors.Is(c.DeleteStream(t.Context(), "unknown"), domain.ErrCoreClosed)
+	}, time.Second, time.Millisecond)
 	sources.open()
 
 	require.NoError(t, <-closed)
