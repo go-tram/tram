@@ -158,3 +158,9 @@ func streamPlanActionToPB(action domain.StreamPlanAction) v1.StreamPlanAction {
 		return v1.StreamPlanAction_STREAM_PLAN_ACTION_UNSPECIFIED
 	}
 }
+
+// StreamToPB is the stream of the API for spec, e.g. for a client.
+func StreamToPB(spec domain.StreamSpec) *v1.Stream { return streamSpecToPBStream(spec) }
+
+// StreamFromPB is the spec of the stream of the API.
+func StreamFromPB(stream *v1.Stream) domain.StreamSpec { return pbStreamToStreamSpec(stream) }

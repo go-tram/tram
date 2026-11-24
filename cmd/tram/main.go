@@ -78,6 +78,7 @@ backends.`,
 	root.AddCommand(newTapCmd())
 	root.AddCommand(newValidateCmd())
 	root.AddCommand(newListCmd())
+	root.AddCommand(newStreamCmd())
 	root.AddCommand(newContextCmd())
 	return root
 }
