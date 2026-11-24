@@ -75,6 +75,7 @@ backends.`,
 	root.AddCommand(newManagerCmd(logger))
 	root.AddCommand(newTestCmd(logger))
 	root.AddCommand(newDrainCmd(logger))
+	root.AddCommand(newTapCmd())
 	root.AddCommand(newValidateCmd())
 	root.AddCommand(newListCmd())
 	root.AddCommand(newContextCmd())
