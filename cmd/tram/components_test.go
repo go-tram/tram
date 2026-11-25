@@ -22,10 +22,10 @@ import (
 	"github.com/go-tram/tram/internal/core/domain"
 )
 
-// TestListMatchesTheFactories checks every listed type against its factory,
+// TestComponentsMatchTheFactories checks every listed type against its factory,
 // and that the drivers listed are the ones the component knows: a component
 // with drivers names them in the error about an unknown one.
-func TestListMatchesTheFactories(t *testing.T) {
+func TestComponentsMatchTheFactories(t *testing.T) {
 	t.Parallel()
 
 	logger := slog.New(slog.DiscardHandler)
@@ -74,10 +74,10 @@ func TestListMatchesTheFactories(t *testing.T) {
 	}
 }
 
-func TestListFiltersAndPrintsJSON(t *testing.T) {
+func TestComponentsFilterAndPrintJSON(t *testing.T) {
 	t.Parallel()
 
-	out, err := runCmd(t, "list", "sinks", "-o", "json")
+	out, err := runCmd(t, "components", "sinks", "-o", "json")
 	require.NoError(t, err)
 	var listed []component
 	require.NoError(t, json.Unmarshal([]byte(out), &listed))
@@ -86,6 +86,6 @@ func TestListFiltersAndPrintsJSON(t *testing.T) {
 		assert.Equal(t, domain.KindSink, c.Kind)
 	}
 
-	_, err = runCmd(t, "list", "drivers")
+	_, err = runCmd(t, "components", "drivers")
 	require.Error(t, err)
 }

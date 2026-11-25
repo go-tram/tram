@@ -6,6 +6,8 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"io"
 	"log/slog"
 	"testing"
@@ -36,4 +38,38 @@ func TestLogLevelFlag(t *testing.T) {
 
 	_, err = run("--log-level", "loud")
 	assert.ErrorContains(t, err, "invalid --log-level")
+}
+
+func TestErrorsAreReportedOnce(t *testing.T) {
+	t.Parallel()
+
+	var logged, out bytes.Buffer
+	logger := slog.New(slog.NewTextHandler(&logged, nil))
+	root := newRootCmd(logger, &slog.LevelVar{})
+
+	tap, _, err := root.Find([]string{"tap"})
+	require.NoError(t, err)
+	reportError(&out, tap, errors.New("stream not found"), logger)
+	assert.Equal(t, "Error: stream not found\n", out.String(), "a CLI command prints the message")
+	assert.Empty(t, logged.String())
+
+	out.Reset()
+	server, _, err := root.Find([]string{"server"})
+	require.NoError(t, err)
+	reportError(&out, server, errors.New("port in use"), logger)
+	assert.Empty(t, out.String())
+	assert.Contains(t, logged.String(), `msg="TRAM stopped with an error" error="port in use"`, "the server logs")
+}
+
+func TestErrorsAreNotPrintedByCobra(t *testing.T) {
+	t.Parallel()
+
+	var out bytes.Buffer
+	cmd := newRootCmd(slog.New(slog.DiscardHandler), &slog.LevelVar{})
+	cmd.SetArgs([]string{"tap", "s", "--admin-endpoint", "127.0.0.1:1"})
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	require.Error(t, cmd.ExecuteContext(t.Context()))
+	assert.NotContains(t, out.String(), "Error:", "main reports the error, not cobra")
+	assert.NotContains(t, out.String(), "Usage:", "an error of the server shows no usage")
 }

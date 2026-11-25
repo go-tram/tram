@@ -54,8 +54,9 @@ The tap keeps running when the stream is replaced, and ends when the stream
 is deleted or the tapped component is removed. It talks to the admin API of
 the server (tram server --admin-endpoint, localhost:50052 by default).
 
-In Kubernetes, --kube taps every pod of the Engines the stream's Stream
-resource names, from the kubeconfig's current context; --engine or
+In Kubernetes, the stream of a Stream resource is its name, in the namespace
+of -n or the kubeconfig, or <namespace>.<name>. --kube taps every pod of the
+Engines the stream's Stream resource names, from the kubeconfig's current context; --engine or
 --selector name the pods instead. Every pod runs the stream with its share
 of the data. The CLI forwards a port to each pod, as kubectl port-forward
 does, follows scaling and rollouts, and shows the pod of every event.
@@ -63,7 +64,7 @@ does, follows scaling and rollouts, and shows the pod of every event.
 		Example: `  tram tap my-stream
   tram tap my-stream --component loki --rate 10
   tram tap my-stream --output json --limit 100 > events.ndjson
-  tram tap observability.logs --kube         # the Stream resource logs in observability
+  tram tap logs --kube -n observability      # the Stream resource logs
   tram tap my-stream --engine telemetry -n observability`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -76,11 +77,15 @@ does, follows scaling and rollouts, and shows the pod of every event.
 			}
 			// From here on, errors come from the server, not from the usage.
 			cmd.SilenceUsage = true
-			c, err := t.connect(cmd.Context(), args[0], cmd.ErrOrStderr())
+			name, err := t.streamName(args[0])
 			if err != nil {
 				return err
 			}
-			return runTap(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr(), opts, args[0], c, t)
+			c, err := t.connect(cmd.Context(), name, cmd.ErrOrStderr())
+			if err != nil {
+				return err
+			}
+			return runTap(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr(), opts, name, c, t)
 		},
 	}
 	addTargetFlags(cmd, &target, plugin)

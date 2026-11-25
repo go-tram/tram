@@ -45,7 +45,7 @@ func newServerCmd(logger *slog.Logger) *cobra.Command {
 	var opts serverOptions
 	cmd := &cobra.Command{
 		Use:   "server",
-		Short: "Start the gRPC Gateway HTTP server",
+		Short: "Run a TRAM instance: its streams, its APIs and its configuration sources",
 		Long:  `Start the gRPC Gateway HTTP server that proxies requests to the gRPC backend.`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runServer(cmd.Context(), logger, opts)

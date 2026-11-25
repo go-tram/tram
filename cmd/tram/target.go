@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -182,6 +183,21 @@ type connector interface {
 	each(ctx context.Context, fn func(context.Context, instance) error) error
 	// many reports whether the target can have several instances.
 	many() bool
+}
+
+// streamName is the name of the stream the user means. In Kubernetes, the
+// stream of a Stream resource is <namespace>.<name>, and kubectl users name
+// resources without their namespace: a name without a dot gets the
+// namespace of -n or of the kubeconfig, as with kubectl.
+func (t target) streamName(name string) (string, error) {
+	if t.kube == nil || strings.Contains(name, ".") {
+		return name, nil
+	}
+	namespace, _, err := t.config.clientConfig().Namespace()
+	if err != nil {
+		return "", fmt.Errorf("kubeconfig: %w", err)
+	}
+	return namespace + "." + name, nil
 }
 
 // connect reaches the target. stream is the stream the command is about,

@@ -506,7 +506,7 @@ The `tram` binary is the server and its command-line interface. The commands tha
 | `tram tap <stream>` | Show the events passing a running stream, see [Tapping a Stream](#tapping-a-stream) | admin API |
 | `tram validate <files>` | Check stream files without running them | – |
 | `tram test <file>` | Run the test cases of a stream file, see [Test Cases](#test-cases) | – |
-| `tram list` | List the components and their drivers | – |
+| `tram components` | List the sources, stages and sinks and their drivers | – |
 
 ### Where the CLI Connects
 
@@ -519,15 +519,17 @@ A command that talks to a server finds its target in this order; the CLI has no 
 
 **Kubernetes**: the CLI reaches the pods itself, as `kubectl port-forward` does, through the kubeconfig: its current context and namespace, or the flags of kubectl, like `--context`, `-n`, `--kubeconfig`, `--cluster` and `--user`. Which pods:
 
-- `--kube`: the pods of the Engines that run the stream. A stream of a `Stream` resource is named `<namespace>.<name>`, so the CLI reads the resource and takes the Engines of its `spec.engineRefs`, in that namespace. A command about no stream, like `tram stream list`, takes the only Engine of the namespace
+- `--kube`: the pods of the Engines that run the stream. The CLI reads the stream's `Stream` resource and takes the Engines of its `spec.engineRefs`. A command about no stream, like `tram stream list`, takes the only Engine of the namespace
 - `--engine <name>`: the pods of that Engine
 - `--selector <labels>`: the pods with those labels, e.g. TRAM pods without an Engine
 
 ```bash
-tram tap observability.logs --kube        # the Engines of the Stream resource logs
+tram tap logs --kube -n observability     # the Engines of the Stream resource logs
 tram stream list --kube -n observability  # the only Engine of the namespace
 export TRAM_KUBE=1                        # --kube for every command
 ```
+
+The core names the stream of a `Stream` resource `<namespace>.<name>`. In Kubernetes, the CLI takes the name of the resource, as kubectl does, in the namespace of `-n` or the kubeconfig: `tram tap logs -n observability` taps `observability.logs`. A name with a dot is the full name.
 
 The CLI takes the admin port of each Engine's spec, and for a selector `--admin-port` (default `50052`). It needs the permissions of a port forward: `get` and `list` on `pods`, `create` on `pods/portforward`, and `get` and `list` on `engines` and `streams`. Every pod runs every stream, so reading commands ask one of them, and `tram tap` taps all of them. Commands that change streams are refused there: the streams of those pods come from `Stream` resources or the file sync, which would undo a change, and a change through the API would reach one pod only.
 
@@ -537,7 +539,7 @@ Named `kubectl-tram`, the binary is a kubectl plugin: `kubectl tram` runs it. Th
 
 ```bash
 ln -s "$(command -v tram)" /usr/local/bin/kubectl-tram
-kubectl tram tap observability.logs
+kubectl tram tap logs -n observability
 kubectl tram stream list -n observability --context prod
 ```
 
@@ -580,7 +582,7 @@ FAIL streams/metrics.json
 Error: 1 of 2 stream files are invalid
 ```
 
-`tram list` lists the sources, stages and sinks of the binary with their drivers; [COMPONENTS.md](COMPONENTS.md) documents them.
+`tram components` lists the sources, stages and sinks of the binary with their drivers; [COMPONENTS.md](COMPONENTS.md) documents them.
 
 ### Tapping a Stream
 
@@ -590,7 +592,7 @@ Error: 1 of 2 stream files are invalid
 tram tap my-stream                                # every component
 tram tap my-stream --component loki --rate 10     # one component, at most 10 events per second
 tram tap my-stream -o json --limit 100 > events.ndjson
-tram tap observability.logs --kube                       # every pod that runs it
+tram tap logs --kube -n observability                    # every pod that runs it
 ```
 
 ```

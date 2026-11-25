@@ -41,7 +41,7 @@ import (
 	"github.com/go-tram/tram/internal/core/domain"
 )
 
-// component is an entry of tram list.
+// component is an entry of tram components.
 type component struct {
 	Kind        domain.NodeKind `json:"kind"`
 	Type        string          `json:"type"`
@@ -50,7 +50,7 @@ type component struct {
 }
 
 // components lists every component, in the order of COMPONENTS.md, with the
-// first sentence of its documentation. TestListMatchesTheFactories fails when
+// first sentence of its documentation. TestComponentsMatchTheFactories fails when
 // a type is missing in its factory.
 func components() []component {
 	broker := brokerdrivers.Names()
@@ -85,14 +85,14 @@ func components() []component {
 	}
 }
 
-func newListCmd() *cobra.Command {
+func newComponentsCmd() *cobra.Command {
 	var output string
 	kinds := map[string]domain.NodeKind{
 		"sources": domain.KindSource, "stages": domain.KindStage, "sinks": domain.KindSink,
 	}
 	cmd := &cobra.Command{
-		Use:   "list [sources|stages|sinks]",
-		Short: "List the components and their drivers",
+		Use:   "components [sources|stages|sinks]",
+		Short: "List the sources, stages and sinks and their drivers",
 		Long: `List the sources, stages and sinks this binary supports, with the drivers
 of those that have them. COMPONENTS.md documents their specs.`,
 		Args:      cobra.MatchAll(cobra.MaximumNArgs(1), cobra.OnlyValidArgs),

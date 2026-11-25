@@ -140,7 +140,7 @@ func TestPluginHasOnlyTheCommandsOfTheCLI(t *testing.T) {
 	for _, c := range root.Commands() {
 		names = append(names, c.Name())
 	}
-	assert.Subset(t, names, []string{"tap", "stream", "validate", "list", "test"})
+	assert.Subset(t, names, []string{"tap", "stream", "validate", "components", "test"})
 	for _, server := range []string{"server", "manager", "drain"} {
 		assert.NotContains(t, names, server)
 	}
@@ -285,4 +285,25 @@ func TestReadyPods(t *testing.T) {
 	assert.False(t, ready(pod(corev1.PodRunning, corev1.ConditionFalse, false)), "not ready yet")
 	assert.False(t, ready(pod(corev1.PodPending, corev1.ConditionTrue, false)))
 	assert.False(t, ready(pod(corev1.PodRunning, corev1.ConditionTrue, true)), "terminating")
+}
+
+func TestStreamNameInKubernetes(t *testing.T) {
+	t.Parallel()
+
+	flags := pflag.NewFlagSet("test", pflag.ContinueOnError)
+	config := addKubeconfigFlags(flags)
+	require.NoError(t, flags.Parse([]string{"-n", "obs", "--kubeconfig", "/dev/null"}))
+	kube := target{kube: &kubeTarget{}, config: config}
+
+	for name, want := range map[string]string{
+		"logs":         "obs.logs",
+		"default.logs": "default.logs",
+	} {
+		got, err := kube.streamName(name)
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
+	}
+	got, err := target{address: "local:1"}.streamName("logs")
+	require.NoError(t, err)
+	assert.Equal(t, "logs", got, "a stream without Kubernetes keeps its name")
 }

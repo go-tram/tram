@@ -43,14 +43,16 @@ func newStreamCmd(plugin bool) *cobra.Command {
 	var target targetFlags
 	cmd := &cobra.Command{
 		Use:   "stream",
-		Short: "List, get, apply, diff and delete the streams of a server",
+		Short: "List, get, apply, diff and delete the streams of a running instance",
 		Long: `List, get, apply, diff and delete the streams of a TRAM server through its
 admin API. Stream files are the files of the file sync and tram test: a bare
 stream object or {"stream": {...}}; tram stream get writes one.
 
 In Kubernetes, with --kube, --engine or --selector, they read from one of
 the pods, which all run the same streams; apply and delete are refused
-there, since the streams come from Stream resources.`,
+there, since the streams come from Stream resources. The stream of a Stream
+resource is its name, in the namespace of -n or the kubeconfig, or
+<namespace>.<name>.`,
 	}
 	addTargetFlags(cmd, &target, plugin)
 	cmd.AddCommand(
@@ -69,14 +71,13 @@ func withStreams(
 	cmd *cobra.Command,
 	target *targetFlags,
 	write bool,
-	stream string,
 	fn func(context.Context, v1.StreamServiceClient) error,
 ) error {
 	t, err := resolveFor(cmd, target, write)
 	if err != nil {
 		return err
 	}
-	return connectStreams(cmd, t, stream, fn)
+	return connectStreams(cmd, t, "", fn)
 }
 
 // resolveFor resolves the target of a command; write refuses a target in
@@ -167,7 +168,7 @@ func newStreamListCmd(target *targetFlags) *cobra.Command {
 			if output != outputText && output != outputJSON {
 				return fmt.Errorf("invalid --output %q: use %s or %s", output, outputText, outputJSON)
 			}
-			return withStreams(cmd, target, false, "", func(ctx context.Context, client v1.StreamServiceClient) error {
+			return withStreams(cmd, target, false, func(ctx context.Context, client v1.StreamServiceClient) error {
 				resp, err := client.ListStreams(ctx, &v1.ListStreamsRequest{})
 				if err != nil {
 					return streamError(err)
@@ -204,15 +205,22 @@ func newStreamGetCmd(target *targetFlags) *cobra.Command {
 		Short: "Write a stream as a stream file",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return withStreams(
+			t, err := resolveFor(cmd, target, false)
+			if err != nil {
+				return err
+			}
+			name, err := t.streamName(args[0])
+			if err != nil {
+				return err
+			}
+			return connectStreams(
 				cmd,
-				target,
-				false,
-				args[0],
+				t,
+				name,
 				func(ctx context.Context, client v1.StreamServiceClient) error {
-					resp, err := client.GetStream(ctx, &v1.GetStreamRequest{Name: args[0]})
-					if err != nil {
-						return streamError(err)
+					resp, getErr := client.GetStream(ctx, &v1.GetStreamRequest{Name: name})
+					if getErr != nil {
+						return streamError(getErr)
 					}
 					return writeIndented(cmd.OutOrStdout(), streamFile(api.StreamFromPB(resp.GetStream())))
 				},
@@ -227,7 +235,7 @@ func newStreamDeleteCmd(target *targetFlags) *cobra.Command {
 		Short: "Delete streams",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return withStreams(cmd, target, true, "", func(ctx context.Context, client v1.StreamServiceClient) error {
+			return withStreams(cmd, target, true, func(ctx context.Context, client v1.StreamServiceClient) error {
 				var errs []error
 				for _, name := range args {
 					if _, err := client.DeleteStream(ctx, &v1.DeleteStreamRequest{Name: name}); err != nil {
