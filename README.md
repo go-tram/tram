@@ -31,6 +31,8 @@ cd tram
 go build -o tram ./cmd/tram
 ```
 
+Or install the binary with Go: `go install github.com/go-tram/tram/cmd/tram@latest`. It is the server and the [CLI](#the-tram-cli).
+
 Or build a container image with Docker or Podman: `task image:build` (with [Task](https://taskfile.dev)) or `docker build -t tram:dev .`. Run `task` to see all development tasks, e.g. for tests and benchmarks; [CONTRIBUTING.md](CONTRIBUTING.md#tasks) explains them.
 
 ### Run
@@ -69,6 +71,13 @@ curl -X PUT http://localhost:8080/v1/streams/my-pipeline \
       ]
     }
   }'
+```
+
+Or with the [CLI](#the-tram-cli), from the stream as a file, and watch its events pass:
+
+```bash
+tram stream apply -f my-pipeline.json   # the "stream" object above
+tram tap my-pipeline
 ```
 
 More examples are under [Example API Usage](#example-api-usage).
@@ -508,6 +517,18 @@ The `tram` binary is the server and its command-line interface. The commands tha
 | `tram test <file>` | Run the test cases of a stream file, see [Test Cases](#test-cases) | – |
 | `tram components` | List the sources, stages and sinks and their drivers | – |
 
+Every command explains itself with `--help`; the [Command Reference](docs/cli-reference.md) lists them all with their flags.
+
+### Installing the CLI
+
+The CLI is the `tram` binary, see [Installation](#installation): `go install github.com/go-tram/tram/cmd/tram@latest`. For completion of commands and flags in the shell, load the script of `tram completion`, e.g. for zsh:
+
+```bash
+tram completion zsh > "${fpath[1]}/_tram"        # or: source <(tram completion zsh)
+```
+
+`tram completion bash`, `fish` and `powershell` work alike. As a kubectl plugin, the binary is `kubectl-tram`, see [As a kubectl Plugin](#as-a-kubectl-plugin).
+
 ### Where the CLI Connects
 
 A command that talks to a server finds its target in this order; the CLI has no configuration of its own:
@@ -616,6 +637,18 @@ Over HTTP, the admin API streams the same events, one JSON object per line:
 ```bash
 curl -N 'http://localhost:50052/v1/streams/my-stream/tap?component=loki&rate=5'
 ```
+
+### Exit Codes
+
+Every command exits with `0` on success and `1` otherwise, with the reason on stderr, so scripts and CI jobs can rely on them:
+
+| Command | Exits with `1` when |
+|---------|---------------------|
+| `tram validate` | a stream file is invalid |
+| `tram test` | a test case fails |
+| `tram stream apply`, `delete` | a stream could not be applied or deleted; the others still are |
+| `tram stream diff` | applying a stream would fail; differences alone exit with `0` |
+| `tram tap` | the tap ends on its own: the stream is deleted, the component removed or the server stops. Ctrl-C and `--limit` end it with `0` |
 
 ---
 

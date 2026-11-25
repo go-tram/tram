@@ -80,7 +80,7 @@ tasks:
       - go run ./cmd/tram server {{.CLI_ARGS}}
 
   generate:
-    desc: Regenerate protobuf, gRPC gateway and swagger code (buf) and the Kubernetes CRD (controller-gen)
+    desc: Regenerate protobuf, gRPC gateway and swagger code (buf), the Kubernetes CRD (controller-gen) and the CLI reference
     preconditions:
       - sh: command -v buf
         msg: buf is missing; run `task tools`

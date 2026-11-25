@@ -163,5 +163,8 @@ is its name, in the namespace of -n, or <namespace>.<name>.`
 		cmd.GroupID = groupFiles
 		root.AddCommand(cmd)
 	}
+	if !plugin {
+		root.AddCommand(newReferenceCmd())
+	}
 	return root
 }

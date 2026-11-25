@@ -73,7 +73,7 @@ task nats:up
 | `task test:upgrade` | Upgrades from the latest release to this repository in a kind cluster and checks that buffered events survive; needs kind, helm and kubectl |
 | `task test:cover` | All tests with coverage, written to `coverage.out` |
 | `task lint` / `task fmt` | golangci-lint (including go vet), or format with its configured formatters |
-| `task generate` | Regenerate protobuf, gateway and swagger code and the Kubernetes CRD |
+| `task generate` | Regenerate protobuf, gateway and swagger code, the Kubernetes CRD and the CLI reference (`docs/cli-reference.md`) |
 | `task bench` | Benchmarks, e.g. `task bench BENCH=Batch PKG=./internal/adapters/stage/batch/` |
 | `task bench:compare` | Compare two benchmark outputs with benchstat |
 | `task bench:report` | Run all benchmarks and regenerate [BENCHMARK.md](BENCHMARK.md) |
@@ -110,7 +110,7 @@ go build ./...
 ### Generate Code
 
 ```bash
-# Generate all code: protobuf and swagger (buf), Kubernetes CRD and deepcopy (controller-gen)
+# Generate all code: protobuf and swagger (buf), Kubernetes CRD and deepcopy (controller-gen), CLI reference
 go generate ./...
 ```
 

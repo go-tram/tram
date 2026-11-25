@@ -36,7 +36,6 @@ nav = [
       { "Getting Started" = "guide/getting-started.md" },
       { "Streams" = "guide/streams.md" },
       { "Testing Streams" = "guide/testing.md" },
-      { "Command-Line Interface" = "guide/cli.md" },
       { "Sending Data to TRAM" = "guide/sending-data.md" },
       { "HTTP API" = "guide/api.md" },
       { "Security" = "guide/security.md" },
@@ -86,6 +85,15 @@ nav = [
       ] },
   ] },
   { "Operations" = [
+      { "CLI" = [
+          "operations/cli/index.md",
+          { "Where the CLI Connects" = "operations/cli/connecting.md" },
+          { "As a kubectl Plugin" = "operations/cli/kubectl-plugin.md" },
+          { "Managing Streams" = "operations/cli/streams.md" },
+          { "Checking Stream Files" = "operations/cli/checking.md" },
+          { "Tapping a Stream" = "operations/cli/tapping.md" },
+          { "Command Reference" = "operations/cli/reference.md" },
+      ] },
       { "Metrics" = "operations/metrics.md" },
       { "Benchmarks" = "operations/benchmarks.md" },
   ] },

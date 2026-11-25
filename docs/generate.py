@@ -47,7 +47,6 @@ TITLES = {
     GETTING_STARTED: "Getting Started",
     STREAMS: "Streams",
     "guide/testing.md": "Testing Streams",
-    "guide/cli.md": "Command-Line Interface",
     "guide/sending-data.md": "Sending Data to TRAM",
     API: "HTTP API",
     "guide/security.md": "Security",
@@ -66,6 +65,13 @@ TITLES = {
     "deployment/examples/kubernetes.md": "Kubernetes Examples",
     "deployment/examples/tests.md": "Test Examples",
     "operations/metrics.md": "Metrics",
+    "operations/cli/index.md": "The tram CLI",
+    "operations/cli/connecting.md": "Where the CLI Connects",
+    "operations/cli/kubectl-plugin.md": "As a kubectl Plugin",
+    "operations/cli/streams.md": "Managing Streams",
+    "operations/cli/checking.md": "Checking Stream Files",
+    "operations/cli/tapping.md": "Tapping a Stream",
+    "operations/cli/reference.md": "Command Reference",
     "operations/benchmarks.md": "Benchmarks",
     "development/contributing.md": "Contributing",
 }
@@ -87,7 +93,14 @@ SECTIONS = {
         "Advanced Configuration": (STREAMS, UNWRAP),
         "Updating a Stream": (STREAMS, False),
         "Testing a Stream": ("guide/testing.md", UNWRAP),
-        "The tram CLI": ("guide/cli.md", UNWRAP),
+        # The CLI has a section of its own under Operations, a page per
+        # subsection.
+        "The tram CLI": ("operations/cli/index.md", UNWRAP),
+        "Where the CLI Connects": ("operations/cli/connecting.md", UNWRAP),
+        "As a kubectl Plugin": ("operations/cli/kubectl-plugin.md", UNWRAP),
+        "Managing Streams": ("operations/cli/streams.md", UNWRAP),
+        "Checking Stream Files": ("operations/cli/checking.md", UNWRAP),
+        "Tapping a Stream": ("operations/cli/tapping.md", UNWRAP),
         "Sending Data to TRAM": ("guide/sending-data.md", UNWRAP),
         "Container Image": ("deployment/container.md", False),
         "Configuration Sources": ("deployment/container.md", False),
@@ -126,6 +139,9 @@ SECTIONS = {
     },
     "examples/tests/README.md": {
         "Examples with Test Cases": ("deployment/examples/tests.md", UNWRAP),
+    },
+    "docs/cli-reference.md": {
+        "Command Reference": ("operations/cli/reference.md", UNWRAP),
     },
     "BENCHMARK.md": {
         "Benchmarks": ("operations/benchmarks.md", UNWRAP),
