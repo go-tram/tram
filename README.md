@@ -702,6 +702,12 @@ docker run --rm -p 8080:8080 -p 4318:4318 \
   --enable-file-sync --config-dir /config --data-dir /data
 ```
 
+### Shutdown
+
+On `SIGTERM` or `SIGINT`, TRAM stops taking changes to streams, waits for the changes in progress, and stops all streams in parallel. Each source stops accepting data and waits for the deliveries in progress; an OTLP source waits up to 5 seconds for its requests and then closes the connections that are left. Then the stages deliver what they still hold, e.g. a batch, and the sinks stop. TRAM waits up to 25 seconds for all of that and then exits.
+
+Give TRAM at least that long before it is killed: Kubernetes' default `terminationGracePeriodSeconds` of 30 seconds is enough, and so is `docker stop -t 30`; Docker's default of 10 seconds is not. A delivery that is cut off is not lost for clients that retry, since they got no answer, but it may reach some sinks twice.
+
 The directories have to be writable by the user `65532`. The image has no shell; debug from another container in the same network.
 
 ## ⚙️ Configuration Sources
@@ -719,6 +725,7 @@ Every `<name>.json` file in the directory describes one stream, in the same form
 - Adding, changing or deleting a file creates, updates or deletes the stream
 - Streams created or changed through the API or the Kubernetes operator are written to files (new files are readable only by the owner, mode `0600`), and deleted streams have their file removed
 - Streams without a file are deleted when the directory is synced
+- Up to 8 streams are created, updated or deleted at once, in no particular order, so a directory with many streams loads quickly even when their sinks take long to connect
 - A stream that cannot be created or updated, e.g. because NATS is not reachable yet when TRAM starts, is tried again without its file changing: after 1 second, then with a delay that doubles up to 30 seconds, until every stream is applied. Changing a file starts over with the shortest delay. A stream that keeps failing is logged once a minute; one that is applied after failing is logged once more. A file that is invalid for good is tried again as well, so fix or remove it
 
 ### Kubernetes Operator
@@ -744,27 +751,27 @@ Without `--version`, Helm installs the latest chart; every release publishes the
 
 ### Conflicts Between Configuration Sources
 
-TRAM holds one set of streams. The API, the file sync and the operator all write to it, and a stream does not belong to any of them: whatever changed a stream last decides what runs, until a source writes it again. When each source writes decides how a change from another source lasts:
+TRAM holds one set of streams, and the API, the file sync and the operator all write to it. A stream of a `Stream` resource belongs to the resource: the operator undoes any change to it from another source right away. Any other stream belongs to no source, and whatever changed it last decides what runs, until a source writes it again. When each source writes decides how a change from another source lasts:
 
 | Source | Writes a stream | Removes a stream |
 |--------|-----------------|------------------|
 | API | On every request | On a `DELETE` request |
 | File sync | When a file in the directory changes, for every file that differs from its running stream; while streams fail, again after each retry delay | Every running stream without a file, when the directory is synced, whichever source created it |
-| Operator | When the `Stream` resource's `spec`, a secret it refers to or a config map it selects changes, and when the instance starts | When the resource is deleted |
+| Operator | When the `Stream` resource's `spec`, a secret it refers to or a config map it selects changes, when the instance starts, and when another source changed or deleted the stream of a resource | When the resource is deleted |
 
-The file sync writes changes of the API and the operator back to the files, so a stream changed elsewhere keeps its file. The operator does not write back to resources, and its periodic resyncs do not apply the resource again. That means:
+The file sync writes changes of the API and the operator back to the files, so a stream changed elsewhere keeps its file. The operator does not write back to resources. That means:
 
-- **API change to a stream of a `Stream` resource:** runs until the resource changes or the instance restarts; then the resource wins again. With file sync, the change is also written to the stream's file
-- **Changed file of a stream of a `Stream` resource:** the file wins in the same way, until the resource changes or the instance restarts
-- **Deleted file, or API `DELETE`, of a stream of a `Stream` resource:** the stream stops, and the operator starts it again only when the resource changes or the instance restarts
+- **API change, file change, deleted file or API `DELETE` of a stream of a `Stream` resource:** the operator applies the resource again right away, and with file sync, its file follows. The change has an effect only for that moment, e.g. it may restart the stream's source
 - **API change to a stream with a file:** written to the file, so it survives a restart. A change to the file afterwards wins over it
-- **Changes of the same stream at the same moment:** applied one after the other, in no defined order; the last one wins
+- **Changes of the same stream at the same moment:** applied one after the other, in no defined order; the last one wins, and for a stream of a resource the operator applies the resource afterwards
+
+A stream belongs to a resource on an instance if the instance runs the resource: its namespace is watched (`--watch-namespace`) and, with `--engine`, its `spec.engineRefs` name the engine. Streams under a name like `<namespace>.<name>` without such a resource, e.g. in a namespace the instance does not watch, are left alone.
 
 Give every stream one source that owns it and change it only there:
 
 - With the operator, change streams only through `Stream` resources, and use the API and the files to read them
-- Use file sync together with the operator only to keep a copy of the streams on disk, and do not edit the files of streams that come from resources
-- The operator names its streams `<namespace>.<name>`; do not create streams with such a name through the API or a file, or the operator replaces them
+- Use file sync together with the operator only to keep a copy of the streams on disk
+- The operator names its streams `<namespace>.<name>`; do not create streams with the name of a resource through the API or a file, or the operator replaces them
 
 ## 🔒 Security
 

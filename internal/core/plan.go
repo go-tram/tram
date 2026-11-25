@@ -19,20 +19,24 @@ import (
 // without running them. The source of a running stream is not instantiated
 // again, because e.g. an OTLP source binds its port in New; a changed source
 // is validated by the real upsert once it stopped the old stream.
+//
+// It holds the lock of the stream's name, so the stream it compares with is
+// not replaced meanwhile; plans of other streams and changes to them run in
+// parallel.
 func (c *Core) PlanStream(_ context.Context, spec, resolved domain.StreamSpec) (*domain.StreamPlan, error) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
-
-	if c.closed {
-		return nil, domain.ErrCoreClosed
-	}
-
 	tree, err := newResolvedTree(spec, resolved)
 	if err != nil {
 		return nil, err
 	}
 
-	old, exists := c.streams[spec.Name]
+	if !c.begin() {
+		return nil, domain.ErrCoreClosed
+	}
+	defer c.ops.Done()
+	unlock := c.lockName(spec.Name)
+	defer unlock()
+
+	old, exists := c.lookup(spec.Name)
 	running := exists && old.running()
 
 	plan := &domain.StreamPlan{Stream: spec.Name}

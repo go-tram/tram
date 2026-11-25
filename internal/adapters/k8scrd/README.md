@@ -81,7 +81,7 @@ spec:
       labels: { team: telemetry }
       annotations: { prometheus.io/scrape: "true", prometheus.io/port: "8080" }
     spec:
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 30 # TRAM needs up to 25s to stop its streams; see Shutdown
       priorityClassName: telemetry-high
       nodeSelector: { node-pool: telemetry }
       tolerations: [...]
@@ -306,13 +306,13 @@ data:
 ## Behavior
 
 - **Names:** a resource runs as the TRAM stream `<namespace>.<name>`, e.g. `default.test-stream`, so resources with the same name in different namespaces do not collide. The stream can be read through the API under that name
-- **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it
+- **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it. An instance builds up to 8 Streams at once, in no particular order, e.g. when it starts, so a new replica runs all its Streams sooner; one Stream is never reconciled twice at the same time
 - **Status:** `status.mounted` is `true` once an instance loaded the stream, also while it is suspended (`spec.suspended`, which defaults to `false`), and `false` if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; `status.mounted` stays `true` meanwhile. `kubectl get streams` shows both as the columns `Mounted` and `Suspended`. Until version 0.0.19 the field was called `status.active`
 - **Deletion:** deleting the resource deletes the stream
-- **One direction:** the operator reads `Stream` resources; it does not write streams back as resources. A stream created, changed or deleted through the API of an instance changes only that instance, in memory: the other instances do not see it, a restart loses it, and the next change of the resource overwrites it. With the operator, manage streams through `Stream` resources and use the API to read them. File sync, in contrast, works in both directions
+- **Ownership:** the operator reads `Stream` resources; it does not write streams back as resources. A resource owns its stream: a change or deletion of the stream through the API or the file sync is undone right away, so with the operator, manage streams through `Stream` resources and use the API to read them. File sync, in contrast, works in both directions
 - **Scope:** the operator watches `Stream` resources in all namespaces, or in the namespaces from `--watch-namespace`, and with `--engine` only those whose `spec.engineRefs` name the engine; see [Selecting Streams](#selecting-streams). There is no leader election, so every TRAM instance with the operator enabled runs every `Stream` resource it selects
 - **Access:** creating a `Stream` lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the `Stream`'s namespace and send the value along, e.g. as a header to their own URL. Grant `create` on `streams.io.tram.core` only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see [Security](../../../README.md#-security)
-- **File sync:** with `--enable-file-sync`, streams created by the operator are also written to the configuration directory. Editing or deleting such a file changes or stops the stream until the resource changes or the instance restarts; see [Conflicts Between Configuration Sources](../../../README.md#conflicts-between-configuration-sources)
+- **File sync:** with `--enable-file-sync`, streams created by the operator are also written to the configuration directory. Editing or deleting such a file is undone right away, like a change through the API; see [Conflicts Between Configuration Sources](../../../README.md#conflicts-between-configuration-sources)
 
 ## Development
 

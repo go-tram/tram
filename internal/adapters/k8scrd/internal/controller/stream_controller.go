@@ -34,11 +34,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	tramv1 "github.com/go-tram/tram/internal/adapters/k8scrd/api/v1"
 	"github.com/go-tram/tram/internal/core/domain"
@@ -144,6 +147,10 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	return ctrl.Result{}, r.setMounted(ctx, &stream, true)
 }
+
+// MaxConcurrentReconciles bounds how many Streams an instance builds or
+// changes at once.
+const MaxConcurrentReconciles = 8
 
 // BufferType is the type of the buffer source and sink, which keep events in
 // the data directory of the instance.
@@ -336,15 +343,35 @@ func (r *StreamReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return fmt.Errorf("index streams by config map selector: %w", err)
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).
+	b := ctrl.NewControllerManagedBy(mgr).
 		For(&tramv1.Stream{}, builder.WithPredicates(predicate.GenerationChangedPredicate{})).
 		// Only the metadata of secrets and config maps is watched and cached,
 		// to notice changes; their values are read when a stream is
 		// reconciled.
 		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(r.streamsReferringTo), builder.OnlyMetadata).
 		Watches(&corev1.ConfigMap{}, r.configMapHandler(), builder.OnlyMetadata).
-		Named("stream").
-		Complete(r)
+		// Streams are built in parallel, e.g. when an instance starts with
+		// many of them; the work queue never reconciles one Stream twice at
+		// once.
+		WithOptions(controller.Options{MaxConcurrentReconciles: MaxConcurrentReconciles}).
+		Named("stream")
+
+	// A Stream resource owns its stream: a change through the API or the
+	// file sync is undone right away. Draining runs no API or file sync.
+	if !r.Drain {
+		changes := newCoreChanges()
+		if err = mgr.Add(manager.RunnableFunc(func(ctx context.Context) error {
+			return changes.watch(ctx, r.Core)
+		})); err != nil {
+			return fmt.Errorf("watch the core: %w", err)
+		}
+		b = b.WatchesRawSource(source.Func(
+			func(ctx context.Context, queue workqueue.TypedRateLimitingInterface[reconcile.Request]) error {
+				go changes.forward(ctx, queue, r.owns)
+				return nil
+			}))
+	}
+	return b.Complete(r)
 }
 
 // configMapHandler enqueues the streams whose selectors match a config map, on

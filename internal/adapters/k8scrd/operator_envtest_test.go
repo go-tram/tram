@@ -7,9 +7,11 @@ package k8scrd_test
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -27,6 +29,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/k8scrd"
 	tramv1 "github.com/go-tram/tram/internal/adapters/k8scrd/api/v1"
+	"github.com/go-tram/tram/internal/adapters/k8scrd/internal/controller"
 	"github.com/go-tram/tram/internal/core/domain"
 )
 
@@ -99,10 +102,10 @@ func (c *cluster) newNamespace(t *testing.T) string {
 	return ns.Name
 }
 
-func (c *cluster) createStream(t *testing.T, namespace, name string, labels map[string]string) {
+func (c *cluster) createStream(t *testing.T, namespace, name string) {
 	t.Helper()
 	stream := &tramv1.Stream{
-		Namespace: namespace, Name: name, Labels: labels,
+		Namespace: namespace, Name: name,
 		Spec: tramv1.StreamSpec{
 			Source: tramv1.Spec{
 				Name: "in",
@@ -138,6 +141,20 @@ type syncCore struct {
 	mu       sync.Mutex
 	streams  map[string]domain.StreamSpec
 	resolved map[string]domain.StreamSpec
+	// buildTime makes every upsert take that long, like streams whose
+	// sinks connect to a broker; inFlight and most count how many ran at
+	// once.
+	buildTime time.Duration
+	inFlight  int
+	most      int
+	// watchers receive a change of a stream, like those of the real core,
+	// which the operator watches to restore streams changed elsewhere.
+	watchers []syncWatcher
+}
+
+type syncWatcher struct {
+	ctx context.Context
+	ch  chan domain.StreamSpecWatchEvent
 }
 
 func newSyncCore() *syncCore {
@@ -150,10 +167,35 @@ func (c *syncCore) UpsertStream(ctx context.Context, s domain.StreamSpec) (*doma
 
 func (c *syncCore) UpsertResolvedStream(_ context.Context, s, resolved domain.StreamSpec) (*domain.StreamSpec, error) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.inFlight++
+	c.most = max(c.most, c.inFlight)
+	c.mu.Unlock()
+	time.Sleep(c.buildTime)
+
+	c.mu.Lock()
+	c.inFlight--
+	old, exists := c.streams[s.Name]
+	changed := !exists || !old.Equal(s) || !c.resolved[s.Name].Equal(resolved)
 	c.streams[s.Name] = s
 	c.resolved[s.Name] = resolved
+	c.mu.Unlock()
+	// Like the real core, an unchanged stream is no change.
+	if changed {
+		c.notify(domain.StreamSpecWatchEventTypeUpsert, s)
+	}
 	return &s, nil
+}
+
+func (c *syncCore) notify(eventType domain.StreamSpecWatchEventType, s domain.StreamSpec) {
+	c.mu.Lock()
+	watchers := slices.Clone(c.watchers)
+	c.mu.Unlock()
+	for _, w := range watchers {
+		select {
+		case w.ch <- domain.StreamSpecWatchEvent{EventType: eventType, StreamSpec: s}:
+		case <-w.ctx.Done():
+		}
+	}
 }
 
 // resolvedSinkSpec returns the spec the core runs the first sink of a stream
@@ -174,11 +216,14 @@ func (c *syncCore) PlanStream(_ context.Context, s, _ domain.StreamSpec) (*domai
 
 func (c *syncCore) DeleteStream(_ context.Context, name string) error {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-	if _, ok := c.streams[name]; !ok {
+	s, ok := c.streams[name]
+	if !ok {
+		c.mu.Unlock()
 		return domain.ErrStreamNotFound
 	}
 	delete(c.streams, name)
+	c.mu.Unlock()
+	c.notify(domain.StreamSpecWatchEventTypeDelete, s)
 	return nil
 }
 
@@ -194,7 +239,20 @@ func (c *syncCore) GetStream(_ context.Context, name string) (*domain.StreamSpec
 
 func (c *syncCore) GetStreams(context.Context) ([]domain.StreamSpec, error) { return nil, nil }
 
-func (c *syncCore) Watch(context.Context, chan domain.StreamSpecWatchEvent) error { return nil }
+func (c *syncCore) Watch(ctx context.Context, ch chan domain.StreamSpecWatchEvent) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.watchers = append(c.watchers, syncWatcher{ctx: ctx, ch: ch})
+	return nil
+}
+
+// spec returns the spec of the stream name, and whether it exists.
+func (c *syncCore) spec(name string) (domain.StreamSpec, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	s, ok := c.streams[name]
+	return s, ok
+}
 
 func (c *syncCore) names() []string {
 	c.mu.Lock()
@@ -204,6 +262,12 @@ func (c *syncCore) names() []string {
 		names = append(names, name)
 	}
 	return names
+}
+
+func (c *syncCore) mostAtOnce() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.most
 }
 
 func runOperator(t *testing.T, core *syncCore, opts k8scrd.Options) {
@@ -273,7 +337,7 @@ func TestOperatorNeedsOnlyRoleBindingInWatchedNamespace(t *testing.T) {
 		RoleRef:  rbacv1.RoleRef{APIGroup: rbacv1.GroupName, Kind: "ClusterRole", Name: role.Name},
 		Subjects: []rbacv1.Subject{{APIGroup: rbacv1.GroupName, Kind: rbacv1.UserKind, Name: user}},
 	}))
-	c.createStream(t, ns, "s", nil)
+	c.createStream(t, ns, "s")
 
 	core := newSyncCore()
 	runOperator(t, core, k8scrd.Options{
@@ -443,4 +507,104 @@ func TestOperatorAppliesConfigMaps(t *testing.T) {
 
 	require.NoError(t, c.admin.Delete(t.Context(), conflict))
 	c.requireActive(t, ns, "s")
+}
+
+// A Stream resource owns its stream: a change through the API or the file
+// sync, or a deletion there, is undone right away, not only when the resource
+// changes or the instance restarts.
+func TestOperatorRestoresStreamsChangedElsewhere(t *testing.T) {
+	t.Parallel()
+	c := startCluster(t)
+	ns := c.newNamespace(t)
+	c.createStream(t, ns, "owned")
+
+	core := newSyncCore()
+	runOperator(t, core, k8scrd.Options{Kubeconfig: c.adminKubeconfig(t), Namespaces: []string{ns}})
+	name := ns + ".owned"
+	requireStreams(t, core, name)
+	desired, _ := core.spec(name)
+
+	changed := desired
+	changed.Sinks = []domain.SinkSpec{{Name: "elsewhere", Type: "debug", From: "in"}}
+	_, err := core.UpsertStream(t.Context(), changed)
+	require.NoError(t, err)
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		s, ok := core.spec(name)
+		assert.True(collect, ok)
+		assert.True(collect, s.Equal(desired), "the change from another source was not undone")
+	}, eventuallyTimeout, pollInterval)
+
+	require.NoError(t, core.DeleteStream(t.Context(), name))
+	requireStreams(t, core, name)
+}
+
+// Streams without a Stream resource that the instance runs are left alone,
+// even under a name that looks like one: in a namespace the operator does not
+// watch, or of a resource that does not exist.
+func TestOperatorLeavesStreamsWithoutResource(t *testing.T) {
+	t.Parallel()
+	c := startCluster(t)
+	watched, other := c.newNamespace(t), c.newNamespace(t)
+	c.createStream(t, other, "elsewhere")
+
+	core := newSyncCore()
+	runOperator(t, core, k8scrd.Options{Kubeconfig: c.adminKubeconfig(t), Namespaces: []string{watched}})
+
+	unowned := []string{watched + ".missing", other + ".elsewhere", "no-namespace"}
+	for _, name := range unowned {
+		_, err := core.UpsertStream(t.Context(), domain.StreamSpec{
+			Name:   name,
+			Source: domain.SourceSpec{Name: "in", Type: "otlp"},
+			Sinks:  []domain.SinkSpec{{Name: "out", Type: "debug", From: "in"}},
+		})
+		require.NoError(t, err)
+	}
+	requireStreams(t, core, unowned...)
+}
+
+// With an engine, a Stream resource labeled for it by hand but whose
+// spec.engineRefs name another engine does not own the stream of its name on
+// this instance, so a stream of that name is left alone.
+func TestOperatorWithEngineLeavesStreamsOfOtherEngines(t *testing.T) {
+	t.Parallel()
+	c := startCluster(t)
+	ns := c.newNamespace(t)
+	c.createEngineStream(t, ns, "byhand", map[string]string{tramv1.EngineLabel("validation"): ""}, "other")
+
+	core := newSyncCore()
+	runOperator(t, core, k8scrd.Options{
+		Kubeconfig: c.adminKubeconfig(t), Namespaces: []string{ns}, Engine: "validation",
+	})
+	// The resource runs nothing here; a stream created under its name stays.
+	requireStreams(t, core)
+	_, err := core.UpsertStream(t.Context(), domain.StreamSpec{
+		Name:   ns + ".byhand",
+		Source: domain.SourceSpec{Name: "in", Type: "otlp"},
+		Sinks:  []domain.SinkSpec{{Name: "out", Type: "debug", From: "in"}},
+	})
+	require.NoError(t, err)
+	requireStreams(t, core, ns+".byhand")
+}
+
+// An instance builds the Streams it runs in parallel, e.g. when it starts,
+// so streams whose sinks take long to connect do not wait for each other.
+func TestOperatorBuildsStreamsInParallel(t *testing.T) {
+	t.Parallel()
+	c := startCluster(t)
+	ns := c.newNamespace(t)
+	const streams = 12
+	var want []string
+	for i := range streams {
+		name := fmt.Sprintf("s%d", i)
+		c.createStream(t, ns, name)
+		want = append(want, ns+"."+name)
+	}
+
+	core := newSyncCore()
+	core.buildTime = 300 * time.Millisecond
+	runOperator(t, core, k8scrd.Options{Kubeconfig: c.adminKubeconfig(t), Namespaces: []string{ns}})
+
+	requireStreams(t, core, want...)
+	assert.Greater(t, core.mostAtOnce(), 1, "Streams were built one by one")
+	assert.LessOrEqual(t, core.mostAtOnce(), controller.MaxConcurrentReconciles)
 }

@@ -32,14 +32,21 @@ func (c *Core) Tap(ctx context.Context, name string, opts domain.TapOptions) (po
 		return nil, fmt.Errorf("%w: rate %v is negative", domain.ErrInvalidTapOptions, opts.Rate)
 	}
 
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
-
-	if c.closed {
+	// The tap starts under the lock of the stream's name, so no upsert
+	// replaces the stream between the check of its component and the
+	// registration; an upsert after it ends the tap if the component is
+	// gone. As an operation, it is done before Close ends all taps.
+	if !c.begin() {
 		return nil, domain.ErrCoreClosed
 	}
-	s, exists := c.streams[name]
-	if !exists {
+	defer c.ops.Done()
+	unlock := c.lockName(name)
+	defer unlock()
+
+	// A stream is hidden until the watchers know it, and the lock of its
+	// name is held meanwhile, so it is visible here or does not exist.
+	s, exists := c.lookup(name)
+	if !exists || s.hidden {
 		return nil, domain.ErrStreamNotFound
 	}
 	if opts.Component != "" && s.tree.GetNode(opts.Component) == nil {

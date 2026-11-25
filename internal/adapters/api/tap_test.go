@@ -37,7 +37,7 @@ func generatingCore(t *testing.T) *core.Core {
 	t.Helper()
 	logger := slog.New(slog.DiscardHandler)
 	c := core.New(t.Context(), logger, source.NewFactory(logger), stage.NewFactory(logger), sink.NewFactory(logger))
-	t.Cleanup(func() { assert.NoError(t, c.Close()) })
+	t.Cleanup(func() { assert.NoError(t, c.Close(context.Background())) })
 	_, err := c.UpsertStream(t.Context(), domain.StreamSpec{
 		Name:   "s",
 		Source: domain.SourceSpec{Name: "in", Type: "generator", Spec: map[string]any{"interval": "10ms"}},

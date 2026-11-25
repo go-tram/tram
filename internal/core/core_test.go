@@ -266,7 +266,7 @@ func newCore(t *testing.T) (*core.Core, *registry) {
 	t.Helper()
 	reg := &registry{}
 	c := core.New(t.Context(), slog.New(slog.DiscardHandler), sourceFactory{reg}, stageFactory{reg}, sinkFactory{reg})
-	t.Cleanup(func() { _ = c.Close() })
+	t.Cleanup(func() { _ = c.Close(context.Background()) })
 	return c, reg
 }
 

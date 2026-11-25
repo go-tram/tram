@@ -38,7 +38,7 @@ func serveAdmin(t *testing.T) string {
 	t.Cleanup(func() {
 		cancel()
 		require.NoError(t, <-done)
-		require.NoError(t, c.Close())
+		require.NoError(t, c.Close(context.Background()))
 	})
 	return listener.Addr().String()
 }

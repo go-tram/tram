@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -76,6 +77,9 @@ func newServerCmd(logger *slog.Logger) *cobra.Command {
 	return cmd
 }
 
+// coreCloseTimeout bounds how long stopping the streams may take on shutdown.
+const coreCloseTimeout = 25 * time.Second
+
 func runServer(ctx context.Context, logger *slog.Logger, opts serverOptions) (err error) {
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -98,7 +102,9 @@ func runServer(ctx context.Context, logger *slog.Logger, opts serverOptions) (er
 
 	c := core.New(ctx, logger, sourceFac, stageFac, sinkFac)
 	defer func() {
-		err = errors.Join(err, c.Close())
+		timeout, cancel := context.WithTimeout(context.Background(), coreCloseTimeout)
+		err = errors.Join(err, c.Close(timeout))
+		cancel()
 	}()
 
 	a, err := api.New(c, opts.grpcEndpoint, opts.httpEndpoint, metricsHandler, logger)

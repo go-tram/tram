@@ -88,7 +88,7 @@ func TestListStreams(t *testing.T) {
 
 	logger := slog.New(slog.DiscardHandler)
 	c := core.New(t.Context(), logger, source.NewFactory(logger), stage.NewFactory(logger), sink.NewFactory(logger))
-	t.Cleanup(func() { assert.NoError(t, c.Close()) })
+	t.Cleanup(func() { assert.NoError(t, c.Close(context.Background())) })
 	for _, name := range []string{"b", "a"} {
 		_, err := c.UpsertStream(t.Context(), domain.StreamSpec{
 			Name:   name,
@@ -180,7 +180,7 @@ func TestPutStreamDryRun(t *testing.T) {
 
 	logger := slog.New(slog.DiscardHandler)
 	c := core.New(t.Context(), logger, source.NewFactory(logger), stage.NewFactory(logger), sink.NewFactory(logger))
-	t.Cleanup(func() { assert.NoError(t, c.Close()) })
+	t.Cleanup(func() { assert.NoError(t, c.Close(context.Background())) })
 
 	stream := map[string]any{
 		"name":   "s",

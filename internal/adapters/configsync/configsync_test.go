@@ -41,7 +41,7 @@ func newCore(t *testing.T) *core.Core {
 
 	logger := slog.New(slog.DiscardHandler)
 	c := core.New(t.Context(), logger, source.NewFactory(logger), stage.NewFactory(logger), sink.NewFactory(logger))
-	t.Cleanup(func() { assert.NoError(t, c.Close()) })
+	t.Cleanup(func() { assert.NoError(t, c.Close(context.Background())) })
 	return c
 }
 

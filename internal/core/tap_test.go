@@ -217,6 +217,16 @@ func TestTapEnds(t *testing.T) {
 			want: domain.ErrComponentNotFound,
 		},
 		{
+			name:      "when its component is removed by a rebuild",
+			component: "old",
+			end: func(t *testing.T, c *core.Core, _ context.CancelFunc) {
+				// Another port is another source, so the stream is rebuilt.
+				_, err := c.UpsertStream(t.Context(), streamSpec(2, sink("new", "fake")))
+				require.NoError(t, err)
+			},
+			want: domain.ErrComponentNotFound,
+		},
+		{
 			name: "when the stream is deleted",
 			end: func(t *testing.T, c *core.Core, _ context.CancelFunc) {
 				require.NoError(t, c.DeleteStream(t.Context(), "stream"))
@@ -226,7 +236,7 @@ func TestTapEnds(t *testing.T) {
 		{
 			name: "when the core is closed",
 			end: func(t *testing.T, c *core.Core, _ context.CancelFunc) {
-				require.NoError(t, c.Close())
+				require.NoError(t, c.Close(t.Context()))
 			},
 			want: domain.ErrCoreClosed,
 		},
@@ -287,7 +297,7 @@ func TestTapRejects(t *testing.T) {
 	_, err = c.Tap(t.Context(), "stream", domain.TapOptions{Rate: -1})
 	require.ErrorIs(t, err, domain.ErrInvalidTapOptions)
 
-	require.NoError(t, c.Close())
+	require.NoError(t, c.Close(t.Context()))
 	_, err = c.Tap(t.Context(), "stream", domain.TapOptions{})
 	require.ErrorIs(t, err, domain.ErrCoreClosed)
 }

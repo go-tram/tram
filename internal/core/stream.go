@@ -189,21 +189,23 @@ func (c *Core) sourceSubscriber(tree *domain.Tree) (domain.Subscriber, error) {
 	return c.metrics.instrument(tree.Spec, root, f), nil
 }
 
-func (c *Core) replaceReceivers(old *stream, tree *domain.Tree, spec domain.StreamSpec) error {
+// replaceReceivers builds the stages and sinks of tree on the running source
+// of old and returns the stream that replaces old.
+func (c *Core) replaceReceivers(old *stream, tree *domain.Tree, spec domain.StreamSpec) (*stream, error) {
 	source, err := old.tree.Root().GetSource()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err = tree.Root().AddSource(source); err != nil {
-		return err
+		return nil, err
 	}
 	if err = c.buildReceivers(tree); err != nil {
-		return err
+		return nil, err
 	}
 
 	subscriber, err := c.sourceSubscriber(tree)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	source.SetSubscribers([]domain.Subscriber{subscriber})
@@ -212,17 +214,17 @@ func (c *Core) replaceReceivers(old *stream, tree *domain.Tree, spec domain.Stre
 			slog.String("stream", tree.Spec.Name), slog.Any("error", err))
 	}
 
-	c.streams[tree.Spec.Name] = &stream{tree: tree, spec: spec, done: old.done}
-	return nil
+	return &stream{tree: tree, spec: spec, done: old.done}, nil
 }
 
-func (c *Core) runStream(tree *domain.Tree, spec domain.StreamSpec, restarts int) {
+// runStream runs the source of tree and returns its stream, which the caller
+// registers under the lock of the stream's name.
+func (c *Core) runStream(tree *domain.Tree, spec domain.StreamSpec, restarts int) *stream {
 	s := &stream{
 		tree: tree,
 		spec: spec,
 		done: make(chan struct{}),
 	}
-	c.streams[tree.Spec.Name] = s
 
 	c.wg.Go(func() {
 		started := time.Now()
@@ -234,6 +236,7 @@ func (c *Core) runStream(tree *domain.Tree, spec domain.StreamSpec, restarts int
 		}
 		c.scheduleRestart(tree.Spec.Name, s.done, restarts)
 	})
+	return s
 }
 
 func (c *Core) runSource(tree *domain.Tree) {
@@ -271,11 +274,16 @@ func (c *Core) restartDelay(restarts int) time.Duration {
 }
 
 func (c *Core) restartStream(name string, done chan struct{}, restarts int) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+	if !c.begin() {
+		return
+	}
+	defer c.ops.Done()
+	unlock := c.lockName(name)
+	defer unlock()
 
-	old, exists := c.streams[name]
-	if c.closed || !exists || old.done != done {
+	// The stream may have been replaced or deleted meanwhile.
+	old, exists := c.lookup(name)
+	if !exists || old.done != done {
 		return
 	}
 
@@ -296,10 +304,12 @@ func (c *Core) restartStream(name string, done chan struct{}, restarts int) {
 		c.scheduleRestart(name, done, restarts)
 		return
 	}
-	c.runStream(tree, old.spec, restarts)
+	c.replace(name, c.runStream(tree, old.spec, restarts))
 }
 
-func (c *Core) restoreStream(resolved, spec domain.StreamSpec) {
+// restoreStream builds and runs the stream of a failed update again and
+// returns it, or nil if that fails too.
+func (c *Core) restoreStream(resolved, spec domain.StreamSpec) *stream {
 	tree, err := newTree(resolved)
 	if err == nil {
 		err = c.buildStream(tree)
@@ -307,13 +317,12 @@ func (c *Core) restoreStream(resolved, spec domain.StreamSpec) {
 	if err != nil {
 		c.logger.ErrorContext(c.ctx, "Could not restore stream after failed update, retrying later",
 			slog.String("stream", spec.Name), slog.Any("error", err))
-		return
+		return nil
 	}
 	if resolved.Suspended {
-		c.streams[spec.Name] = &stream{tree: tree, spec: spec}
-		return
+		return &stream{tree: tree, spec: spec}
 	}
-	c.runStream(tree, spec, 0)
+	return c.runStream(tree, spec, 0)
 }
 
 func (c *Core) stopStream(s *stream) error {
