@@ -37,7 +37,7 @@ jobs:
       image: python:3.13
     env:
       # Canonical repository path
-      REPO: GO-TRAM/TRAM
+      REPO: go-tram/tram
     steps:
       # The full history with the tags, for the Releases page. For a tag,
       # main is built as it is, since the tag is on main.
