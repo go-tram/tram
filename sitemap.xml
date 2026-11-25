@@ -148,6 +148,9 @@
         <loc>https://gotram.dev/development/decisions/0016-request-size-limit-at-the-source/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/development/decisions/0017-parallel-stream-operations/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>

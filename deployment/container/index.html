@@ -1605,6 +1605,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Container Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Shutdown
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2272,6 +2289,8 @@
       
         
       
+        
+      
     
     
     
@@ -2755,6 +2774,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/decisions/0017-parallel-stream-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0017: Operations on Different Streams Run in Parallel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2820,6 +2866,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Container Image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Shutdown
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2894,6 +2957,9 @@
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>server<span class="w"> </span>--http-endpoint<span class="o">=</span><span class="m">0</span>.0.0.0:8080<span class="w"> </span>--grpc-endpoint<span class="o">=</span><span class="m">0</span>.0.0.0:50051<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--enable-file-sync<span class="w"> </span>--config-dir<span class="w"> </span>/config<span class="w"> </span>--data-dir<span class="w"> </span>/data
 </code></pre></div>
+<h3 id="shutdown">Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
+<p>On <code>SIGTERM</code> or <code>SIGINT</code>, TRAM stops taking changes to streams, waits for the changes in progress, and stops all streams in parallel. Each source stops accepting data and waits for the deliveries in progress; an OTLP source waits up to 5 seconds for its requests and then closes the connections that are left. Then the stages deliver what they still hold, e.g. a batch, and the sinks stop. TRAM waits up to 25 seconds for all of that and then exits.</p>
+<p>Give TRAM at least that long before it is killed: Kubernetes' default <code>terminationGracePeriodSeconds</code> of 30 seconds is enough, and so is <code>docker stop -t 30</code>; Docker's default of 10 seconds is not. A delivery that is cut off is not lost for clients that retry, since they got no answer, but it may reach some sinks twice.</p>
 <p>The directories have to be writable by the user <code>65532</code>. The image has no shell; debug from another container in the same network.</p>
 <h2 id="configuration-sources">Configuration Sources<a class="headerlink" href="#configuration-sources" title="Permanent link">&para;</a></h2>
 <p>Besides the API, streams can be managed from files and, on Kubernetes, from <code>Stream</code> resources through the <a href="../kubernetes/">operator</a>. All of them change the same set of streams.</p>
@@ -2905,6 +2971,7 @@
 <li>Adding, changing or deleting a file creates, updates or deletes the stream</li>
 <li>Streams created or changed through the API or the Kubernetes operator are written to files (new files are readable only by the owner, mode <code>0600</code>), and deleted streams have their file removed</li>
 <li>Streams without a file are deleted when the directory is synced</li>
+<li>Up to 8 streams are created, updated or deleted at once, in no particular order, so a directory with many streams loads quickly even when their sinks take long to connect</li>
 <li>A stream that cannot be created or updated, e.g. because NATS is not reachable yet when TRAM starts, is tried again without its file changing: after 1 second, then with a delay that doubles up to 30 seconds, until every stream is applied. Changing a file starts over with the shortest delay. A stream that keeps failing is logged once a minute; one that is applied after failing is logged once more. A file that is invalid for good is tried again as well, so fix or remove it</li>
 </ul>
 <h3 id="conflicts-between-configuration-sources">Conflicts Between Configuration Sources<a class="headerlink" href="#conflicts-between-configuration-sources" title="Permanent link">&para;</a></h3>
