@@ -12,7 +12,7 @@ helm install tram oci://ghcr.io/go-tram/charts/tram --namespace tram-system --cr
 
 Without `--version`, Helm installs the latest release; add e.g. `--version 0.0.19` to pin one.
 
-The chart is attached to the [GitHub Release](https://github.com/GO-TRAM/TRAM/releases) as `tram-<version>.tgz` as well. From the repository, the chart has the version `0.0.0` and deploys the image `latest`, which is the latest release:
+The chart is attached to the [GitHub Release](https://github.com/go-tram/tram/releases) as `tram-<version>.tgz` as well. From the repository, the chart has the version `0.0.0` and deploys the image `latest`, which is the latest release:
 
 ```bash
 helm install tram charts/tram --namespace tram-system --create-namespace

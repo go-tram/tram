@@ -26,7 +26,7 @@ TRAM is a **cloud-native, in-memory data pipeline framework** for building real-
 ### Installation
 
 ```bash
-git clone https://github.com/GO-TRAM/TRAM.git tram
+git clone https://github.com/go-tram/tram.git tram
 cd tram
 go build -o tram ./cmd/tram
 ```
@@ -610,7 +610,7 @@ Alternatively, `tram manager` runs `Engine` resources (`io.tram.core/v1alpha1`) 
 ```bash
 helm install tram oci://ghcr.io/go-tram/charts/tram --namespace tram-system --create-namespace
 # or
-kubectl apply --server-side -f https://github.com/GO-TRAM/TRAM/releases/latest/download/tram.yaml
+kubectl apply --server-side -f https://github.com/go-tram/tram/releases/latest/download/tram.yaml
 ```
 
 Without `--version`, Helm installs the latest chart; every release publishes the chart and the manifests with its version, e.g. `--version 0.0.19` or `releases/download/v0.0.19/tram.yaml`. From the repository, `charts/tram` and `kubectl apply --server-side -k manifests/` deploy the image `latest`.

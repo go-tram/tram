@@ -37,7 +37,7 @@ Only needed to check the Helm chart (`task chart:lint`): [Helm](https://helm.sh/
 
 ```bash
 # Clone the repository
-git clone https://github.com/GO-TRAM/TRAM.git tram
+git clone https://github.com/go-tram/tram.git tram
 cd tram
 
 # Install Go dependencies

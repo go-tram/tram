@@ -33,7 +33,7 @@ REPO = Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs"
 CONTENT = DOCS / "content"
 ASSETS = DOCS / "assets"
-SOURCE_URL = "https://github.com/GO-TRAM/TRAM/blob/main/"
+SOURCE_URL = "https://github.com/go-tram/tram/blob/main/"
 
 GETTING_STARTED = "guide/getting-started.md"
 STREAMS = "guide/streams.md"
