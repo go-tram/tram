@@ -1,0 +1,4055 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, extensible pipeline framework for logs, metrics and traces">
+      
+      
+      
+        <link rel="canonical" href="https://gotram.dev/operations/cli/reference/">
+      
+      
+      
+      
+        <link rel="prev" href="../tapping/">
+      
+      
+        <link rel="next" href="../../metrics/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/TRAM.svg">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Command Reference - TRAM</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="TRAM" class="md-header__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../../../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TRAM
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Command Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/go-tram/tram" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    go-tram/tram
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../guide/getting-started/" class="md-tabs__link">
+          
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../components/" class="md-tabs__link">
+          
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../deployment/container/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/contributing/" class="md-tabs__link">
+          
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="TRAM" class="md-nav__button md-logo" aria-label="TRAM" data-md-component="logo">
+      
+  <img src="../../../assets/TRAM.png" alt="TRAM">
+
+    </a>
+    TRAM
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/go-tram/tram" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+  </div>
+  <div class="md-source__repository">
+    go-tram/tram
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/sending-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sending Data to TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  HTTP API
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Security
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Components
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Components
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../components/sources/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sources
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Sources
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sources/broker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Broker
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sources/buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Buffer
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sources/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Generator
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sources/otlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  OTLP
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../components/stages/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stages
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Stages
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/batch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Batch
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/decryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Decryption
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/delay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Delay
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Encryption
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/filter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Filter
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/no-op/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  No-op
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Validation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/value-map/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Value Map
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/stages/transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Transform
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../components/sinks/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sinks
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Sinks
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sinks/broker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Broker
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sinks/buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Buffer
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sinks/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Debug
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../components/sinks/otlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  OTLP
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Container & Binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../deployment/kubernetes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Kubernetes
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/kubernetes/helm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm Chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/kubernetes/engines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Engines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/kubernetes/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Storage for Buffers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/kubernetes/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stream Resources
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Examples
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Examples
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/examples/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../deployment/examples/tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Operations
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CLI
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_5_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  CLI
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../connecting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Where the CLI Connects
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kubectl-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  As a kubectl Plugin
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Managing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../checking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking Stream Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tapping a Stream
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command Reference
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command Reference
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tram" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram completion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-drain" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram drain
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram manager
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram server
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream apply
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream delete
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream diff
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream get
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream list
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-tap" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram tap
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram test
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram validate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Metrics
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Benchmarks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Releases
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../development/decisions/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Decisions
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Decisions
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0001-record-architecture-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0001: Record Architecture Decisions
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0002-otlp-as-the-data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0002: OTLP as the Data Model of the Core
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0003-ports-and-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0003: Ports and Adapters
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0004-components-as-concept-and-driver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0004: Components as Concept and Driver
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0005-events-are-read-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0005: Events Are Shared and Read-Only
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0006-at-least-once-delivery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0006: At-Least-Once Delivery Without Deduplication
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0007-synchronous-delivery-and-backpressure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0007: Synchronous Delivery and Backpressure
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0008-requests-accepted-or-refused-as-a-whole/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0008: Requests Are Accepted or Refused as a Whole
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0009-no-authentication-in-tram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0009: No Authentication or Authorization in TRAM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0010-one-stream-state-last-write-wins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0010: One Set of Streams, the Last Write Wins
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0011-transform-stage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0011: Transform Stage With a CEL Driver, Attributes Only
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0012-object-storage-sink/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0012: Object Storage Sink With S3 as Its First Driver
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0013-value-map-driver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0013: A Driver for value_map Only When Needed
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0014-releases-from-conventional-commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0014: Releases From Conventional Commits
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0015-persistence-between-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0015: Streams Keep Nothing on Disk; Buffers Connect Two Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0016-request-size-limit-at-the-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0016: Limit the Request Size at the Source, Decompressed
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0017-parallel-stream-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0017: Operations on Different Streams Run in Parallel
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0018-resources-own-their-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0018: Stream Resources Own Their Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0019-tap-running-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0019: Tap Running Streams in the Core, Outside Their Spec
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tram" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram completion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-drain" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram drain
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram manager
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram server
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream apply
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream delete
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream diff
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream get
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-stream-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram stream list
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-tap" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram tap
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram test
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tram-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tram validate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="command-reference">Command Reference<a class="headerlink" href="#command-reference" title="Permanent link">&para;</a></h1>
+<!-- Generated by tram reference from the help of the commands; run
+     task generate after changing a command. Do not edit. -->
+
+<p>Every command of the <code>tram</code> binary with its flags, as <code>--help</code> shows them. As the
+kubectl plugin <code>kubectl tram</code>, the binary has the commands that work with streams
+and stream files, and Kubernetes is their default target; see
+<a href="../">The tram CLI</a>.</p>
+<h2 id="tram">tram<a class="headerlink" href="#tram" title="Permanent link">&para;</a></h2>
+<p>TRAM receives, processes and forwards OpenTelemetry logs, metrics and traces</p>
+<p>TRAM receives, processes and forwards OpenTelemetry logs, metrics and traces
+in streams: a source, stages and sinks, configured through an API, files or
+Kubernetes resources.</p>
+<p>The binary runs TRAM, and is the CLI to work with its streams: tap and
+manage the streams of a running instance through its admin API, or check
+stream files without one.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tram [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>  -h, --help               help for tram
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<p><strong>Commands:</strong> <a href="#tram-completion">tram completion</a>, <a href="#tram-components">tram components</a>, <a href="#tram-drain">tram drain</a>, <a href="#tram-manager">tram manager</a>, <a href="#tram-server">tram server</a>, <a href="#tram-stream">tram stream</a>, <a href="#tram-tap">tram tap</a>, <a href="#tram-test">tram test</a>, <a href="#tram-validate">tram validate</a></p>
+<h2 id="tram-completion">tram completion<a class="headerlink" href="#tram-completion" title="Permanent link">&para;</a></h2>
+<p>Generate the autocompletion script for the specified shell</p>
+<p>Generate the autocompletion script for tram for the specified shell.
+See each sub-command's help for details on how to use the generated script.</p>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>  -h, --help   help for completion
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-components">tram components<a class="headerlink" href="#tram-components" title="Permanent link">&para;</a></h2>
+<p>List the sources, stages and sinks and their drivers</p>
+<p>List the sources, stages and sinks this binary supports, with the drivers
+of those that have them. COMPONENTS.md documents their specs.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>tram components [sources|stages|sinks] [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  -h, --help            help for components
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  -o, --output string   Output: text or json (default "text")
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-drain">tram drain<a class="headerlink" href="#tram-drain" title="Permanent link">&para;</a></h2>
+<p>Deliver what the buffer queues of an Engine's volume hold, then exit</p>
+<p>Drain runs only the Streams of an Engine that read from a buffer: their sources
+deliver what the queue files in the data directory hold, to the sinks of those
+streams. Every other Stream is treated as suspended, so nothing is written to
+the volume any more. Drain exits once every queue file is empty or holds only
+entries older than their max_age, so a volume without an instance can be
+removed without losing data. tram manager runs it as a Job for such volumes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>tram drain [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>      --data-dir string           Directory holding the buffer queue files
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>      --engine string             Engine whose Stream resources are drained
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  -h, --help                      help for drain
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>      --kubeconfig string         Kubernetes config file
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>      --watch-namespace strings   Namespaces whose Stream resources are drained, comma-separated (default all)
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-manager">tram manager<a class="headerlink" href="#tram-manager" title="Permanent link">&para;</a></h2>
+<p>Run the Kubernetes manager of TRAM Engines</p>
+<p>Run the Kubernetes manager of Tram engines</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>tram manager [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>      --engine-cluster-role string         ClusterRole bound to the service account of every Engine in its namespace; the manager needs the bind verb on it (default "manager-role")
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>      --engine-image string                Tram image of the Engines that set no spec.image, usually the manager's own image
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  -h, --help                               help for manager
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>      --kubeconfig string                  Kubernetes config file
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>      --leader-elect                       Let only one of several manager replicas work at a time (default true)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>      --leader-election-namespace string   Namespace of the leader election lease (default the pod's namespace; required outside a cluster)
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>      --watch-namespace strings            Namespaces whose Stream resources the manager labels, comma-separated (default all)
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-server">tram server<a class="headerlink" href="#tram-server" title="Permanent link">&para;</a></h2>
+<p>Run a TRAM instance: its streams, its APIs and its configuration sources</p>
+<p>Start the gRPC Gateway HTTP server that proxies requests to the gRPC backend.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>tram server [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>      --admin-endpoint string     Endpoint of the admin API (gRPC and HTTP), which shows the events of running streams, e.g. to tram tap; empty disables it (default "localhost:50052")
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  -c, --config-dir string         Configuration directory (default "config")
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>      --data-dir string           Directory the buffer sink and source keep their queues in, e.g. on a persistent volume (default none: streams with a buffer fail to build)
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>      --enable-file-sync          Enable the file sync
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>      --enable-k8s-operator       Enable the Kubernetes operator
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>      --engine string             Engine whose Stream resources the operator runs
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>      --grpc-endpoint string      gRPC server endpoint (default "localhost:50051")
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>  -h, --help                      help for server
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>      --http-endpoint string      HTTP server endpoint (default "localhost:8080")
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>      --kubeconfig string         Kubernetes config file
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>      --pprof-endpoint string     Endpoint serving the Go profiles under /debug/pprof/, e.g. localhost:6060 (default disabled)
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>      --watch-namespace strings   Namespaces whose Stream resources the operator runs, comma-separated (default all)
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-stream">tram stream<a class="headerlink" href="#tram-stream" title="Permanent link">&para;</a></h2>
+<p>List, get, apply, diff and delete the streams of a running instance</p>
+<p>List, get, apply, diff and delete the streams of a TRAM server through its
+admin API. Stream files are the files of the file sync and tram test: a bare
+stream object or {"stream": {...}}; tram stream get writes one.</p>
+<p>In Kubernetes, with --kube, --engine or --selector, they read from one of
+the pods, which all run the same streams; apply and delete are refused
+there, since the streams come from Stream resources. The stream of a Stream
+resource is its name, in the namespace of -n or the kubeconfig, or
+<namespace>.<name>.</p>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>  -h, --help                           help for stream
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<p><strong>Commands:</strong> <a href="#tram-stream-apply">tram stream apply</a>, <a href="#tram-stream-delete">tram stream delete</a>, <a href="#tram-stream-diff">tram stream diff</a>, <a href="#tram-stream-get">tram stream get</a>, <a href="#tram-stream-list">tram stream list</a></p>
+<h2 id="tram-stream-apply">tram stream apply<a class="headerlink" href="#tram-stream-apply" title="Permanent link">&para;</a></h2>
+<p>Create or update streams from stream files</p>
+<p>Create or update the streams of stream files. Every file is planned first:
+an unchanged stream is left alone, and the output says whether the stream
+was created, had its stages and sinks replaced below its running source, or
+was rebuilt. --dry-run only shows the plan. A directory is read like the
+file sync reads it, its *.json files.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>tram stream apply -f &lt;file or directory&gt;... [flags]
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>  tram stream apply -f config/
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>  tram stream apply -f stream.json --dry-run
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>      --dry-run            Only show what applying would do
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>  -f, --filename strings   Stream files or directories of them
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  -h, --help               help for apply
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>      --log-level string               Log level: debug, info, warn or error (default "info")
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<h2 id="tram-stream-delete">tram stream delete<a class="headerlink" href="#tram-stream-delete" title="Permanent link">&para;</a></h2>
+<p>Delete streams</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>tram stream delete &lt;name&gt;... [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>  -h, --help   help for delete
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>      --log-level string               Log level: debug, info, warn or error (default "info")
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-24-25" name="__codelineno-24-25" href="#__codelineno-24-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-24-26" name="__codelineno-24-26" href="#__codelineno-24-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<h2 id="tram-stream-diff">tram stream diff<a class="headerlink" href="#tram-stream-diff" title="Permanent link">&para;</a></h2>
+<p>Show how stream files differ from the running streams</p>
+<p>Show how the streams of stream files differ from the running ones, as a
+unified diff of their stream files, and what applying them would do.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>tram stream diff -f &lt;file or directory&gt;... [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>  -f, --filename strings   Stream files or directories of them
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>  -h, --help               help for diff
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a>      --log-level string               Log level: debug, info, warn or error (default "info")
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<h2 id="tram-stream-get">tram stream get<a class="headerlink" href="#tram-stream-get" title="Permanent link">&para;</a></h2>
+<p>Write a stream as a stream file</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>tram stream get &lt;name&gt; [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>  -h, --help   help for get
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a>      --log-level string               Log level: debug, info, warn or error (default "info")
+<a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-30-20" name="__codelineno-30-20" href="#__codelineno-30-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-30-21" name="__codelineno-30-21" href="#__codelineno-30-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-30-22" name="__codelineno-30-22" href="#__codelineno-30-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-30-23" name="__codelineno-30-23" href="#__codelineno-30-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-30-24" name="__codelineno-30-24" href="#__codelineno-30-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-30-25" name="__codelineno-30-25" href="#__codelineno-30-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-30-26" name="__codelineno-30-26" href="#__codelineno-30-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<h2 id="tram-stream-list">tram stream list<a class="headerlink" href="#tram-stream-list" title="Permanent link">&para;</a></h2>
+<p>List the streams</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>tram stream list [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>  -h, --help            help for list
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>  -o, --output string   Output: text, or json with the streams as in stream files (default "text")
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-33-15" name="__codelineno-33-15" href="#__codelineno-33-15"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-33-16" name="__codelineno-33-16" href="#__codelineno-33-16"></a>      --log-level string               Log level: debug, info, warn or error (default "info")
+<a id="__codelineno-33-17" name="__codelineno-33-17" href="#__codelineno-33-17"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-33-18" name="__codelineno-33-18" href="#__codelineno-33-18"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-33-19" name="__codelineno-33-19" href="#__codelineno-33-19"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-33-20" name="__codelineno-33-20" href="#__codelineno-33-20"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-33-21" name="__codelineno-33-21" href="#__codelineno-33-21"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-33-22" name="__codelineno-33-22" href="#__codelineno-33-22"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-33-23" name="__codelineno-33-23" href="#__codelineno-33-23"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-33-24" name="__codelineno-33-24" href="#__codelineno-33-24"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-33-25" name="__codelineno-33-25" href="#__codelineno-33-25"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-33-26" name="__codelineno-33-26" href="#__codelineno-33-26"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<h2 id="tram-tap">tram tap<a class="headerlink" href="#tram-tap" title="Permanent link">&para;</a></h2>
+<p>Show the events passing a running stream</p>
+<p>Show the events passing a running stream of a TRAM server.</p>
+<p>The server hands out copies of the events at the source, at every stage and
+at every sink, or at the one component --component names: what a source or
+stage passed on, and what a sink received and whether it took it. The stream
+is not changed and never waits for the tap: events the tap cannot take in
+time, or beyond --rate, are dropped and reported.</p>
+<p>The tap keeps running when the stream is replaced, and ends when the stream
+is deleted or the tapped component is removed. It talks to the admin API of
+the server (tram server --admin-endpoint, localhost:50052 by default).</p>
+<p>In Kubernetes, the stream of a Stream resource is its name, in the namespace
+of -n or the kubeconfig, or <namespace>.<name>. --kube taps every pod of the
+Engines the stream's Stream resource names, from the kubeconfig's current context; --engine or
+--selector name the pods instead. Every pod runs the stream with its share
+of the data. The CLI forwards a port to each pod, as kubectl port-forward
+does, follows scaling and rollouts, and shows the pod of every event.
+--rate and --limit count for all pods together.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>tram tap &lt;stream&gt; [flags]
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>  tram tap my-stream
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>  tram tap my-stream --component loki --rate 10
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>  tram tap my-stream --output json --limit 100 &gt; events.ndjson
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>  tram tap logs --kube -n observability      # the Stream resource logs
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>  tram tap my-stream --engine telemetry -n observability
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>      --admin-endpoint string          Admin API of the TRAM server (env TRAM_ADMIN_ENDPOINT, default localhost:50052)
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>      --admin-port int                 Kubernetes: port of the admin API in the pods (default the Engine's, or 50052)
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>      --as string                      Username to impersonate for the operation
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>      --as-group stringArray           Group to impersonate for the operation, this flag can be repeated to specify multiple groups.
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>      --as-uid string                  UID to impersonate for the operation
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>      --certificate-authority string   Path to a cert file for the certificate authority
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>      --client-certificate string      Path to a client certificate file for TLS
+<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a>      --client-key string              Path to a client key file for TLS
+<a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>      --cluster string                 The name of the kubeconfig cluster to use
+<a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a>      --component string               Source, stage or sink to tap (default all)
+<a id="__codelineno-36-11" name="__codelineno-36-11" href="#__codelineno-36-11"></a>      --context string                 The name of the kubeconfig context to use
+<a id="__codelineno-36-12" name="__codelineno-36-12" href="#__codelineno-36-12"></a>      --disable-compression            If true, opt-out of response compression for all requests to the server
+<a id="__codelineno-36-13" name="__codelineno-36-13" href="#__codelineno-36-13"></a>      --engine string                  Kubernetes: talk to the pods of this Engine
+<a id="__codelineno-36-14" name="__codelineno-36-14" href="#__codelineno-36-14"></a>  -h, --help                           help for tap
+<a id="__codelineno-36-15" name="__codelineno-36-15" href="#__codelineno-36-15"></a>      --insecure-skip-tls-verify       If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
+<a id="__codelineno-36-16" name="__codelineno-36-16" href="#__codelineno-36-16"></a>      --kube                           Talk to the TRAM pods in Kubernetes that run the stream: the Engines its Stream resource names (env TRAM_KUBE)
+<a id="__codelineno-36-17" name="__codelineno-36-17" href="#__codelineno-36-17"></a>      --kubeconfig string              Path to the kubeconfig file (default as kubectl)
+<a id="__codelineno-36-18" name="__codelineno-36-18" href="#__codelineno-36-18"></a>      --limit int                      Stop after this many events (default no limit)
+<a id="__codelineno-36-19" name="__codelineno-36-19" href="#__codelineno-36-19"></a>  -n, --namespace string               If present, the namespace scope for this CLI request
+<a id="__codelineno-36-20" name="__codelineno-36-20" href="#__codelineno-36-20"></a>  -o, --output string                  Output: text, or json with one event per line (default "text")
+<a id="__codelineno-36-21" name="__codelineno-36-21" href="#__codelineno-36-21"></a>      --password string                Password for basic authentication to the API server
+<a id="__codelineno-36-22" name="__codelineno-36-22" href="#__codelineno-36-22"></a>      --proxy-url string               If provided, this URL will be used to connect via proxy
+<a id="__codelineno-36-23" name="__codelineno-36-23" href="#__codelineno-36-23"></a>      --rate float                     Most events per second to show; more are dropped (default no limit)
+<a id="__codelineno-36-24" name="__codelineno-36-24" href="#__codelineno-36-24"></a>      --request-timeout string         The length of time to wait before giving up on a single server request. Non-zero values should contain a corresponding time unit (e.g. 1s, 2m, 3h). A value of zero means don't timeout requests. (default "0")
+<a id="__codelineno-36-25" name="__codelineno-36-25" href="#__codelineno-36-25"></a>  -l, --selector string                Kubernetes: talk to the TRAM pods this label selector selects, instead of an Engine
+<a id="__codelineno-36-26" name="__codelineno-36-26" href="#__codelineno-36-26"></a>      --server string                  The address and port of the Kubernetes API server
+<a id="__codelineno-36-27" name="__codelineno-36-27" href="#__codelineno-36-27"></a>      --tls-server-name string         If provided, this name will be used to validate server certificate. If this is not provided, hostname used to contact the server is used.
+<a id="__codelineno-36-28" name="__codelineno-36-28" href="#__codelineno-36-28"></a>      --token string                   Bearer token for authentication to the API server
+<a id="__codelineno-36-29" name="__codelineno-36-29" href="#__codelineno-36-29"></a>      --user string                    The name of the kubeconfig user to use
+<a id="__codelineno-36-30" name="__codelineno-36-30" href="#__codelineno-36-30"></a>      --username string                Username for basic authentication to the API server
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-test">tram test<a class="headerlink" href="#tram-test" title="Permanent link">&para;</a></h2>
+<p>Run the test cases of a stream file locally</p>
+<p>Run the test cases of a stream file locally.</p>
+<p>The file holds either a bare stream object or a file sync file that wraps it
+in {"stream": {...}}, like the examples in examples/config/.</p>
+<p>The stream is loaded into its own in-memory tree: the source is replaced by
+a test source that emits the test inputs and every sink by a capture sink, so
+no external system is contacted. Stages are the real stages and process the
+events. References in stage specs are resolved from the secrets file, keyed
+"<name>/<key>".</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>tram test &lt;stream.json&gt; [flags]
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>  -h, --help             help for test
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>      --secrets string   JSON file with secret values keyed "&lt;name&gt;/&lt;key&gt;" for references in stage specs
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+<h2 id="tram-validate">tram validate<a class="headerlink" href="#tram-validate" title="Permanent link">&para;</a></h2>
+<p>Check stream files without running them</p>
+<p>Check stream files without running them: their format, the stream name,
+that the stream is a tree, and the spec of every component.</p>
+<p>Sources and sinks are checked without contacting anything: a broker
+component checks its options but does not connect, an OTLP source opens no
+port. Stages are built and stopped again, as in tram test, so an encryption
+stage with the stackit-kms driver contacts the KMS. A directory is read like
+the file sync reads it: its *.json files, not its subdirectories. Two files
+with the same stream name are an error.</p>
+<p>References like {"valueFrom": {"secretKeyRef": ...}} are resolved from the
+secrets file, keyed "<name>/<key>"; without one, a reference fails the check.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>tram validate &lt;file or directory&gt;... [flags]
+</code></pre></div>
+<p><strong>Examples</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>  tram validate config/
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>  tram validate stream.json --secrets secrets.json
+</code></pre></div>
+<p><strong>Flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>  -h, --help             help for validate
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>      --secrets string   JSON file with secret values keyed "&lt;name&gt;/&lt;key&gt;" for references in component specs
+</code></pre></div>
+<p><strong>Inherited flags</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>      --log-level string   Log level: debug, info, warn or error (default "info")
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../tapping/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tapping a Stream">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Tapping a Stream
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../metrics/" class="md-footer__link md-footer__link--next" aria-label="Next: Metrics">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Metrics
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/go-tram/tram" target="_blank" rel="noopener" title="TRAM on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.instant","navigation.tracking","navigation.tabs","navigation.indexes","navigation.top","navigation.footer","search.highlight","search.suggest","toc.follow","content.code.copy"],"redirect":null,"search":"../../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+        <script src="../../../javascripts/sortable-tables.js"></script>
+      
+    
+  </body>
+</html>

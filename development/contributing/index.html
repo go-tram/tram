@@ -328,18 +328,51 @@
       
         
       
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
     
       <li class="md-tabs__item">
-        <a href="../../operations/metrics/" class="md-tabs__link">
+        <a href="../../operations/cli/" class="md-tabs__link">
           
   
   Operations
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -1910,6 +1943,8 @@
       
         
       
+        
+      
     
     
     
@@ -1951,6 +1986,253 @@
 
             </label>
             <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cli/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CLI
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  CLI
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/connecting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Where the CLI Connects
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/kubectl-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  As a kubectl Plugin
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Managing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/checking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking Stream Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/tapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tapping a Stream
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command Reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
               
                 
                   
@@ -2903,6 +3185,8 @@
       
         
       
+        
+      
     
     
     
@@ -3428,6 +3712,33 @@
     
   
   0018: Stream Resources Own Their Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/0019-tap-running-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0019: Tap Running Streams in the Core, Outside Their Spec
 
     
   </span>
@@ -4285,7 +4596,7 @@
 </tr>
 <tr>
 <td><code>task generate</code></td>
-<td>Regenerate protobuf, gateway and swagger code and the Kubernetes CRD</td>
+<td>Regenerate protobuf, gateway and swagger code, the Kubernetes CRD and the CLI reference (<code>docs/cli-reference.md</code>)</td>
 </tr>
 <tr>
 <td><code>task bench</code></td>
@@ -4338,13 +4649,13 @@
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>./tram<span class="w"> </span>server<span class="w"> </span>--enable-file-sync<span class="w"> </span>-c<span class="w"> </span>config
 </code></pre></div>
 <h3 id="generate-code">Generate Code<a class="headerlink" href="#generate-code" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Generate all code: protobuf and swagger (buf), Kubernetes CRD and deepcopy (controller-gen)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Generate all code: protobuf and swagger (buf), Kubernetes CRD and deepcopy (controller-gen), CLI reference</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>go<span class="w"> </span>generate<span class="w"> </span>./...
 </code></pre></div>
 <h3 id="update-api-definitions">Update API Definitions<a class="headerlink" href="#update-api-definitions" title="Permanent link">&para;</a></h3>
 <p>When updating the API:</p>
 <ol>
-<li>Modify the <code>.proto</code> files in <code>api/proto/stream/v1/</code></li>
+<li>Modify the <code>.proto</code> files in <code>api/proto/tram/v1/</code></li>
 <li>Regenerate code:
    <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>go<span class="w"> </span>generate<span class="w"> </span>./...
 </code></pre></div></li>
@@ -4353,7 +4664,7 @@
 <h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tram/
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── api/
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── proto/stream/v1/stream.proto  # API definition
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── proto/tram/v1/                # API definition (stream.proto, tap.proto)
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│   └── swagger/                      # Generated OpenAPI description
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── cmd/tram/                         # CLI entry point and `tram server`
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>├── internal/                         # Private application code
@@ -4372,7 +4683,7 @@
 <a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│   ├── e2e/                          # End-to-end pipeline tests
 <a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│   ├── scenario/                     # End-to-end pipeline benchmarks
 <a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│   └── testutil/                     # Test helpers: OTLP payloads (otlpgen), broker containers (natstest, kafkatest, amqptest), tcpproxy
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>├── pkg/gen/go/api/proto/stream/v1/   # Generated protobuf, gRPC and gateway code
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>├── pkg/gen/go/tram/v1/               # Generated protobuf, gRPC and gateway code
 <a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>├── examples/                            # Example configurations: config/, k8s/, nats/
 <a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>├── tools/benchreport/                # Generates BENCHMARK.md
 <a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>├── docs/adr/                         # Architecture Decision Records

@@ -330,18 +330,51 @@
       
         
       
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
     
       <li class="md-tabs__item">
-        <a href="../../operations/metrics/" class="md-tabs__link">
+        <a href="../../operations/cli/" class="md-tabs__link">
           
   
   Operations
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -1995,6 +2028,8 @@
       
         
       
+        
+      
     
     
     
@@ -2036,6 +2071,253 @@
 
             </label>
             <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cli/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CLI
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  CLI
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/connecting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Where the CLI Connects
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/kubectl-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  As a kubectl Plugin
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Managing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/checking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking Stream Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/tapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tapping a Stream
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/cli/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command Reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
               
                 
                   
@@ -2221,6 +2503,8 @@
       
         
           
+        
+      
         
       
         
@@ -2796,6 +3080,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/decisions/0019-tap-running-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0019: Tap Running Streams in the Core, Outside Their Spec
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2912,12 +3223,13 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>tram
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>tram<span class="w"> </span>./cmd/tram
 </code></pre></div>
+<p>Or install the binary with Go: <code>go install github.com/go-tram/tram/cmd/tram@latest</code>. It is the server and the <a href="../../operations/cli/">CLI</a>.</p>
 <p>Or build a container image with Docker or Podman: <code>task image:build</code> (with <a href="https://taskfile.dev">Task</a>) or <code>docker build -t tram:dev .</code>. Run <code>task</code> to see all development tasks, e.g. for tests and benchmarks; <a href="../../development/contributing/#tasks">CONTRIBUTING.md</a> explains them.</p>
 <h2 id="run">Run<a class="headerlink" href="#run" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./tram<span class="w"> </span>server
 </code></pre></div>
 <p>The container image starts the server with both APIs listening on all interfaces of the container: <code>docker run --rm -p 8080:8080 -p 50051:50051 tram:dev</code>.</p>
-<p>By default the HTTP API listens on <code>localhost:8080</code> and the gRPC API on <code>localhost:50051</code>. <code>--log-level</code> sets the log level (<code>debug</code>, <code>info</code>, <code>warn</code> or <code>error</code>; default <code>info</code>). See <code>./tram server --help</code> for all flags.</p>
+<p>By default the HTTP API listens on <code>localhost:8080</code>, the gRPC API on <code>localhost:50051</code> and the <a href="../api/#admin-api">admin API</a> on <code>localhost:50052</code>. <code>--log-level</code> sets the log level (<code>debug</code>, <code>info</code>, <code>warn</code> or <code>error</code>; default <code>info</code>). See <code>./tram server --help</code> for all flags.</p>
 <h2 id="create-a-first-stream">Create a First Stream<a class="headerlink" href="#create-a-first-stream" title="Permanent link">&para;</a></h2>
 <p>Create a stream whose <code>generator</code> source emits an event every 5 seconds and whose <code>debug</code> sink logs it to stdout:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8080/v1/streams/my-pipeline<span class="w"> </span><span class="se">\</span>
@@ -2941,6 +3253,10 @@
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="s1">      ]</span>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="s1">    }</span>
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="s1">  }'</span>
+</code></pre></div>
+<p>Or with the <a href="../../operations/cli/">CLI</a>, from the stream as a file, and watch its events pass:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tram<span class="w"> </span>stream<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>my-pipeline.json<span class="w">   </span><span class="c1"># the "stream" object above</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>tram<span class="w"> </span>tap<span class="w"> </span>my-pipeline
 </code></pre></div>
 <p>More examples are under <a href="../api/">Example API Usage</a>.</p>
 

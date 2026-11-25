@@ -330,18 +330,51 @@
       
         
       
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
     
       <li class="md-tabs__item">
-        <a href="../../../operations/metrics/" class="md-tabs__link">
+        <a href="../../../operations/cli/" class="md-tabs__link">
           
   
   Operations
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -1997,6 +2030,8 @@
       
         
       
+        
+      
     
     
     
@@ -2038,6 +2073,253 @@
 
             </label>
             <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../operations/cli/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CLI
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  CLI
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/connecting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Where the CLI Connects
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/kubectl-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  As a kubectl Plugin
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Managing Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/checking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking Stream Files
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/tapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tapping a Stream
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/cli/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command Reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
               
                 
                   
@@ -2223,6 +2505,8 @@
       
         
           
+        
+      
         
       
         
@@ -2798,6 +3082,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/decisions/0019-tap-running-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0019: Tap Running Streams in the Core, Outside Their Spec
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2993,6 +3304,7 @@
 <li><strong>Changes:</strong> the stream is created or updated when the resource's <code>spec</code>, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it. An instance builds up to 8 Streams at once, in no particular order, e.g. when it starts, so a new replica runs all its Streams sooner; one Stream is never reconciled twice at the same time</li>
 <li><strong>Status:</strong> <code>status.mounted</code> is <code>true</code> once an instance loaded the stream, also while it is suspended (<code>spec.suspended</code>, which defaults to <code>false</code>), and <code>false</code> if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; <code>status.mounted</code> stays <code>true</code> meanwhile. <code>kubectl get streams</code> shows both as the columns <code>Mounted</code> and <code>Suspended</code>. Until version 0.0.19 the field was called <code>status.active</code></li>
 <li><strong>Deletion:</strong> deleting the resource deletes the stream</li>
+<li><strong>Debugging:</strong> <code>kubectl tram tap &lt;name&gt; -n &lt;namespace&gt;</code> shows the events passing the stream on every pod of its Engines, and <code>kubectl tram stream get &lt;name&gt;</code> the stream as the instances run it; see <a href="../../../operations/cli/">the tram CLI</a></li>
 <li><strong>Ownership:</strong> the operator reads <code>Stream</code> resources; it does not write streams back as resources. A resource owns its stream: a change or deletion of the stream through the API or the file sync is undone right away, so with the operator, manage streams through <code>Stream</code> resources and use the API to read them. File sync, in contrast, works in both directions</li>
 <li><strong>Scope:</strong> the operator watches <code>Stream</code> resources in all namespaces, or in the namespaces from <code>--watch-namespace</code>, and with <code>--engine</code> only those whose <code>spec.engineRefs</code> name the engine; see <a href="../#selecting-streams">Selecting Streams</a>. There is no leader election, so every TRAM instance with the operator enabled runs every <code>Stream</code> resource it selects</li>
 <li><strong>Access:</strong> creating a <code>Stream</code> lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the <code>Stream</code>'s namespace and send the value along, e.g. as a header to their own URL. Grant <code>create</code> on <code>streams.io.tram.core</code> only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see <a href="../../../guide/security/">Security</a></li>

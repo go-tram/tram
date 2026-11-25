@@ -154,6 +154,9 @@
         <loc>https://gotram.dev/development/decisions/0018-resources-own-their-streams/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/development/decisions/0019-tap-running-streams/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
@@ -176,6 +179,27 @@
       </url>
       <url>
         <loc>https://gotram.dev/operations/benchmarks/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/checking/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/connecting/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/kubectl-plugin/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/reference/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/streams/</loc>
+      </url>
+      <url>
+        <loc>https://gotram.dev/operations/cli/tapping/</loc>
       </url>
       <url>
         <loc>https://gotram.dev/operations/metrics/</loc>
