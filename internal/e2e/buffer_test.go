@@ -51,7 +51,7 @@ func newBufferedPipeline(t *testing.T, readerSink domain.SinkSpec) *bufferedPipe
 		stage.NewFactory(discard()),
 		p.sinks,
 	)
-	t.Cleanup(func() { _ = p.core.Close() })
+	t.Cleanup(func() { _ = p.core.Close(context.Background()) })
 
 	port := onFreePort(t, 0, func(port int) error {
 		_, err := p.core.UpsertStream(context.Background(), domain.StreamSpec{

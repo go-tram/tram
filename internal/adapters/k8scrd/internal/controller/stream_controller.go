@@ -34,6 +34,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -146,6 +147,10 @@ func (r *StreamReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	return ctrl.Result{}, r.setMounted(ctx, &stream, true)
 }
+
+// MaxConcurrentReconciles bounds how many Streams an instance builds or
+// changes at once.
+const MaxConcurrentReconciles = 8
 
 // BufferType is the type of the buffer source and sink, which keep events in
 // the data directory of the instance.
@@ -345,6 +350,10 @@ func (r *StreamReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		// reconciled.
 		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(r.streamsReferringTo), builder.OnlyMetadata).
 		Watches(&corev1.ConfigMap{}, r.configMapHandler(), builder.OnlyMetadata).
+		// Streams are built in parallel, e.g. when an instance starts with
+		// many of them; the work queue never reconciles one Stream twice at
+		// once.
+		WithOptions(controller.Options{MaxConcurrentReconciles: MaxConcurrentReconciles}).
 		Named("stream")
 
 	// A Stream resource owns its stream: a change through the API or the

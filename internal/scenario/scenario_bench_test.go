@@ -273,7 +273,7 @@ func startStream(b *testing.B, in domain.SourceSpec, stages []domain.StageSpec, 
 		stage.NewFactory(logger),
 		sink.NewFactory(logger),
 	)
-	b.Cleanup(func() { _ = c.Close() })
+	b.Cleanup(func() { _ = c.Close(context.Background()) })
 	_, err := c.UpsertStream(
 		context.Background(),
 		domain.StreamSpec{Name: "scenario", Source: in, Stages: stages, Sinks: sinks},

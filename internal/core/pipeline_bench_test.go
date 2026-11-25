@@ -151,7 +151,7 @@ func pipeline(b *testing.B, spec domain.StreamSpec, sinks int, shape otlpgen.Sha
 		stage.NewFactory(slog.New(slog.DiscardHandler)),
 		countingSinkFactory{&records},
 	)
-	b.Cleanup(func() { _ = c.Close() })
+	b.Cleanup(func() { _ = c.Close(context.Background()) })
 	if _, upsertErr := c.UpsertStream(b.Context(), spec); upsertErr != nil {
 		b.Fatal(upsertErr)
 	}

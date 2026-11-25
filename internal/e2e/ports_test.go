@@ -36,7 +36,7 @@ func TestOnFreePortMovesToAnotherPort(t *testing.T) {
 
 	c := core.New(context.Background(), discard(),
 		source.NewFactory(discard()), stage.NewFactory(discard()), sink.NewFactory(discard()))
-	t.Cleanup(func() { _ = c.Close() })
+	t.Cleanup(func() { _ = c.Close(context.Background()) })
 
 	var attempts []int
 	port := onFreePort(t, takenPort, func(port int) error {

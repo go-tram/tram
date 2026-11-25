@@ -71,7 +71,9 @@ func runDrain(ctx context.Context, logger *slog.Logger, opts drainOptions) (err 
 		stage.NewFactory(logger),
 		sink.NewFactory(logger, sink.WithDataDir(opts.dataDir)))
 	defer func() {
-		err = errors.Join(err, c.Close())
+		timeout, cancel := context.WithTimeout(context.Background(), coreCloseTimeout)
+		err = errors.Join(err, c.Close(timeout))
+		cancel()
 	}()
 
 	op, err := k8scrd.New(c, k8scrd.Options{
