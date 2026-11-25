@@ -246,6 +246,13 @@ func TestPutStreamDryRun(t *testing.T) {
 // with new ports.
 func serveAPI(t *testing.T, c ports.Core, metrics http.Handler, logger *slog.Logger) string {
 	t.Helper()
+	httpAddr, _ := serveAPIWith(t, c, metrics, logger)
+	return httpAddr
+}
+
+// serveAPIWith is serveAPI, and returns the gRPC address too.
+func serveAPIWith(t *testing.T, c ports.Core, metrics http.Handler, logger *slog.Logger) (string, string) {
+	t.Helper()
 	const attempts = 5
 	for range attempts {
 		httpAddr, grpcAddr := freeAddr(t), freeAddr(t)
@@ -260,7 +267,7 @@ func serveAPI(t *testing.T, c ports.Core, metrics http.Handler, logger *slog.Log
 				cancel()
 				require.NoError(t, <-done)
 			})
-			return httpAddr
+			return httpAddr, grpcAddr
 		}
 		cancel()
 		if !errors.Is(runErr, syscall.EADDRINUSE) {
@@ -269,7 +276,7 @@ func serveAPI(t *testing.T, c ports.Core, metrics http.Handler, logger *slog.Log
 		}
 	}
 	t.Fatalf("the API found no free ports in %d attempts", attempts)
-	return ""
+	return "", ""
 }
 
 // waitServing waits until the HTTP gateway at httpAddr answers, with any

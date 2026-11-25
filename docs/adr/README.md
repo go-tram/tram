@@ -22,6 +22,7 @@ This directory records the decisions that shape TRAM, as Architecture Decision R
 | [0016](0016-request-size-limit-at-the-source.md) | Limit the request size at the source, decompressed | Accepted |
 | [0017](0017-parallel-stream-operations.md) | Operations on different streams run in parallel | Accepted |
 | [0018](0018-resources-own-their-streams.md) | Stream resources own their streams | Accepted |
+| [0019](0019-tap-running-streams.md) | Tap running streams in the core, outside their spec | Accepted |
 
 ## Writing a Record
 

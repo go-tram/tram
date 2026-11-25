@@ -31,7 +31,7 @@ import (
 const (
 	// EngineLabel carries the Engine's name on every resource the manager
 	// generates for it, and selects the Engine's pods.
-	EngineLabel = "tram.io/engine"
+	EngineLabel = tramv1alpha1.EngineLabel
 
 	// ManagedByLabel marks the resources the manager generates; the manager
 	// caches only those.
@@ -44,6 +44,7 @@ const (
 
 	defaultHTTPPort         = 8080
 	defaultGRPCPort         = 50051
+	defaultAdminPort        = tramv1alpha1.DefaultAdminPort
 	defaultTargetCPUPercent = 80
 	defaultLogLevel         = "info"
 
@@ -278,12 +279,13 @@ type port struct {
 }
 
 // portsOf returns the ports of the tram container: the APIs, pprof and the
-// Engine's ports. Two ports with the same number fail.
+// Engine's ports, the stream APIs first. Two ports with the same number fail.
 func portsOf(engine *tramv1alpha1.Engine) ([]port, error) {
 	api := engine.Spec.Runtime.API
 	ports := []port{
 		{name: "http", number: orDefault(api.HTTPPort, defaultHTTPPort)},
 		{name: "grpc", number: orDefault(api.GRPCPort, defaultGRPCPort)},
+		{name: "admin", number: orDefault(api.AdminPort, defaultAdminPort), internal: true},
 	}
 	if pprof := engine.Spec.Runtime.Pprof; pprof != nil {
 		ports = append(ports, port{name: "pprof", number: pprof.Port, internal: true})
@@ -309,9 +311,9 @@ func orDefault(value, def int32) int32 {
 	return value
 }
 
-// args are the arguments of `tram`, the image's entrypoint. The APIs listen on
-// all interfaces to be reachable through the Service; pprof only on the pod's
-// localhost, reachable with kubectl port-forward.
+// args are the arguments of `tram`, the image's entrypoint. The stream APIs
+// listen on all interfaces to be reachable through the Service; the admin API
+// and pprof only on the pod's localhost, reachable with kubectl port-forward.
 func args(engine *tramv1alpha1.Engine, ports []port) []string {
 	logLevel := engine.Spec.Runtime.LogLevel
 	if logLevel == "" {
@@ -322,6 +324,7 @@ func args(engine *tramv1alpha1.Engine, ports []port) []string {
 		"--log-level=" + logLevel,
 		"--http-endpoint=0.0.0.0:" + strconv.Itoa(int(ports[0].number)),
 		"--grpc-endpoint=0.0.0.0:" + strconv.Itoa(int(ports[1].number)),
+		"--admin-endpoint=127.0.0.1:" + strconv.Itoa(int(ports[2].number)),
 	}
 	if pprof := engine.Spec.Runtime.Pprof; pprof != nil {
 		out = append(out, "--pprof-endpoint=127.0.0.1:"+strconv.Itoa(int(pprof.Port)))

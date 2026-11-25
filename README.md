@@ -31,6 +31,8 @@ cd tram
 go build -o tram ./cmd/tram
 ```
 
+Or install the binary with Go: `go install github.com/go-tram/tram/cmd/tram@latest`. It is the server and the [CLI](#the-tram-cli).
+
 Or build a container image with Docker or Podman: `task image:build` (with [Task](https://taskfile.dev)) or `docker build -t tram:dev .`. Run `task` to see all development tasks, e.g. for tests and benchmarks; [CONTRIBUTING.md](CONTRIBUTING.md#tasks) explains them.
 
 ### Run
@@ -41,7 +43,7 @@ Or build a container image with Docker or Podman: `task image:build` (with [Task
 
 The container image starts the server with both APIs listening on all interfaces of the container: `docker run --rm -p 8080:8080 -p 50051:50051 tram:dev`.
 
-By default the HTTP API listens on `localhost:8080` and the gRPC API on `localhost:50051`. `--log-level` sets the log level (`debug`, `info`, `warn` or `error`; default `info`). See `./tram server --help` for all flags.
+By default the HTTP API listens on `localhost:8080`, the gRPC API on `localhost:50051` and the [admin API](#admin-api) on `localhost:50052`. `--log-level` sets the log level (`debug`, `info`, `warn` or `error`; default `info`). See `./tram server --help` for all flags.
 
 ### Create a First Stream
 
@@ -71,6 +73,13 @@ curl -X PUT http://localhost:8080/v1/streams/my-pipeline \
   }'
 ```
 
+Or with the [CLI](#the-tram-cli), from the stream as a file, and watch its events pass:
+
+```bash
+tram stream apply -f my-pipeline.json   # the "stream" object above
+tram tap my-pipeline
+```
+
 More examples are under [Example API Usage](#example-api-usage).
 
 ## 🌐 API Endpoints
@@ -86,6 +95,15 @@ The TRAM service provides the following HTTP endpoints:
 | GET | `/metrics` | Metrics of TRAM in the Prometheus format, see [Metrics](#metrics) |
 
 The stream name is taken from the URL; a `name` in the request body is replaced by it.
+
+### Admin API
+
+The admin API is the API of the `tram` CLI: everything the stream API serves, without `/metrics`, and what looks into the running TRAM, like taps. It hands out the data of the streams, so it has an endpoint of its own, `--admin-endpoint` (default `localhost:50052`; empty disables it), which serves gRPC and HTTP on the same port. On `localhost`, only the host itself or `kubectl port-forward` reaches it, which on Kubernetes needs the `pods/portforward` permission; open it to more on the network level only where everyone who reaches it may read the data. The stream API stays the one for automation, e.g. CI applying streams, and for Prometheus.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| | `/v1/streams...` | The endpoints of the stream API above |
+| GET | `/v1/streams/{name}/tap` | Stream the events of a running stream, one JSON object per line, see [Tapping a Stream](#tapping-a-stream) |
 
 ## 📡 Example API Usage
 
@@ -457,7 +475,7 @@ Each test has a `name`, an `input` event and the expected outcome per sink in `e
 
 ### Running Tests in CI
 
-`tram test` takes one file and exits with `1` if a test fails, so a CI job runs it for every stream file, e.g. with the [container image](#container-image), whose entry point is `tram`:
+`tram validate streams/` checks all stream files of a directory at once, without a server. `tram test` takes one file and exits with `1` if a test fails, so a CI job runs it for every stream file, e.g. with the [container image](#container-image), whose entry point is `tram`:
 
 ```bash
 for f in streams/*.json; do
@@ -484,6 +502,153 @@ Test cases are part of the stream files of the API and file sync. The `Stream` r
 ```
 
 `action` is `STREAM_PLAN_ACTION_NOOP` (nothing would change), `STREAM_PLAN_ACTION_HOT_SWAP` (the source keeps running and its stages and sinks are replaced below it) or `STREAM_PLAN_ACTION_REBUILD` (the stream is new, stopped, or its source changed: it would be stopped and created again). An invalid spec is rejected with `400` as usual; nothing is applied either way.
+
+---
+
+## 💻 The tram CLI
+
+The `tram` binary is the server and its command-line interface. The commands that talk to a server use its [admin API](#admin-api); the others work on local files:
+
+| Command | What it does | Talks to |
+|---------|--------------|----------|
+| `tram stream list`, `get`, `apply`, `diff`, `delete` | Manage the streams of a server with stream files | admin API |
+| `tram tap <stream>` | Show the events passing a running stream, see [Tapping a Stream](#tapping-a-stream) | admin API |
+| `tram validate <files>` | Check stream files without running them | – |
+| `tram test <file>` | Run the test cases of a stream file, see [Test Cases](#test-cases) | – |
+| `tram components` | List the sources, stages and sinks and their drivers | – |
+
+Every command explains itself with `--help`; the [Command Reference](docs/cli-reference.md) lists them all with their flags.
+
+### Installing the CLI
+
+The CLI is the `tram` binary, see [Installation](#installation): `go install github.com/go-tram/tram/cmd/tram@latest`. For completion of commands and flags in the shell, load the script of `tram completion`, e.g. for zsh:
+
+```bash
+tram completion zsh > "${fpath[1]}/_tram"        # or: source <(tram completion zsh)
+```
+
+`tram completion bash`, `fish` and `powershell` work alike. As a kubectl plugin, the binary is `kubectl-tram`, see [As a kubectl Plugin](#as-a-kubectl-plugin).
+
+### Where the CLI Connects
+
+A command that talks to a server finds its target in this order; the CLI has no configuration of its own:
+
+1. `--kube`, `--engine <name>` or `--selector <labels>`: TRAM pods in Kubernetes, see below
+2. `--admin-endpoint <host:port>`
+3. `TRAM_KUBE=1` (Kubernetes) or `TRAM_ADMIN_ENDPOINT`
+4. `localhost:50052`
+
+**Kubernetes**: the CLI reaches the pods itself, as `kubectl port-forward` does, through the kubeconfig: its current context and namespace, or the flags of kubectl, like `--context`, `-n`, `--kubeconfig`, `--cluster` and `--user`. Which pods:
+
+- `--kube`: the pods of the Engines that run the stream. The CLI reads the stream's `Stream` resource and takes the Engines of its `spec.engineRefs`. A command about no stream, like `tram stream list`, takes the only Engine of the namespace
+- `--engine <name>`: the pods of that Engine
+- `--selector <labels>`: the pods with those labels, e.g. TRAM pods without an Engine
+
+```bash
+tram tap logs --kube -n observability     # the Engines of the Stream resource logs
+tram stream list --kube -n observability  # the only Engine of the namespace
+export TRAM_KUBE=1                        # --kube for every command
+```
+
+The core names the stream of a `Stream` resource `<namespace>.<name>`. In Kubernetes, the CLI takes the name of the resource, as kubectl does, in the namespace of `-n` or the kubeconfig: `tram tap logs -n observability` taps `observability.logs`. A name with a dot is the full name.
+
+The CLI takes the admin port of each Engine's spec, and for a selector `--admin-port` (default `50052`). It needs the permissions of a port forward: `get` and `list` on `pods`, `create` on `pods/portforward`, and `get` and `list` on `engines` and `streams`. Every pod runs every stream, so reading commands ask one of them, and `tram tap` taps all of them. Commands that change streams are refused there: the streams of those pods come from `Stream` resources or the file sync, which would undo a change, and a change through the API would reach one pod only.
+
+### As a kubectl Plugin
+
+Named `kubectl-tram`, the binary is a kubectl plugin: `kubectl tram` runs it. Then Kubernetes is the default target, `--kube` is implied, and it has only the commands of the CLI, not `server`, `manager` or `drain`:
+
+```bash
+ln -s "$(command -v tram)" /usr/local/bin/kubectl-tram
+kubectl tram tap logs -n observability
+kubectl tram stream list -n observability --context prod
+```
+
+`--admin-endpoint` or `TRAM_ADMIN_ENDPOINT` still choose an address. For completion, kubectl calls `kubectl_complete-tram`:
+
+```bash
+printf '#!/bin/sh\nkubectl tram __complete "$@"\n' > /usr/local/bin/kubectl_complete-tram
+chmod +x /usr/local/bin/kubectl_complete-tram
+```
+
+### Managing Streams
+
+`tram stream` works with stream files, the files of the file sync and `tram test`: a bare stream object or `{"stream": {...}}`. A directory stands for its `*.json` files.
+
+```bash
+tram stream list
+tram stream get my-stream > my-stream.json     # a stream file that applies unchanged
+tram stream diff -f my-stream.json             # a unified diff and what applying would do
+tram stream apply -f streams/ --dry-run
+tram stream apply -f streams/
+tram stream delete my-stream
+```
+
+`apply` plans every stream with a [dry run](#dry-run) first: an unchanged stream is left alone, and the output says whether a stream was `created`, `updated, stages and sinks replaced` below its running source, or `rebuilt`.
+
+### Checking Stream Files
+
+`tram validate` checks stream files without running them and without a server: their format, the stream name, that the stream is a tree, and the spec of every component. Every invalid component is reported, and two files with the same stream name are an error. It contacts nothing: a broker component checks its options without connecting, an OTLP source opens no port. Stages are built as in `tram test`, so an `encryption` stage with the `stackit-kms` driver contacts the KMS. References like `secretKeyRef` are resolved from `--secrets`, as in `tram test`.
+
+```bash
+tram validate streams/
+tram validate my-stream.json --secrets secrets.json
+```
+
+```
+ok   streams/logs.json (logs)
+FAIL streams/metrics.json
+  stream spec is invalid: only-errors
+  failed to compile CEL expression: ERROR: <input>:1:8: Syntax error: ...
+Error: 1 of 2 stream files are invalid
+```
+
+`tram components` lists the sources, stages and sinks of the binary with their drivers; [COMPONENTS.md](COMPONENTS.md) documents them.
+
+### Tapping a Stream
+
+`tram tap` shows the events passing a running stream, to see what a source receives, what a stage makes of it, or why a sink fails:
+
+```bash
+tram tap my-stream                                # every component
+tram tap my-stream --component loki --rate 10     # one component, at most 10 events per second
+tram tap my-stream -o json --limit 100 > events.ndjson
+tram tap logs --kube -n observability                    # every pod that runs it
+```
+
+```
+10:00:00.120  source otlp  logs 2
+    ERROR disk full host=web-1
+    INFO  request done host=web-1 status=200
+10:00:00.121  stage  only-errors  logs 1
+    ERROR disk full host=web-1
+10:00:00.135  sink   loki  logs 1  error 14ms: connection refused
+    ERROR disk full host=web-1
+```
+
+- **What it shows**: a copy of each event at the source and every stage, as they passed it on, and at every sink, as it received it, with whether the sink took it, its error otherwise, and how long it took. `--component` taps one of them
+- **It never changes or slows down the stream**: the tap is not part of the stream's spec, so no stream is rebuilt and no configuration source sees a change. Events the tap cannot take in time, or beyond `--rate`, are dropped and reported on stderr (`dropped 12 events`), never held
+- **It follows the stream**: the tap keeps running when the stream is updated or restarts, and ends when the stream is deleted or the tapped component is removed
+- **It taps every pod**: with several replicas, e.g. of an Engine, every pod runs every stream and gets its share of the data. With `--kube`, `--engine` or `--selector`, `tram tap` taps all pods, shows the pod of every event (`"pod"` in JSON), and follows scaling and rollouts; `--rate` and `--limit` count for all of them together. A tap through `kubectl port-forward deploy/...` sees only the pod the forward picked
+- **Where it connects**: the [admin API](#admin-api) of the server over gRPC, see [Where the CLI Connects](#where-the-cli-connects). `-o json` writes one `TapStreamResponse` per line, in the JSON mapping of Protobuf: like OTLP/JSON, but with trace and span IDs in base64 instead of hex
+
+Over HTTP, the admin API streams the same events, one JSON object per line:
+
+```bash
+curl -N 'http://localhost:50052/v1/streams/my-stream/tap?component=loki&rate=5'
+```
+
+### Exit Codes
+
+Every command exits with `0` on success and `1` otherwise, with the reason on stderr, so scripts and CI jobs can rely on them:
+
+| Command | Exits with `1` when |
+|---------|---------------------|
+| `tram validate` | a stream file is invalid |
+| `tram test` | a test case fails |
+| `tram stream apply`, `delete` | a stream could not be applied or deleted; the others still are |
+| `tram stream diff` | applying a stream would fail; differences alone exit with `0` |
+| `tram tap` | the tap ends on its own: the stream is deleted, the component removed or the server stops. Ctrl-C and `--limit` end it with `0` |
 
 ---
 
@@ -646,6 +811,7 @@ Give every stream one source that owns it and change it only there:
 TRAM has no authentication or authorization of its own. Whoever can create a stream decides which ports TRAM opens and where it sends data, so treat access to every configuration source like access to the TRAM process:
 
 - **API**: the gRPC and HTTP APIs accept every request. They listen on `localhost` by default; if you bind them to other interfaces with `--grpc-endpoint` and `--http-endpoint`, restrict access, e.g. with a network policy or an authenticating proxy in front
+- **Admin API**: hands out the events of every stream to whoever taps them, see [Admin API](#admin-api). It listens on `localhost:50052` by default, so on Kubernetes only those allowed to port-forward to the pod reach it. Do not bind it to other interfaces where people reach it who must not read the data; `--admin-endpoint=""` turns it off
 - **Profiling**: `--pprof-endpoint` serves the Go profiles under `/debug/pprof/` on their own endpoint, without authentication; it is off by default. Profiles reveal internals such as stack traces and command-line arguments, so bind it to `localhost` or a port that is not exposed, and reach it with `kubectl port-forward`. It also turns on mutex and block profiling, which costs a little on contended locks
 - **OTLP source**: listens on the configured port on all network interfaces, without TLS or authentication. Anyone who can reach the port can send data into the stream. Restrict it on the network level, or terminate TLS and authenticate in a proxy in front of it
 - **Sinks**: an OTLP sink sends data to any URL in its spec, and `insecure: true` turns off certificate checks. Keep credentials in sink specs, e.g. in `headers` or NATS URLs, out of version control; the file sync writes new files readable only by their owner

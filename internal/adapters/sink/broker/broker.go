@@ -79,6 +79,22 @@ func newSink(
 	return &Sink{Sink: b, destinations: destinations, partitions: parts, publisher: publisher, logger: logger}, nil
 }
 
+// Check validates sink like New, without connecting to the broker.
+func Check(sink domain.SinkSpec, validator *validator.Validate) error {
+	generic, opts, drv, err := driver.Split(sink.Spec, drivers.NewPublisherFactory(validator))
+	if err != nil {
+		return err
+	}
+	b, err := base.New[Spec](sink.Name, sink.From, generic, validator)
+	if err != nil {
+		return err
+	}
+	if _, _, err = compile(b.Spec()); err != nil {
+		return err
+	}
+	return drv.CheckPublisher(opts)
+}
+
 func maxPending(spec *Spec) int {
 	if spec.MaxPending != 0 {
 		return spec.MaxPending

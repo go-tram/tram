@@ -1,11 +1,11 @@
 syntax = "proto3";
-package api.proto.stream.v1;
+package tram.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/go-tram/tram/pkg/gen/go/api/proto/stream/v1";
+option go_package = "github.com/go-tram/tram/pkg/gen/go/tram/v1;tramv1";
 
 //------------------------------------------------------------------------------
 // Domain definitions

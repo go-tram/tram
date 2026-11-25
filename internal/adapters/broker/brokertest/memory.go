@@ -111,6 +111,15 @@ func (m *Memory) deliver(msg broker.Message) {
 	}
 }
 
+func (m *Memory) CheckPublisher(map[string]any) error { return nil }
+
+func (m *Memory) CheckSubscriber(opts map[string]any) error {
+	if dest, _ := opts["destination"].(string); dest == "" {
+		return errors.New("memory subscriber needs a destination")
+	}
+	return nil
+}
+
 func (m *Memory) NewPublisher(map[string]any, broker.PublisherConfig, *slog.Logger) (broker.Publisher, error) {
 	return &memoryPublisher{m: m}, nil
 }

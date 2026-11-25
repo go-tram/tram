@@ -126,6 +126,9 @@ type SubscriberConfig struct {
 // them.
 type PublisherDriver interface {
 	NewPublisher(opts map[string]any, cfg PublisherConfig, logger *slog.Logger) (Publisher, error)
+	// CheckPublisher parses and validates opts like NewPublisher, without
+	// connecting.
+	CheckPublisher(opts map[string]any) error
 }
 
 // SubscriberDriver creates the subscribers of one kind of broker. It is all the
@@ -135,6 +138,9 @@ type PublisherDriver interface {
 type SubscriberDriver interface {
 	// NewSubscriber connects; the consumer is attached by Open.
 	NewSubscriber(opts map[string]any, cfg SubscriberConfig, logger *slog.Logger) (Subscriber, error)
+	// CheckSubscriber parses and validates opts like NewSubscriber, without
+	// connecting.
+	CheckSubscriber(opts map[string]any) error
 }
 
 // Driver serves both sides of one kind of broker, sharing its connection

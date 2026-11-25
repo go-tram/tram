@@ -33,6 +33,11 @@ func (f *Factory) Driver(name string) (rules.Driver, error) {
 	case cel.Name:
 		return cel.New(f.validator), nil
 	default:
-		return nil, driver.Unknown(name, cel.Name)
+		return nil, driver.Unknown(name, Names()...)
 	}
+}
+
+// Names are the names of the drivers.
+func Names() []string {
+	return []string{cel.Name}
 }

@@ -40,8 +40,9 @@ type Core struct {
 	streams map[string]*stream
 	names   map[string]*nameLock
 	closed  bool
-	// ops counts the operations that may still change streams; Close waits
-	// for them before it stops the streams.
+	// ops counts the operations in progress, those that may change streams
+	// and those that start a tap; Close waits for them before it ends the
+	// taps and stops the streams.
 	ops sync.WaitGroup
 	// wg counts the goroutines that run sources.
 	wg            sync.WaitGroup
@@ -50,6 +51,8 @@ type Core struct {
 	sinkFactory   ports.Factory[domain.SinkSpec, domain.Sink]
 	watchers      map[*watcher]struct{}
 	metrics       *metrics
+	// taps is nil in a test run, which nothing taps.
+	taps *taps
 
 	minRestartDelay time.Duration
 	maxRestartDelay time.Duration
@@ -120,6 +123,7 @@ func New(
 		sinkFactory:   sinkFactory,
 		watchers:      map[*watcher]struct{}{},
 		metrics:       m,
+		taps:          newTaps(),
 
 		minRestartDelay: minRestartDelay,
 		maxRestartDelay: maxRestartDelay,
@@ -166,6 +170,7 @@ func (c *Core) UpsertResolvedStream(
 		}
 		c.replace(spec.Name, s)
 		c.logger.InfoContext(ctx, "Replaced stages and sinks of stream", slog.String("stream", spec.Name))
+		c.taps.retain(spec.Name, tree)
 		c.notify(domain.StreamSpecWatchEventTypeUpsert, spec)
 		return &s.spec, nil
 	}
@@ -211,6 +216,7 @@ func (c *Core) rebuild(
 
 	if exists {
 		c.replace(spec.Name, s)
+		c.taps.retain(spec.Name, tree)
 		c.notify(domain.StreamSpecWatchEventTypeUpsert, spec)
 		return &s.spec, nil
 	}
@@ -266,6 +272,7 @@ func (c *Core) DeleteStream(ctx context.Context, name string) error {
 	c.mutex.Lock()
 	delete(c.streams, name)
 	c.mutex.Unlock()
+	c.taps.end(name, fmt.Errorf("%w: %s was deleted", domain.ErrStreamNotFound, name))
 	c.notify(domain.StreamSpecWatchEventTypeDelete, s.spec)
 	c.logger.InfoContext(ctx, "Deleted stream", slog.String("stream", name))
 
@@ -312,8 +319,10 @@ func (c *Core) Close(ctx context.Context) error {
 	go func() {
 		defer close(done)
 		// Operations in progress finish first; their streams are then in
-		// the map, or stopped by themselves if they were new.
+		// the map, or stopped by themselves if they were new. A tap that
+		// started meanwhile is registered by then, so all of them end.
 		c.ops.Wait()
+		c.taps.endAll(domain.ErrCoreClosed)
 
 		c.mutex.Lock()
 		streams := maps.Clone(c.streams)

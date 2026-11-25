@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/go-tram/tram/internal/ports"
-	v1 "github.com/go-tram/tram/pkg/gen/go/api/proto/stream/v1"
+	v1 "github.com/go-tram/tram/pkg/gen/go/tram/v1"
 )
 
 const (

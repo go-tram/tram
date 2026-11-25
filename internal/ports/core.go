@@ -24,3 +24,21 @@ type Core interface {
 	GetStreams(ctx context.Context) ([]domain.StreamSpec, error)
 	Watch(ctx context.Context, ch chan domain.StreamSpecWatchEvent) error
 }
+
+// Tapper taps running streams: it hands out copies of the events passing
+// their components, without changing or slowing down the streams.
+type Tapper interface {
+	// Tap taps the running stream name until ctx ends, the stream is deleted,
+	// or the tapped component is removed from it.
+	Tap(ctx context.Context, name string, opts domain.TapOptions) (Tap, error)
+}
+
+// Tap is a tap of a running stream.
+type Tap interface {
+	// Next returns the next event of the tap. It returns
+	// domain.ErrStreamNotFound once the stream is deleted,
+	// domain.ErrComponentNotFound once the tapped component is removed,
+	// domain.ErrCoreClosed once the core is closed, and the error of ctx or
+	// of the context of the tap once one of them ends.
+	Next(ctx context.Context) (domain.TapEvent, error)
+}

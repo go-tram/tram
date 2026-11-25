@@ -1,0 +1,64 @@
+syntax = "proto3";
+package tram.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "opentelemetry/proto/logs/v1/logs.proto";
+import "opentelemetry/proto/metrics/v1/metrics.proto";
+import "opentelemetry/proto/trace/v1/trace.proto";
+
+option go_package = "github.com/go-tram/tram/pkg/gen/go/tram/v1;tramv1";
+
+// TapService hands out copies of the events passing a running stream. A tap
+// never changes the stream and never holds it up: events the client does not
+// read in time are dropped and counted.
+service TapService {
+  // TapStream taps a running stream until the client cancels, the stream is
+  // deleted (NOT_FOUND) or the tapped component is removed from it
+  // (NOT_FOUND). The tap keeps running when the stream is replaced.
+  rpc TapStream(TapStreamRequest) returns (stream TapStreamResponse) {
+    option (google.api.http) = {get: "/v1/streams/{name}/tap"};
+  }
+}
+
+message TapStreamRequest {
+  // name is the name of the stream.
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  // component is the source, stage or sink to tap. Empty taps all of them.
+  string component = 2;
+  // rate is the most events per second to receive; more are dropped. Zero
+  // means no limit.
+  double rate = 3 [(buf.validate.field).double.gte = 0];
+}
+
+enum ComponentKind {
+  COMPONENT_KIND_UNSPECIFIED = 0;
+  COMPONENT_KIND_SOURCE = 1;
+  COMPONENT_KIND_STAGE = 2;
+  COMPONENT_KIND_SINK = 3;
+}
+
+// SinkResult is how a sink handled an event.
+message SinkResult {
+  // error is the error the sink returned; empty if it took the event.
+  string error = 1;
+  google.protobuf.Duration duration = 2;
+}
+
+// TapStreamResponse is one event at one component: what a source or stage
+// passed on, or what a sink received.
+message TapStreamResponse {
+  string component = 1;
+  ComponentKind kind = 2;
+  google.protobuf.Timestamp time = 3;
+  // One of logs, metrics and traces is set.
+  opentelemetry.proto.logs.v1.LogsData logs = 4;
+  opentelemetry.proto.metrics.v1.MetricsData metrics = 5;
+  opentelemetry.proto.trace.v1.TracesData traces = 6;
+  // sink is set for sinks.
+  SinkResult sink = 7;
+  // dropped is the number of events dropped since the previous response.
+  uint64 dropped = 8;
+}

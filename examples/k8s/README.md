@@ -46,6 +46,10 @@ kubectl get engines
 
 # Or deploy every example at once, with the Engine
 kubectl apply -f examples/k8s/examples/
+
+# Watch the events pass the stream on every pod of the Engine, with the
+# tram CLI as a kubectl plugin (see the README, The tram CLI)
+kubectl tram tap otlp-basic
 ```
 
 ## Layout

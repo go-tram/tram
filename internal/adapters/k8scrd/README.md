@@ -73,6 +73,7 @@ spec:
     api:
       httpPort: 8080                # --http-endpoint, also serves /metrics; default 8080
       grpcPort: 50051               # --grpc-endpoint; default 50051
+      adminPort: 50052              # --admin-endpoint on the pod's localhost, e.g. for tram tap; default 50052
     pprof:                          # optional, --pprof-endpoint on the pod's localhost
       port: 6060
   podTemplate:                      # pod-level settings only
@@ -308,6 +309,7 @@ data:
 - **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it. An instance builds up to 8 Streams at once, in no particular order, e.g. when it starts, so a new replica runs all its Streams sooner; one Stream is never reconciled twice at the same time
 - **Status:** `status.mounted` is `true` once an instance loaded the stream, also while it is suspended (`spec.suspended`, which defaults to `false`), and `false` if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; `status.mounted` stays `true` meanwhile. `kubectl get streams` shows both as the columns `Mounted` and `Suspended`. Until version 0.0.19 the field was called `status.active`
 - **Deletion:** deleting the resource deletes the stream
+- **Debugging:** `kubectl tram tap <name> -n <namespace>` shows the events passing the stream on every pod of its Engines, and `kubectl tram stream get <name>` the stream as the instances run it; see [the tram CLI](../../../README.md#the-tram-cli)
 - **Ownership:** the operator reads `Stream` resources; it does not write streams back as resources. A resource owns its stream: a change or deletion of the stream through the API or the file sync is undone right away, so with the operator, manage streams through `Stream` resources and use the API to read them. File sync, in contrast, works in both directions
 - **Scope:** the operator watches `Stream` resources in all namespaces, or in the namespaces from `--watch-namespace`, and with `--engine` only those whose `spec.engineRefs` name the engine; see [Selecting Streams](#selecting-streams). There is no leader election, so every TRAM instance with the operator enabled runs every `Stream` resource it selects
 - **Access:** creating a `Stream` lets its author open ports on the TRAM pod and send data anywhere TRAM can reach, from any namespace. Its author can also have TRAM read any secret or config map in the `Stream`'s namespace and send the value along, e.g. as a header to their own URL. Grant `create` on `streams.io.tram.core` only to users you would also trust with the TRAM deployment and with the secrets and config maps of that namespace; see [Security](../../../README.md#-security)

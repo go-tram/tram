@@ -29,7 +29,7 @@ func newManagerCmd(logger *slog.Logger) *cobra.Command {
 	var opts managerOptions
 	cmd := &cobra.Command{
 		Use:   "manager",
-		Short: "Run the Kubernetes manager of Tram engines",
+		Short: "Run the Kubernetes manager of TRAM Engines",
 		Long:  "Run the Kubernetes manager of Tram engines",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runManager(cmd.Context(), logger, opts)

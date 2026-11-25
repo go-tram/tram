@@ -85,6 +85,15 @@ nav = [
       ] },
   ] },
   { "Operations" = [
+      { "CLI" = [
+          "operations/cli/index.md",
+          { "Where the CLI Connects" = "operations/cli/connecting.md" },
+          { "As a kubectl Plugin" = "operations/cli/kubectl-plugin.md" },
+          { "Managing Streams" = "operations/cli/streams.md" },
+          { "Checking Stream Files" = "operations/cli/checking.md" },
+          { "Tapping a Stream" = "operations/cli/tapping.md" },
+          { "Command Reference" = "operations/cli/reference.md" },
+      ] },
       { "Metrics" = "operations/metrics.md" },
       { "Benchmarks" = "operations/benchmarks.md" },
   ] },
@@ -111,6 +120,7 @@ nav = [
           { "0016: Limit the Request Size at the Source, Decompressed" = "development/decisions/0016-request-size-limit-at-the-source.md" },
           { "0017: Operations on Different Streams Run in Parallel" = "development/decisions/0017-parallel-stream-operations.md" },
           { "0018: Stream Resources Own Their Streams" = "development/decisions/0018-resources-own-their-streams.md" },
+          { "0019: Tap Running Streams in the Core, Outside Their Spec" = "development/decisions/0019-tap-running-streams.md" },
       ] },
   ] },
 ]

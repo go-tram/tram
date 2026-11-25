@@ -48,6 +48,40 @@ func Prepare(spec domain.StreamSpec, secrets map[string]string) (domain.StreamSp
 	return out, nil
 }
 
+// PrepareAll is Prepare for every component: the references in the specs of
+// the source and the sinks are resolved too, for a check that creates them.
+func PrepareAll(spec domain.StreamSpec, secrets map[string]string) (domain.StreamSpec, error) {
+	out, err := Prepare(spec, secrets)
+	if err != nil {
+		return domain.StreamSpec{}, err
+	}
+	if out.Source.Spec, err = resolveSpec(spec.Source.Name, spec.Source.Spec, secrets); err != nil {
+		return domain.StreamSpec{}, err
+	}
+	out.Sinks = make([]domain.SinkSpec, len(spec.Sinks))
+	for i, sink := range spec.Sinks {
+		if sink.Spec, err = resolveSpec(sink.Name, sink.Spec, secrets); err != nil {
+			return domain.StreamSpec{}, err
+		}
+		out.Sinks[i] = sink
+	}
+	return out, nil
+}
+
+// resolveSpec resolves the references in the spec of the component name; a
+// nil spec stays nil.
+func resolveSpec(name string, spec map[string]any, secrets map[string]string) (map[string]any, error) {
+	if spec == nil {
+		return spec, nil
+	}
+	resolved, err := resolveRefs(spec, secrets)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", name, err)
+	}
+	resolvedMap, _ := resolved.(map[string]any)
+	return resolvedMap, nil
+}
+
 // resolveRefs returns a copy of value in which every secret reference has
 // been replaced by its value from secrets.
 func resolveRefs(value any, secrets map[string]string) (any, error) {

@@ -65,3 +65,18 @@ func (f *Factory) New(spec domain.SinkSpec, _ string) (domain.Sink, error) {
 		return nil, fmt.Errorf("%w: %q", domain.ErrInvalidSinkType, spec.Type)
 	}
 }
+
+// Check validates spec like New, without contacting external systems: a
+// broker sink only checks its options, every other sink is created and
+// stopped again. A buffer sink opens its queue in the factory's data
+// directory, so check with a data directory of its own.
+func (f *Factory) Check(spec domain.SinkSpec) error {
+	if spec.Type == broker.Type {
+		return broker.Check(spec, f.validator)
+	}
+	s, err := f.New(spec, "")
+	if err != nil {
+		return err
+	}
+	return s.Stop()
+}

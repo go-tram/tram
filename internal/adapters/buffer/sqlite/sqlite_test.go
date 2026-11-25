@@ -57,6 +57,9 @@ func (a brokerDriver) NewPublisher(
 	return a.d.NewPublisher(opts, buffer.PublisherConfig{PublisherConfig: cfg, Queue: queue}, logger)
 }
 
+func (brokerDriver) CheckPublisher(map[string]any) error  { return nil }
+func (brokerDriver) CheckSubscriber(map[string]any) error { return nil }
+
 func (a brokerDriver) NewSubscriber(
 	opts map[string]any,
 	cfg broker.SubscriberConfig,

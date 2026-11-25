@@ -156,14 +156,28 @@ func (c *Core) subscriber(tree *domain.Tree, node *domain.Node) (domain.Subscrib
 
 func (c *Core) fanoutOf(tree *domain.Tree, node *domain.Node) (*fanout, error) {
 	children := make([]domain.Subscriber, 0, len(node.Children))
+	sinks := make([]string, 0, len(node.Children))
 	for _, child := range node.Children {
 		subscriber, err := c.subscriber(tree, child)
 		if err != nil {
 			return nil, err
 		}
 		children = append(children, subscriber)
+		sink := ""
+		if child.Kind == domain.KindSink {
+			sink = child.Name
+		}
+		sinks = append(sinks, sink)
 	}
-	return &fanout{name: node.Name, children: children, out: c.metrics.output(tree.Spec, node)}, nil
+	return &fanout{
+		name:     node.Name,
+		children: children,
+		out:      c.metrics.output(tree.Spec, node),
+		stream:   tree.Spec.Name,
+		kind:     node.Kind,
+		sinks:    sinks,
+		taps:     c.taps,
+	}, nil
 }
 
 func (c *Core) sourceSubscriber(tree *domain.Tree) (domain.Subscriber, error) {
