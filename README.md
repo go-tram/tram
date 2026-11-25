@@ -570,6 +570,12 @@ docker run --rm -p 8080:8080 -p 4318:4318 \
   --enable-file-sync --config-dir /config --data-dir /data
 ```
 
+### Shutdown
+
+On `SIGTERM` or `SIGINT`, TRAM stops taking changes to streams, waits for the changes in progress, and stops all streams in parallel. Each source stops accepting data and waits for the deliveries in progress; an OTLP source waits up to 5 seconds for its requests and then closes the connections that are left. Then the stages deliver what they still hold, e.g. a batch, and the sinks stop. TRAM waits up to 25 seconds for all of that and then exits.
+
+Give TRAM at least that long before it is killed: Kubernetes' default `terminationGracePeriodSeconds` of 30 seconds is enough, and so is `docker stop -t 30`; Docker's default of 10 seconds is not. A delivery that is cut off is not lost for clients that retry, since they got no answer, but it may reach some sinks twice.
+
 The directories have to be writable by the user `65532`. The image has no shell; debug from another container in the same network.
 
 ## ⚙️ Configuration Sources
@@ -587,6 +593,7 @@ Every `<name>.json` file in the directory describes one stream, in the same form
 - Adding, changing or deleting a file creates, updates or deletes the stream
 - Streams created or changed through the API or the Kubernetes operator are written to files (new files are readable only by the owner, mode `0600`), and deleted streams have their file removed
 - Streams without a file are deleted when the directory is synced
+- Up to 8 streams are created, updated or deleted at once, in no particular order, so a directory with many streams loads quickly even when their sinks take long to connect
 - A stream that cannot be created or updated, e.g. because NATS is not reachable yet when TRAM starts, is tried again without its file changing: after 1 second, then with a delay that doubles up to 30 seconds, until every stream is applied. Changing a file starts over with the shortest delay. A stream that keeps failing is logged once a minute; one that is applied after failing is logged once more. A file that is invalid for good is tried again as well, so fix or remove it
 
 ### Kubernetes Operator

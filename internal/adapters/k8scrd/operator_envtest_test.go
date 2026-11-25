@@ -7,6 +7,7 @@ package k8scrd_test
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -27,6 +28,7 @@ import (
 
 	"github.com/go-tram/tram/internal/adapters/k8scrd"
 	tramv1 "github.com/go-tram/tram/internal/adapters/k8scrd/api/v1"
+	"github.com/go-tram/tram/internal/adapters/k8scrd/internal/controller"
 	"github.com/go-tram/tram/internal/core/domain"
 )
 
@@ -138,6 +140,12 @@ type syncCore struct {
 	mu       sync.Mutex
 	streams  map[string]domain.StreamSpec
 	resolved map[string]domain.StreamSpec
+	// buildTime makes every upsert take that long, like streams whose
+	// sinks connect to a broker; inFlight and most count how many ran at
+	// once.
+	buildTime time.Duration
+	inFlight  int
+	most      int
 }
 
 func newSyncCore() *syncCore {
@@ -150,7 +158,14 @@ func (c *syncCore) UpsertStream(ctx context.Context, s domain.StreamSpec) (*doma
 
 func (c *syncCore) UpsertResolvedStream(_ context.Context, s, resolved domain.StreamSpec) (*domain.StreamSpec, error) {
 	c.mu.Lock()
+	c.inFlight++
+	c.most = max(c.most, c.inFlight)
+	c.mu.Unlock()
+	time.Sleep(c.buildTime)
+
+	c.mu.Lock()
 	defer c.mu.Unlock()
+	c.inFlight--
 	c.streams[s.Name] = s
 	c.resolved[s.Name] = resolved
 	return &s, nil
@@ -204,6 +219,12 @@ func (c *syncCore) names() []string {
 		names = append(names, name)
 	}
 	return names
+}
+
+func (c *syncCore) mostAtOnce() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.most
 }
 
 func runOperator(t *testing.T, core *syncCore, opts k8scrd.Options) {
@@ -443,4 +464,27 @@ func TestOperatorAppliesConfigMaps(t *testing.T) {
 
 	require.NoError(t, c.admin.Delete(t.Context(), conflict))
 	c.requireActive(t, ns, "s")
+}
+
+// An instance builds the Streams it runs in parallel, e.g. when it starts,
+// so streams whose sinks take long to connect do not wait for each other.
+func TestOperatorBuildsStreamsInParallel(t *testing.T) {
+	t.Parallel()
+	c := startCluster(t)
+	ns := c.newNamespace(t)
+	const streams = 12
+	var want []string
+	for i := range streams {
+		name := fmt.Sprintf("s%d", i)
+		c.createStream(t, ns, name, nil)
+		want = append(want, ns+"."+name)
+	}
+
+	core := newSyncCore()
+	core.buildTime = 300 * time.Millisecond
+	runOperator(t, core, k8scrd.Options{Kubeconfig: c.adminKubeconfig(t), Namespaces: []string{ns}})
+
+	requireStreams(t, core, want...)
+	assert.Greater(t, core.mostAtOnce(), 1, "Streams were built one by one")
+	assert.LessOrEqual(t, core.mostAtOnce(), controller.MaxConcurrentReconciles)
 }

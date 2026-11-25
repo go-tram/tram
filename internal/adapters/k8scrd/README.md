@@ -80,7 +80,7 @@ spec:
       labels: { team: telemetry }
       annotations: { prometheus.io/scrape: "true", prometheus.io/port: "8080" }
     spec:
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 30 # TRAM needs up to 25s to stop its streams; see Shutdown
       priorityClassName: telemetry-high
       nodeSelector: { node-pool: telemetry }
       tolerations: [...]
@@ -305,7 +305,7 @@ data:
 ## Behavior
 
 - **Names:** a resource runs as the TRAM stream `<namespace>.<name>`, e.g. `default.test-stream`, so resources with the same name in different namespaces do not collide. The stream can be read through the API under that name
-- **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it
+- **Changes:** the stream is created or updated when the resource's `spec`, a secret it refers to, or a config map it selects changes. Status updates and periodic resyncs do not restart it. An instance builds up to 8 Streams at once, in no particular order, e.g. when it starts, so a new replica runs all its Streams sooner; one Stream is never reconciled twice at the same time
 - **Status:** `status.mounted` is `true` once an instance loaded the stream, also while it is suspended (`spec.suspended`, which defaults to `false`), and `false` if building it failed, e.g. because of an invalid component spec, or if the instance cannot run it, e.g. a stream with a buffer on an Engine without storage. Failed builds are retried with increasing delays. If the stream's source stops later, TRAM restarts the stream on its own; `status.mounted` stays `true` meanwhile. `kubectl get streams` shows both as the columns `Mounted` and `Suspended`. Until version 0.0.19 the field was called `status.active`
 - **Deletion:** deleting the resource deletes the stream
 - **One direction:** the operator reads `Stream` resources; it does not write streams back as resources. A stream created, changed or deleted through the API of an instance changes only that instance, in memory: the other instances do not see it, a restart loses it, and the next change of the resource overwrites it. With the operator, manage streams through `Stream` resources and use the API to read them. File sync, in contrast, works in both directions

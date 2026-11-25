@@ -250,7 +250,7 @@ func measureStreams(b *testing.B, e *streamsEnv, shape streamShape, n int) {
 
 	logger := slog.New(slog.DiscardHandler)
 	c := core.New(ctx, logger, source.NewFactory(logger), stage.NewFactory(logger), sink.NewFactory(logger))
-	defer func() { _ = c.Close() }()
+	defer func() { _ = c.Close(context.Background()) }()
 
 	start := time.Now()
 	for _, spec := range specs {

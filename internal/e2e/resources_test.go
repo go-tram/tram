@@ -61,7 +61,7 @@ func TestStreamLifecycleLeaksNoGoroutines(t *testing.T) {
 		require.Equal(t, http.StatusOK, p.post(t, request("shop", rec{"r2", "A"}), 10*time.Second))
 
 		require.NoError(t, p.core.DeleteStream(context.Background(), "e2e"))
-		require.NoError(t, p.core.Close())
+		require.NoError(t, p.core.Close(context.Background()))
 	}
 
 	lifecycle() // Starts what lives for the whole process, like the HTTP transport.
@@ -109,7 +109,7 @@ func TestStreamUpdatesDoNotKeepOldData(t *testing.T) {
 
 	c := core.New(context.Background(), discard(),
 		source.NewFactory(discard()), stage.NewFactory(discard()), sink.NewFactory(discard()))
-	defer func() { require.NoError(t, c.Close()) }()
+	defer func() { require.NoError(t, c.Close(context.Background())) }()
 	ports := []int{0, 0}
 
 	cycle := func(i int) {
