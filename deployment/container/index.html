@@ -2291,6 +2291,8 @@
       
         
       
+        
+      
     
     
     
@@ -2801,6 +2803,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/decisions/0018-resources-own-their-streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  0018: Stream Resources Own Their Streams
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2975,7 +3004,7 @@
 <li>A stream that cannot be created or updated, e.g. because NATS is not reachable yet when TRAM starts, is tried again without its file changing: after 1 second, then with a delay that doubles up to 30 seconds, until every stream is applied. Changing a file starts over with the shortest delay. A stream that keeps failing is logged once a minute; one that is applied after failing is logged once more. A file that is invalid for good is tried again as well, so fix or remove it</li>
 </ul>
 <h3 id="conflicts-between-configuration-sources">Conflicts Between Configuration Sources<a class="headerlink" href="#conflicts-between-configuration-sources" title="Permanent link">&para;</a></h3>
-<p>TRAM holds one set of streams. The API, the file sync and the operator all write to it, and a stream does not belong to any of them: whatever changed a stream last decides what runs, until a source writes it again. When each source writes decides how a change from another source lasts:</p>
+<p>TRAM holds one set of streams, and the API, the file sync and the operator all write to it. A stream of a <code>Stream</code> resource belongs to the resource: the operator undoes any change to it from another source right away. Any other stream belongs to no source, and whatever changed it last decides what runs, until a source writes it again. When each source writes decides how a change from another source lasts:</p>
 <table>
 <thead>
 <tr>
@@ -2997,24 +3026,23 @@
 </tr>
 <tr>
 <td>Operator</td>
-<td>When the <code>Stream</code> resource's <code>spec</code>, a secret it refers to or a config map it selects changes, and when the instance starts</td>
+<td>When the <code>Stream</code> resource's <code>spec</code>, a secret it refers to or a config map it selects changes, when the instance starts, and when another source changed or deleted the stream of a resource</td>
 <td>When the resource is deleted</td>
 </tr>
 </tbody>
 </table>
-<p>The file sync writes changes of the API and the operator back to the files, so a stream changed elsewhere keeps its file. The operator does not write back to resources, and its periodic resyncs do not apply the resource again. That means:</p>
+<p>The file sync writes changes of the API and the operator back to the files, so a stream changed elsewhere keeps its file. The operator does not write back to resources. That means:</p>
 <ul>
-<li><strong>API change to a stream of a <code>Stream</code> resource:</strong> runs until the resource changes or the instance restarts; then the resource wins again. With file sync, the change is also written to the stream's file</li>
-<li><strong>Changed file of a stream of a <code>Stream</code> resource:</strong> the file wins in the same way, until the resource changes or the instance restarts</li>
-<li><strong>Deleted file, or API <code>DELETE</code>, of a stream of a <code>Stream</code> resource:</strong> the stream stops, and the operator starts it again only when the resource changes or the instance restarts</li>
+<li><strong>API change, file change, deleted file or API <code>DELETE</code> of a stream of a <code>Stream</code> resource:</strong> the operator applies the resource again right away, and with file sync, its file follows. The change has an effect only for that moment, e.g. it may restart the stream's source</li>
 <li><strong>API change to a stream with a file:</strong> written to the file, so it survives a restart. A change to the file afterwards wins over it</li>
-<li><strong>Changes of the same stream at the same moment:</strong> applied one after the other, in no defined order; the last one wins</li>
+<li><strong>Changes of the same stream at the same moment:</strong> applied one after the other, in no defined order; the last one wins, and for a stream of a resource the operator applies the resource afterwards</li>
 </ul>
+<p>A stream belongs to a resource on an instance if the instance runs the resource: its namespace is watched (<code>--watch-namespace</code>) and, with <code>--engine</code>, its <code>spec.engineRefs</code> name the engine. Streams under a name like <code>&lt;namespace&gt;.&lt;name&gt;</code> without such a resource, e.g. in a namespace the instance does not watch, are left alone.</p>
 <p>Give every stream one source that owns it and change it only there:</p>
 <ul>
 <li>With the operator, change streams only through <code>Stream</code> resources, and use the API and the files to read them</li>
-<li>Use file sync together with the operator only to keep a copy of the streams on disk, and do not edit the files of streams that come from resources</li>
-<li>The operator names its streams <code>&lt;namespace&gt;.&lt;name&gt;</code>; do not create streams with such a name through the API or a file, or the operator replaces them</li>
+<li>Use file sync together with the operator only to keep a copy of the streams on disk</li>
+<li>The operator names its streams <code>&lt;namespace&gt;.&lt;name&gt;</code>; do not create streams with the name of a resource through the API or a file, or the operator replaces them</li>
 </ul>
 
 

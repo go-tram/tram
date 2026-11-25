@@ -151,6 +151,9 @@
         <loc>https://gotram.dev/development/decisions/0017-parallel-stream-operations/</loc>
       </url>
       <url>
+        <loc>https://gotram.dev/development/decisions/0018-resources-own-their-streams/</loc>
+      </url>
+      <url>
         <loc>https://gotram.dev/development/releases/</loc>
       </url>
       <url>
