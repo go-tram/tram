@@ -222,6 +222,8 @@ metadata:
   name: test-stream
   namespace: default
 spec:
+  engineRefs:              # the Engines that run the stream
+    - name: engine-1
   source:
     name: generator
     type: generator
@@ -237,9 +239,32 @@ spec:
     - name: debug
       type: debug
       from: delay
+  metrics:                 # optional, see Choosing the metrics of a stream
+    records:
+      stages: true
+  suspended: false         # optional; true keeps the source from running
 ```
 
-`spec` has the same structure as the `stream` object of the HTTP API, without `name`. Each component's `spec` is passed to the component as it is, so numbers, booleans and nested objects keep their types; see [COMPONENTS.md](../../../COMPONENTS.md) for the options of each component.
+`spec` has the same structure as the `stream` object of the HTTP API, without `name`, plus `engineRefs`. Each component's `spec` is passed to the component as it is, so numbers, booleans and nested objects keep their types; see [COMPONENTS.md](../../../COMPONENTS.md) for the options of each component.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `engineRefs[].name` | No | The [Engines](#engines) in the Stream's namespace whose instances run it, up to 16. `tram manager` labels the Stream `engine.tram.io/<name>` for each of them. Without `engineRefs`, only instances without `--engine` run it, see [Selecting Streams](#selecting-streams) |
+| `source` | Yes | The source: `name`, `type` and its `spec` |
+| `stages[]` | No | The stages: `name`, `type`, `from` (the source or a stage) and `spec` |
+| `sinks[]` | Yes | The sinks: `name`, `type`, `from` (the source or a stage) and `spec` |
+| `metrics` | No | The metrics the stream records, per kind of node: `records` and `duration` (each with `source`, `stages`, `sinks`) and `request_size`; unset fields keep their defaults, see [Choosing the metrics of a stream](../../../README.md#choosing-the-metrics-of-a-stream) |
+| `suspended` | No | `true` keeps the stream defined but does not run its source: no ports are opened and no consumers are attached. Default `false` |
+
+The status:
+
+| Field | Description |
+|-------|-------------|
+| `status.mounted` | `true` once an instance loaded the stream, also while it is suspended; `false` if building it failed or the instance cannot run it. See [Behavior](#behavior) |
+| `status.engines[].name` | An Engine of `spec.engineRefs` |
+| `status.engines[].conditions` | Whether that Engine runs the Stream. `Accepted` is `True` (reason `EngineFound`), or `False` with `EngineNotFound` (no such Engine in the namespace) or `EngineDeleting`. A Stream with a buffer sink or source also has `StorageAvailable`, see [Storage for buffers](#storage-for-buffers) |
+
+`kubectl get streams` shows `status.mounted` and `spec.suspended` as the columns `Mounted` and `Suspended`.
 
 ## Secrets
 
