@@ -14,17 +14,17 @@ tool (
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
 	buf.build/go/protovalidate v1.4.1
-	cel.dev/cel-go v0.33.2
+	cel.dev/cel-go v0.33.4
 	github.com/Azure/go-amqp v1.7.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-logr/logr v1.4.4
 	github.com/go-playground/validator/v10 v10.30.6
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.34.0
 	github.com/nats-io/nats.go v1.56.0
-	github.com/prometheus/client_golang v1.25.0
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
+	github.com/prometheus/client_golang v1.25.0
 	github.com/spf13/cobra v1.10.2
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	github.com/stackitcloud/stackit-sdk-go/core v0.27.1
 	github.com/stackitcloud/stackit-sdk-go/services/kms v1.14.0
 	github.com/stretchr/testify v1.12.1
@@ -41,7 +41,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.47.0
 	go.opentelemetry.io/proto/otlp v1.11.1
 	golang.org/x/sync v0.25.0
-	golang.org/x/time v0.15.0
+	golang.org/x/time v0.16.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20261110000943-09e21b237f2c
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261104224025-d1e00e9f33ab
 	google.golang.org/grpc v1.85.0
@@ -49,8 +49,9 @@ require (
 	k8s.io/api v0.37.2
 	k8s.io/apimachinery v0.37.2
 	k8s.io/client-go v0.37.2
-	k8s.io/streaming v0.37.2
-	modernc.org/sqlite v1.62.0
+	k8s.io/klog/v2 v2.140.0
+	k8s.io/streaming v0.37.3
+	modernc.org/sqlite v1.63.0
 	sigs.k8s.io/controller-runtime v0.25.3
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -215,7 +216,6 @@ require (
 	k8s.io/apiextensions-apiserver v0.37.0 // indirect
 	k8s.io/code-generator v0.37.0 // indirect
 	k8s.io/gengo/v2 v2.0.0-20260408192533-25e2208e0dc3 // indirect
-	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd // indirect
 	modernc.org/libc v1.80.1 // indirect
